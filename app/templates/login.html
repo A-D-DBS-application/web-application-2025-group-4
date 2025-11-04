@@ -4,10 +4,8 @@
 <h2>Login</h2>
 <form method="post">
   <label>Email
-    <input type="email" name="email" placeholder="jij@voorbeeld.be" required>
+    <input type="email" name="email" required>
   </label>
   <button type="submit">Inloggen</button>
 </form>
-<p class="muted">
-  Nog geen account? <a href="{{ url_for('main.register') }}">Registreer eerst</a>.
-</p>
+{% endblock %}
