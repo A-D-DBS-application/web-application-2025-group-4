@@ -1,27 +1,45 @@
-<!-- templates/index.html -->
 <!DOCTYPE html>
-<html lang="nl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welkom op de Homepagina</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">  <!-- Optioneel voor CSS -->
+    <title>TripSplit</title>
+    <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@latest/css/pico.min.css">
 </head>
 <body>
-    <header>
-        <h1>Welkom bij je Webapplicatie!</h1>
-    </header>
+<nav>
+  <ul>
+    <li><strong>TripSplit</strong></li>
+  </ul>
+  <ul>
+    {% if user %}
+      <li>👋 {{ user.name }}</li>
+      <li>
+        <form action="{{ url_for('main.logout') }}" method="post">
+          <button type="submit" class="secondary">Logout</button>
+        </form>
+      </li>
+    {% else %}
+      <li><a href="{{ url_for('main.login') }}">Login</a></li>
+      <li><a href="{{ url_for('main.register') }}">Register</a></li>
+    {% endif %}
+  </ul>
+</nav>
 
-    <nav>
-        <ul>
-            <li><a href="{{ url_for('main.register') }}">Registreer</a></li>
-            <li><a href="{{ url_for('main.login') }}">Inloggen</a></li>
-        </ul>
-    </nav>
-
-    <footer>
-        <p>&copy; 2025 Webapplicatie. Alle rechten voorbehouden.</p>
-    </footer>
-
-    <!-- Optioneel, als je flash-berichten wilt weergeven -->
-    {% with messages = get_flashed_messages(with_categories=true) %_
+<main class="container">
+  {% if user %}
+    <h2>Your Groups</h2>
+    <a href="{{ url_for('main.create_group') }}">+ New Group</a>
+    <ul>
+      {% for g in my_groups %}
+        <li><a href="{{ url_for('main.group_detail', group_id=g.group_id) }}">{{ g.name }}</a></li>
+      {% else %}
+        <p>No groups yet.</p>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <h3>Welcome to TripSplit!</h3>
+    <p>Log in to manage your shared expenses.</p>
+  {% endif %}
+</main>
+</body>
+</html>
