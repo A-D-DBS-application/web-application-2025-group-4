@@ -1,45 +1,45 @@
 <!DOCTYPE html>
-<html lang="en"> <!--geeft aan dat je een engelse website hebt-->
+<html lang="en">
 <head>
-    <meta charset="UTF-8"> <!--zorgt ervoor dat speciale tekens zoals é enz juist worden afgebeeld -->
-    <title>FairSplit</title> <!--titel van je pagina-->
-    <!-- Vanaf hier begint alle styling dus kleurtjes enzo -->
-    <style> 
-        body /*toont achtergrond kleur enz*/ {
-            font-family: Arial, sans-serif; /*lettertype voor de gehele pagina*/
-            background-color: #ffffff; /*achtergrondkleur*/
-            margin: 0; /*standaardmarge aan je browser*/
-            padding: 20px; /*ruimte rond de inhoud*/
-        }
-        header {
-            background-color: #f5fc3e; /*de header die je gemaakt hebt met je tekst in vanboven op de pagina*/
-            color: black; /*kleur tekst*/
-            padding: 10px 20px; /*ruimte binnen header*/
-            text-align: center; /*tekst binnen header moet gecentreerd zijn*/
-        }
-        main {
-            margin-top: 20px;
-        }
-        button {
-            background-color: #fffb0d;
-            color: black;
-            border: none;
-            padding: 10px 15px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #fffb0d;
-        }
-    </style>
+    <meta charset="UTF-8">
+    <title>TripSplit</title>
+    <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@latest/css/pico.min.css">
 </head>
 <body>
-    <header>
-        <h1>Welkom bij FairSplit!</h1>
-    </header>
+<nav>
+  <ul>
+    <li><strong>TripSplit</strong></li>
+  </ul>
+  <ul>
+    {% if user %}
+      <li>👋 {{ user.name }}</li>
+      <li>
+        <form action="{{ url_for('main.logout') }}" method="post">
+          <button type="submit" class="secondary">Logout</button>
+        </form>
+      </li>
+    {% else %}
+      <li><a href="{{ url_for('main.login') }}">Login</a></li>
+      <li><a href="{{ url_for('main.register') }}">Register</a></li>
+    {% endif %}
+  </ul>
+</nav>
 
-    <main>
-        <p>Hier kan je straks je uitgaven invoeren en delen met vrienden.</p>
-        <button onclick="alert('Het werkt :)')">Test Knop</button>
-    </main>
+<main class="container">
+  {% if user %}
+    <h2>Your Groups</h2>
+    <a href="{{ url_for('main.create_group') }}">+ New Group</a>
+    <ul>
+      {% for g in my_groups %}
+        <li><a href="{{ url_for('main.group_detail', group_id=g.group_id) }}">{{ g.name }}</a></li>
+      {% else %}
+        <p>No groups yet.</p>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <h3>Welcome to TripSplit!</h3>
+    <p>Log in to manage your shared expenses.</p>
+  {% endif %}
+</main>
 </body>
 </html>

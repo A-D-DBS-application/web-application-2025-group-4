@@ -1,4 +1,8 @@
+# app/config.py
+import os
+
 class Config:
-    SECRET_KEY = "your_secret_key"
-    SQLALCHEMY_DATABASE_URI = "postgresql://postgres:BaDeDrMaMe2005!@db.nvuiebutbcxfcdaitgbs.supabase.co:5432/postgres"
-    SQLALCHEMY_TRACK_MODIFICATIONS = False 
+    SECRET_KEY = os.getenv("SECRET_KEY", "devkey123")
+    # Voor nu: SQLite (geen server nodig)
+    SQLALCHEMY_DATABASE_URI = "sqlite:///dev.db"
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
