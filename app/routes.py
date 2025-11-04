@@ -1,11 +1,9 @@
 from dotenv import load_dotenv
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, Flask
 from supabase import create_client, Client
 import os
 
 load_dotenv()  # Laad .env
-
-main = Blueprint("main", __name__)
 
 # Supabase client
 supabase: Client = create_client(
@@ -14,6 +12,8 @@ supabase: Client = create_client(
 )
 
 # ------------------- REGISTER ROUTE -------------------
+main = Blueprint("main", __name__)
+
 @main.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
@@ -53,6 +53,7 @@ def login():
 
     return render_template("login.html")
 
+
 # ------------------- DASHBOARD ROUTE -------------------
 @main.route("/dashboard")
 def dashboard():
@@ -62,3 +63,17 @@ def dashboard():
     <p>Welkom op je dashboard!</p>
     <p><a href='/login'>Uitloggen</a></p>
     """
+
+# ------------------- MAIN APP -------------------
+app = Flask(__name__)
+
+# Registreer de blueprint na de app
+app.register_blueprint(main)
+
+# ------------------- ROOT ROUTE -------------------
+@app.route('/')
+def home():
+    return "Hello, world!"  # Of je template, bijvoorbeeld render_template('index.html')
+
+if __name__ == '__main__':
+    app.run(debug=True)
