@@ -3,7 +3,7 @@
 {% block content %}
 <h2>Registreren</h2>
 
-<form method="post" action="{{ url_for('main.register') }}">
+<form method="post">
   <label>Naam
     <input type="text" name="name" required>
   </label>
@@ -22,4 +22,4 @@
 
   <button type="submit">Account aanmaken</button>
 </form>
-
+{% endblock %}

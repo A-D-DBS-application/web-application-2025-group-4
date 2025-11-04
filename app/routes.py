@@ -1,27 +1,19 @@
 from dotenv import load_dotenv
-import os
-
-load_dotenv()  # Dit laadt de variabelen uit je .env bestand in de omgeving
-
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
-
-
-
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from supabase import create_client, Client
 import os
 
+load_dotenv()  # Laad .env
+
 main = Blueprint("main", __name__)
 
-# 🔐 Supabase-instellingen
-url = os.getenv("SUPABASE_URL")
-key = os.getenv("SUPABASE_KEY")
-supabase: Client = create_client(url, key)
+# Supabase client
+supabase: Client = create_client(
+    os.getenv("SUPABASE_URL"),
+    os.getenv("SUPABASE_KEY")
+)
 
-# -------------------
-# REGISTER ROUTE
-# -------------------
+# ------------------- REGISTER ROUTE -------------------
 @main.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
@@ -30,7 +22,6 @@ def register():
         phone = request.form.get("phone")
         iban = request.form.get("iban")
 
-        # Voeg gebruiker toe aan Supabase
         response = supabase.table("users").insert({
             "name": name,
             "email": email,
@@ -47,21 +38,27 @@ def register():
     return render_template("register.html")
 
 
-# -------------------
-# LOGIN ROUTE
-# -------------------
+# ------------------- LOGIN ROUTE -------------------
 @main.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
         email = request.form.get("email")
 
-        # Zoek gebruiker in Supabase
         response = supabase.table("users").select("*").eq("email", email).execute()
         if response.data:
             flash(f"Welkom terug, {response.data[0]['name']}!", "success")
-            # hier kun je later session["user_id"] = response.data[0]["id"] zetten
-            return redirect(url_for("main.dashboard"))  # of waar je naartoe wilt
+            return redirect(url_for("main.dashboard"))  # Of je dashboard route
         else:
             flash("Geen account gevonden met dat e-mailadres.", "warning")
 
     return render_template("login.html")
+
+# ------------------- DASHBOARD ROUTE -------------------
+@main.route("/dashboard")
+def dashboard():
+    # Voor nu gewoon een simpele pagina
+    return """
+    <h2>Dashboard</h2>
+    <p>Welkom op je dashboard!</p>
+    <p><a href='/login'>Uitloggen</a></p>
+    """
