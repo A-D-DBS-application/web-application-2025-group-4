@@ -1,3 +1,13 @@
+from dotenv import load_dotenv
+import os
+
+load_dotenv()  # Dit laadt de variabelen uit je .env bestand in de omgeving
+
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+
+
+
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from supabase import create_client, Client
 import os
