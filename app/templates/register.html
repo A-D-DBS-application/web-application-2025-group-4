@@ -2,16 +2,25 @@
 {% block title %}Registreren{% endblock %}
 {% block content %}
 <h2>Registreren</h2>
-<form method="post">
+
+<form method="post" action="{{ url_for('main.register') }}">
   <label>Naam
     <input type="text" name="name" required>
   </label>
+
   <label>Email
     <input type="email" name="email" required>
   </label>
+
+  <label>Telefoonnummer
+    <input type="tel" name="phone" placeholder="+32 4..." required>
+  </label>
+
+  <label>IBAN
+    <input type="text" name="iban" placeholder="BE00 0000 0000 0000" required>
+  </label>
+
   <button type="submit">Account aanmaken</button>
 </form>
+
 {% endblock %}
-
-
-<!--test--> 
