@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>FairSplit+ — New group</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="{{ url_for('static', filename='fairsplitplus-logo.svg') }}" type="image/svg+xml">
+  <link href="https://unpkg.com/@picocss/pico@2/css/pico.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{--accent:hsl(142,76%,59%);--accent-dark:hsl(142,76%,45%);--bg:#fff;--text:#000;--muted:#666;--border:#e5e5e5;font-family:"Inter",sans-serif}
+    body{background:var(--bg);color:var(--text);margin:0}
+    a{text-decoration:none!important}
+    .navbar{display:flex;justify-content:space-between;align-items:center;padding:1rem 2rem;border-bottom:1px solid var(--border);background:#fff;position:sticky;top:0;z-index:20}
+    .brand-link{display:flex;align-items:center;gap:.6rem}
+    .logo{height:40px;transition:transform .2s}.logo:hover{transform:scale(1.05)}
+    .nav-right{display:flex;gap:1rem}
+    .button-accent{background:var(--accent);color:#fff;border:none;border-radius:10px;padding:.7rem 1.4rem;font-weight:600;display:inline-block;transition:.2s}
+    .button-accent:hover{background:var(--accent-dark);transform:scale(1.03)}
+    .button-outline{border:2px solid var(--accent);color:var(--accent);background:transparent;border-radius:10px;padding:.7rem 1.4rem;font-weight:600;display:inline-block;transition:.2s}
+    .button-outline:hover{background:var(--accent);color:#fff}
+    .wrap{max-width:720px;margin:2.5rem auto;padding:0 1rem}
+    h1{font-weight:700;margin-bottom:.5rem}
+    p.lead{color:var(--muted)}
+    .card{border:1px solid var(--border);border-radius:12px;padding:1.25rem;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.04)}
+    label{font-weight:600} input,select{border-radius:10px}
+    .row{display:flex;gap:1rem;flex-wrap:wrap}
+    .col{flex:1 1 220px}
+    .flash{border:1px solid #ffd8d8;background:#fff6f6;color:#8a1111;border-radius:10px;padding:.8rem 1rem;margin-bottom:1rem}
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a class="brand-link" href="{{ url_for('main.index') }}">
+      <img class="logo" src="{{ url_for('static', filename='fairsplitplus-logo.svg') }}" alt="FairSplit+ logo">
+    </a>
+    <div class="nav-right">
+      <a class="button-outline" href="{{ url_for('main.index') }}">Home</a>
+      <form method="post" action="{{ url_for('main.logout') }}" style="display:inline;">
+        <button class="button-outline">Logout</button>
+      </form>
+    </div>
+  </nav>
+
+  <main class="wrap">
+    <h1>New group</h1>
+    <p class="lead">Maak een tijdelijke groep aan. De balans sluit automatisch op de einddatum.</p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for cat,msg in messages %}
+          <div class="flash">{{ msg }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form class="card" method="post" action="{{ url_for('main.create_group') }}">
+      <label for="name">Group name</label>
+      <input id="name" name="name" type="text" placeholder="Ski weekend" required>
+
+      <div class="row">
+        <div class="col">
+          <label for="end_date">End date (auto-close)</label>
+          <input id="end_date" name="end_date" type="date">
+        </div>
+        <div class="col">
+          <label for="app_fee_amount">App fee (€) (auto-verdeeld)</label>
+          <input id="app_fee_amount" name="app_fee_amount" type="number" min="0" step="0.01" placeholder="0">
+        </div>
+      </div>
+
+      <label class="row" style="align-items:center;margin-top:.6rem">
+        <input type="checkbox" name="is_public" value="1"> &nbsp; Public group (link zichtbaar)
+      </label>
+
+      <div class="row" style="justify-content:flex-end;margin-top:1rem">
+        <a class="button-outline" href="{{ url_for('main.index') }}">Annuleer</a>
+        <button class="button-accent" type="submit">Create group</button>
+      </div>
+    </form>
+  </main>
+</body>
+</html>
+
