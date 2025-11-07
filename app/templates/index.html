@@ -1,75 +1,233 @@
-<!-- templates/index.html -->
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>FairSplit — Welcome</title>
+  <title>FairSplit+ — Welcome</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="{{ url_for('static', filename='fairsplitplus-logo.svg') }}" type="image/svg+xml">
   <link href="https://unpkg.com/@picocss/pico@2/css/pico.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
   <style>
-    header.hero{padding:6rem 0;background:linear-gradient(180deg,#f8fbff,transparent);}
-    .tag{font-size:.85rem;padding:.25rem .6rem;border-radius:999px;background:#e9f3ff;color:#1769ff;}
-    .grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1.25rem}
-    @media (max-width: 900px){.grid-3{grid-template-columns:1fr}}
-    .card{border:1px solid #eef2f7;border-radius:16px;padding:1.25rem;background:#fff}
-    nav ul{align-items:center}
+    :root {
+      --accent: hsl(142,76%,59%);
+      --accent-dark: hsl(142,76%,45%);
+      --bg: #ffffff;
+      --text: #000000;
+      --muted: #666666;
+      --border: #e5e5e5;
+      font-family: "Inter", sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+    }
+
+    /* ==== NAVBAR ==== */
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      border-bottom: 1px solid var(--border);
+      background: #fff;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    .brand-link {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      text-decoration: none;
+    }
+
+    .logo {
+      height: 40px;
+      transition: transform 0.2s ease;
+    }
+
+    .logo:hover {
+      transform: scale(1.05);
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .username {
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    /* ==== BUTTONS ==== */
+    a {
+      text-decoration: none !important; /* 🔥 verwijdert de lijntjes onder links */
+    }
+
+    .button-accent {
+      background: var(--accent);
+      border: none;
+      color: #fff;
+      border-radius: 10px;
+      padding: 0.7rem 1.4rem;
+      font-weight: 600;
+      transition: background 0.2s ease, transform 0.15s ease;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .button-accent:hover {
+      background: var(--accent-dark);
+      transform: scale(1.03);
+    }
+
+    .button-outline {
+      border: 2px solid var(--accent);
+      color: var(--accent);
+      background: transparent;
+      border-radius: 10px;
+      padding: 0.7rem 1.4rem;
+      font-weight: 600;
+      transition: 0.2s ease;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .button-outline:hover {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    /* ==== HERO ==== */
+    header.hero {
+      text-align: center;
+      padding: 6rem 1rem 4rem;
+    }
+
+    h1 {
+      font-weight: 700;
+      font-size: 2.6rem;
+      margin-bottom: 0.5rem;
+    }
+
+    p.lead {
+      color: var(--muted);
+      font-size: 1.1rem;
+      margin-bottom: 2rem;
+    }
+
+    /* ==== FEATURES ==== */
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.25rem;
+      margin: 3rem auto;
+      padding: 0 1rem;
+      max-width: 1100px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      background: #fff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.06);
+    }
+
+    h3 {
+      color: var(--accent-dark);
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    /* ==== FOOTER ==== */
+    footer {
+      text-align: center;
+      padding: 2rem 0;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+      margin-top: 4rem;
+    }
   </style>
 </head>
+
 <body>
-  <nav class="container-fluid">
-    <ul><li><strong>TripSplit</strong></li></ul>
-    <ul>
-      {% if user %}<li>Hi, {{ user.name }}</li>
-      <li><form method="post" action="{{ url_for('main.logout') }}"><button class="secondary">Logout</button></form></li>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="nav-left">
+      <a href="{{ url_for('main.index') }}" class="brand-link">
+        <img src="{{ url_for('static', filename='fairsplitplus-logo.svg') }}" alt="FairSplit+ logo" class="logo">
+      </a>
+    </div>
+
+    <div class="nav-right">
+      {% if user %}
+        <span class="username">{{ user.name }}</span>
+        <form method="post" action="{{ url_for('main.logout') }}" style="display:inline;">
+          <button class="button-outline">Logout</button>
+        </form>
       {% else %}
-      <li><a href="{{ url_for('main.login') }}">Login</a></li>
-      <li><a href="{{ url_for('main.register') }}" role="button">Register</a></li>
+        <a href="{{ url_for('main.login') }}" class="button-outline">Login</a>
+        <a href="{{ url_for('main.register') }}" class="button-accent">Register</a>
       {% endif %}
-    </ul>
+    </div>
   </nav>
 
-  <header class="hero container">
-    <span class="tag">NEW</span>
-    <h1 style="margin:.5rem 0 0">Split trip costs without the maths</h1>
-    <p class="lead">Create a temporary group, scan receipts, settle instantly, export balances.</p>
+  <!-- HERO -->
+  <header class="hero">
+    <h1>FairSplit+</h1>
+    <p class="lead">Split your group expenses easily — clean, transparent and fair.</p>
     {% if user %}
-      <a role="button" href="{{ url_for('main.create_group') }}">+ New group</a>
+      <a href="{{ url_for('main.create_group') }}" class="button-accent">+ New group</a>
     {% else %}
-      <div>
-        <a role="button" href="{{ url_for('main.register') }}">Get started</a>
-        <a class="secondary" href="{{ url_for('main.login') }}">I already have an account</a>
-      </div>
+      <a href="{{ url_for('main.register') }}" class="button-accent">Get started free</a>
+      <a href="{{ url_for('main.login') }}" class="button-outline">Login</a>
     {% endif %}
   </header>
 
-  <main class="container">
-    <div class="grid-3">
-      <div class="card">
-        <h4>Auto close on end-date</h4>
-        <p>No lingering debts. Groups close when your trip ends.</p>
-      </div>
-      <div class="card">
-        <h4>Scan receipts</h4>
-        <p>Upload a photo and let the app extract the items (MVP stub).</p>
-      </div>
-      <div class="card">
-        <h4>Pay in-app</h4>
-        <p>Record Payconiq/Revolut/IBAN transfers and confirm instantly.</p>
-      </div>
+  <!-- FEATURES -->
+  <section class="features">
+    <div class="card">
+      <h3>💸 Auto-close balances</h3>
+      <p>Groups automatically close on the end date — no lingering debts or confusion.</p>
     </div>
+    <div class="card">
+      <h3>📸 Scan receipts</h3>
+      <p>Upload a picture of a receipt and generate an expense instantly (OCR MVP).</p>
+    </div>
+    <div class="card">
+      <h3>⚡ Quick payments</h3>
+      <p>Record Revolut / Payconiq / IBAN payments and confirm with one click.</p>
+    </div>
+  </section>
 
-    {% if user and my_groups %}
-      <h3 style="margin-top:2.5rem">Your groups</h3>
-      <ul>
-        {% for g in my_groups %}
-          <li><a href="{{ url_for('main.group_detail', group_id=g.group_id) }}">{{ g.name }}</a></li>
-        {% endfor %}
-      </ul>
-    {% endif %}
-  </main>
+  {% if user and my_groups %}
+  <section style="max-width:900px;margin:3rem auto;padding:0 1rem">
+    <h2>Your groups</h2>
+    <ul>
+      {% for g in my_groups %}
+        <li><a href="{{ url_for('main.group_detail', group_id=g.group_id) }}">{{ g.name }}</a></li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endif %}
 
-  <footer class="container" style="margin:3rem auto 2rem;color:#79808a">
-    <small>© {{ 2025 }} TripSplit. Built for fast, fair group expenses.</small>
+  <footer>
+    <small>© {{ 2025 }} FairSplit+ — Fair & Fast Expense Sharing</small>
   </footer>
+
 </body>
 </html>

@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="180" height="44" viewBox="0 0 180 44">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="hsl(142,76%,59%)"/>
+      <stop offset="1" stop-color="hsl(142,76%,45%)"/>
+    </linearGradient>
+  </defs>
+  <rect x="2" y="2" rx="10" ry="10" width="40" height="40" fill="url(#g)"/>
+  <path d="M14 14h11M14 22h8M14 14v16" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+  <path d="M28 17h8M32 13v8" stroke="#fff" stroke-width="3.5" stroke-linecap="round"/>
+  <g fill="#000" font-family="Inter,Segoe UI,Roboto,Arial" font-weight="700" font-size="22">
+    <text x="52" y="28">Fair</text>
+    <text x="98" y="28" fill="hsl(142,76%,45%)">Split+</text>
+  </g>
+</svg>
