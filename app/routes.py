@@ -9,6 +9,7 @@ from flask import (
     session, flash, abort, Response
 )
 from werkzeug.utils import secure_filename
+from sqlalchemy import or_
 
 from .model import db, User, Group, GroupMember, Expense, Payment
 
@@ -59,18 +60,20 @@ def calc_balances(group_id:int):
     for e in Expense.query.filter_by(group_id=group_id).all():
         tot = Decimal(str(e.total_amount))
         share = tot / headcount
-        for uid in uids: balances[uid] -= share
+        for uid in uids:
+            balances[uid] -= share
         balances[e.created_by_user_id] += tot
 
     # App fee
     fee = Decimal(str(g.app_fee_amount or 0))
     if fee > 0 and headcount > 0:
         share = fee / headcount
-        for uid in uids: balances[uid] -= share
+        for uid in uids:
+            balances[uid] -= share
         if g.created_by_user_id in balances:
             balances[g.created_by_user_id] += fee
 
-    # Payments (direct verwerkt)
+    # Payments
     for p in Payment.query.filter_by(group_id=group_id).all():
         amt = Decimal(str(p.amount))
         balances[p.sender_id]   -= amt
@@ -98,30 +101,49 @@ def register():
     if request.method == "POST":
         name  = request.form.get("name","").strip()
         email = request.form.get("email","").strip().lower()
+
         if not name or not email:
             flash("Naam en e-mail zijn verplicht.", "danger")
             return redirect(url_for("main.register"))
+
         if User.query.filter_by(email=email).first():
             flash("E-mail is al geregistreerd.", "danger")
             return redirect(url_for("main.register"))
+
         u = User(name=name, email=email)
-        db.session.add(u); db.session.commit()
-        flash("Registratie gelukt. Je kan nu inloggen.", "success")
+        db.session.add(u)
+        db.session.commit()
+
+        flash("Registratie gelukt. Je kan nu inloggen met je e-mail of je naam.", "success")
         return redirect(url_for("main.login"))
+
     return render_template("register.html")
+
 
 @main.route("/login", methods=["GET","POST"])
 def login():
     if request.method == "POST":
-        email = request.form.get("email","").strip().lower()
-        user = User.query.filter_by(email=email).first()
-        if not user:
-            flash("Geen account gevonden. Registreer eerst.", "danger")
+        # In jouw UI heet het veld 'username' — we interpreteren dit als 'e-mail of naam'.
+        identifier = (request.form.get("username") or "").strip()
+
+        if not identifier:
+            flash("Vul je e-mail of je naam in.", "danger")
             return redirect(url_for("main.login"))
+
+        user = User.query.filter(
+            or_(User.email == identifier.lower(), User.name == identifier)
+        ).first()
+
+        if not user:
+            flash("Geen account gevonden. Probeer met je e-mail of registreer eerst.", "danger")
+            return redirect(url_for("main.login"))
+
         session["user_id"] = user.user_id
         flash(f"Welkom, {user.name}!", "success")
         return redirect(url_for("main.index"))
+
     return render_template("login.html")
+
 
 @main.route("/logout", methods=["POST"])
 def logout():
@@ -156,12 +178,17 @@ def create_group():
             created_by_user_id=current_user().user_id,
             app_fee_amount=Decimal(fee)
         )
-        db.session.add(g); db.session.commit()
+        db.session.add(g)
+        db.session.commit()
+
         db.session.add(GroupMember(group_id=g.group_id, user_id=current_user().user_id))
         db.session.commit()
+
         flash("Groep aangemaakt.", "success")
         return redirect(url_for("main.group_detail", group_id=g.group_id))
+
     return render_template("group_new.html")
+
 
 @main.route("/groups/<int:group_id>")
 @login_required
@@ -170,14 +197,20 @@ def group_detail(group_id:int):
     is_member = GroupMember.query.filter_by(group_id=g.group_id, user_id=current_user().user_id).first()
     if not is_member:
         abort(403)
+
     members  = GroupMember.query.filter_by(group_id=g.group_id).all()
     expenses = Expense.query.filter_by(group_id=g.group_id).order_by(Expense.created_at.desc()).all()
     payments = Payment.query.filter_by(group_id=g.group_id).order_by(Payment.created_at.desc()).all()
     balances = calc_balances(g.group_id)
     closed = group_is_closed(g)
-    return render_template("group_detail.html", user=current_user(),
-                           group=g, members=members, expenses=expenses,
-                           payments=payments, balances=balances, closed=closed)
+
+    return render_template(
+        "group_detail.html",
+        user=current_user(),
+        group=g, members=members, expenses=expenses,
+        payments=payments, balances=balances, closed=closed
+    )
+
 
 @main.route("/groups/<int:group_id>/invite", methods=["POST"])
 @login_required
@@ -190,6 +223,7 @@ def save_invite(group_id:int):
     db.session.commit()
     flash("Invite-link opgeslagen.", "success")
     return redirect(url_for("main.group_detail", group_id=group_id))
+
 
 @main.route("/groups/<int:group_id>/join", methods=["POST"])
 @login_required
@@ -217,11 +251,18 @@ def add_expense(gid:int):
         flash("Beschrijving en positief bedrag vereist.", "danger")
         return redirect(url_for("main.group_detail", group_id=gid))
 
-    e = Expense(group_id=gid, created_by_user_id=current_user().user_id,
-                description=desc, total_amount=amt, split_method="equal")
-    db.session.add(e); db.session.commit()
+    e = Expense(
+        group_id=gid,
+        created_by_user_id=current_user().user_id,
+        description=desc,
+        total_amount=amt,
+        split_method="equal"
+    )
+    db.session.add(e)
+    db.session.commit()
     flash("Uitgave toegevoegd.", "success")
     return redirect(url_for("main.group_detail", group_id=gid))
+
 
 @main.route("/groups/<int:gid>/expenses/voice", methods=["POST"])
 @login_required
@@ -231,17 +272,25 @@ def add_expense_voice(gid:int):
     if not items:
         flash("Kon de zin niet parsen. Probeer eenvoudiger.", "danger")
         return redirect(url_for("main.group_detail", group_id=gid))
+
     price_map = {"beer": Decimal("3"), "beers": Decimal("3"),
                  "pizza": Decimal("10"), "pizzas": Decimal("10")}
     total = Decimal("0")
     for _, item, qty in items:
         total += price_map.get(item.lower(), Decimal("5")) * qty
 
-    e = Expense(group_id=gid, created_by_user_id=current_user().user_id,
-                description=f"Voice add: {text}", total_amount=total, split_method="equal")
-    db.session.add(e); db.session.commit()
+    e = Expense(
+        group_id=gid,
+        created_by_user_id=current_user().user_id,
+        description=f"Voice add: {text}",
+        total_amount=total,
+        split_method="equal"
+    )
+    db.session.add(e)
+    db.session.commit()
     flash(f"Voice-uitgave toegevoegd (€{total:.2f}).", "success")
     return redirect(url_for("main.group_detail", group_id=gid))
+
 
 @main.route("/groups/<int:gid>/expenses/receipt", methods=["POST"])
 @login_required
@@ -250,14 +299,22 @@ def add_expense_receipt(gid:int):
     if not file:
         flash("Geen bestand gekozen.", "danger")
         return redirect(url_for("main.group_detail", group_id=gid))
+
     os.makedirs("uploads", exist_ok=True)
     fname = secure_filename(file.filename)
-    path = os.path.join("uploads", fname); file.save(path)
+    path = os.path.join("uploads", fname)
+    file.save(path)
+
     # OCR-stub: €42
-    e = Expense(group_id=gid, created_by_user_id=current_user().user_id,
-                description=f"Scanned receipt: {fname}", total_amount=Decimal("42.00"),
-                split_method="by_receipt")
-    db.session.add(e); db.session.commit()
+    e = Expense(
+        group_id=gid,
+        created_by_user_id=current_user().user_id,
+        description=f"Scanned receipt: {fname}",
+        total_amount=Decimal("42.00"),
+        split_method="by_receipt"
+    )
+    db.session.add(e)
+    db.session.commit()
     flash("Bonnetje geüpload (OCR-stub).", "success")
     return redirect(url_for("main.group_detail", group_id=gid))
 
@@ -270,9 +327,15 @@ def create_payment(gid:int):
     if amount <= 0:
         flash("Bedrag moet positief zijn.", "danger")
         return redirect(url_for("main.group_detail", group_id=gid))
-    p = Payment(group_id=gid, sender_id=current_user().user_id,
-                receiver_id=receiver, amount=amount)
-    db.session.add(p); db.session.commit()
+
+    p = Payment(
+        group_id=gid,
+        sender_id=current_user().user_id,
+        receiver_id=receiver,
+        amount=amount
+    )
+    db.session.add(p)
+    db.session.commit()
     flash("Betaling geregistreerd.", "success")
     return redirect(url_for("main.group_detail", group_id=gid))
 
@@ -286,15 +349,20 @@ def ledger(gid:int):
     balances = calc_balances(gid)
     return render_template("ledger.html", group=g, expenses=expenses, payments=payments, balances=balances)
 
+
 @main.route("/groups/<int:gid>/export.csv")
 @login_required
 def export_csv(gid:int):
     balances = calc_balances(gid)
-    si = StringIO(); cw = csv.writer(si, delimiter=';')
+    si = StringIO()
+    cw = csv.writer(si, delimiter=';')
     cw.writerow(["user_id","balance"])
     for uid, bal in balances.items():
         cw.writerow([uid, f"{bal:.2f}"])
     data = si.getvalue().encode("utf-8")
-    return Response(data, mimetype="text/csv",
-                    headers={"Content-Disposition": f"attachment; filename=group_{gid}_balances.csv"})
+    return Response(
+        data,
+        mimetype="text/csv",
+        headers={"Content-Disposition": f"attachment; filename=group_{gid}_balances.csv"}
+    )
 
