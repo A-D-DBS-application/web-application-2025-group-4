@@ -1,2 +1,213 @@
-test
-test
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>FairSplit+ — Group</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="{{ url_for('static', filename='fairsplitplus-logo.svg') }}" type="image/svg+xml">
+  <link href="https://unpkg.com/@picocss/pico@2/css/pico.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{--accent:hsl(142,76%,59%);--accent-dark:hsl(142,76%,45%);--bg:#fff;--text:#000;--muted:#666;--border:#e5e5e5;font-family:"Inter",sans-serif}
+    body{background:var(--bg);color:var(--text);margin:0}
+    a{text-decoration:none!important}
+    .navbar{display:flex;justify-content:space-between;align-items:center;padding:1rem 2rem;border-bottom:1px solid var(--border);background:#fff;position:sticky;top:0;z-index:20}
+    .brand-link{display:flex;align-items:center;gap:.6rem}
+    .logo{height:40px;transition:transform .2s}.logo:hover{transform:scale(1.05)}
+    .nav-right{display:flex;gap:1rem}
+    .button-accent{background:var(--accent);color:#fff;border:none;border-radius:10px;padding:.55rem 1.1rem;font-weight:600;display:inline-block;transition:.2s}
+    .button-accent:hover{background:var(--accent-dark);transform:scale(1.03)}
+    .button-outline{border:2px solid var(--accent);color:var(--accent);background:transparent;border-radius:10px;padding:.55rem 1.1rem;font-weight:600;display:inline-block;transition:.2s}
+    .button-outline:hover{background:var(--accent);color:#fff}
+    .wrap{max-width:1100px;margin:2rem auto;padding:0 1rem}
+    h1{font-weight:700;margin:.2rem 0}
+    .muted{color:var(--muted)}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;margin-top:1rem}
+    .card{border:1px solid var(--border);border-radius:12px;padding:1rem;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.04)}
+    .list{margin:.25rem 0 0 0;padding-left:1.2rem}
+    .list li{margin:.25rem 0}
+    label{font-weight:600} input,textarea{border-radius:10px}
+    table{width:100%}
+    th,td{padding:.45rem .4rem;border-bottom:1px solid var(--border)}
+    .right{text-align:right}
+    .good{color:#0a7d38;font-weight:700}.bad{color:#c31919;font-weight:700}
+    .pill{display:inline-flex;align-items:center;gap:.4rem;border:1px solid var(--border);border-radius:999px;padding:.25rem .6rem}
+    .flash{border:1px solid #ffd8d8;background:#fff6f6;color:#8a1111;border-radius:10px;padding:.8rem 1rem;margin:0 0 1rem}
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a class="brand-link" href="{{ url_for('main.index') }}">
+      <img class="logo" src="{{ url_for('static', filename='fairsplitplus-logo.svg') }}" alt="FairSplit+ logo">
+    </a>
+    <div class="nav-right">
+      <a class="button-outline" href="{{ url_for('main.index') }}">Home</a>
+      <a class="button-outline" href="{{ url_for('main.ledger', group_id=group.group_id) }}">Ledger</a>
+      <form method="post" action="{{ url_for('main.logout') }}" style="display:inline;">
+        <button class="button-outline">Logout</button>
+      </form>
+    </div>
+  </nav>
+
+  <main class="wrap">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for cat,msg in messages %}
+          <div class="flash">{{ msg }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <header style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap">
+      <div>
+        <h1>{{ group.name }}</h1>
+        <p class="muted">
+          Created by #{{ group.created_by_user_id }}
+          {% if group.end_date %} • Ends: {{ group.end_date }}{% endif %}
+          {% if closed %} • <span class="pill">Closed</span>{% endif %}
+          {% if group.is_public %} • <span class="pill">Public</span>{% else %} • <span class="pill">Private</span>{% endif %}
+        </p>
+      </div>
+      {% if group.created_by_user_id == user.id %}
+        <form method="post" action="{{ url_for('main.toggle_public', group_id=group.group_id) }}">
+          <button class="button-outline" type="submit">
+            Toggle public
+          </button>
+        </form>
+      {% endif %}
+    </header>
+
+    <!-- BALANCES -->
+    <section class="card" style="margin-top:1rem">
+      <h3 style="margin-top:.3rem">Balances</h3>
+      <table>
+        <thead><tr><th>User ID</th><th class="right">Balance (€)</th></tr></thead>
+        <tbody>
+          {% for uid, bal in balances.items() %}
+            <tr>
+              <td>#{{ uid }}</td>
+              <td class="right">
+                {% set b = float(bal) %}
+                <span class="{{ 'good' if b>0 else 'bad' if b<0 else '' }}">{{ '%.2f'|format(b) }}</span>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+
+    <div class="grid">
+      <!-- MEMBERS -->
+      <section class="card">
+        <h4>Members</h4>
+        <ul class="list">
+          {% for m in members %}
+            <li>User #{{ m.user_id }}</li>
+          {% endfor %}
+        </ul>
+        {% if group.created_by_user_id == user.id %}
+        <form method="post" action="{{ url_for('main.add_member_via_link', group_id=group.group_id) }}" style="margin-top:.8rem">
+          <label for="whatsapp_url">WhatsApp invite link</label>
+          <input id="whatsapp_url" name="whatsapp_url" type="url" placeholder="https://chat.whatsapp.com/..." required>
+          <button class="button-outline" type="submit" style="margin-top:.5rem">Save invite</button>
+        </form>
+        {% endif %}
+        <form method="post" action="{{ url_for('main.join_group', group_id=group.group_id) }}" style="margin-top:.6rem">
+          <button class="button-accent" type="submit">Join group</button>
+        </form>
+      </section>
+
+      <!-- ADD EXPENSE -->
+      <section class="card">
+        <h4>Add expense</h4>
+        <form method="post" action="{{ url_for('main.add_expense', group_id=group.group_id) }}">
+          <label for="desc">Description</label>
+          <input id="desc" name="description" type="text" placeholder="Pizza & drinks" required>
+          <label for="amount">Amount (€)</label>
+          <input id="amount" name="amount" type="number" min="0" step="0.01" required>
+          <button class="button-accent" type="submit" style="margin-top:.6rem">Add</button>
+        </form>
+
+        <hr>
+        <h5 style="margin:.4rem 0">Voice quick add</h5>
+        <form method="post" action="{{ url_for('main.add_expense_by_voice', group_id=group.group_id) }}">
+          <label for="voice_text">Example: <em>“3 beers for Tom, 2 pizzas for us”</em></label>
+          <input id="voice_text" name="voice_text" type="text" placeholder="…">
+          <button class="button-outline" type="submit" style="margin-top:.6rem">Parse & add</button>
+        </form>
+
+        <hr>
+        <h5 style="margin:.4rem 0">Scan receipt (OCR stub)</h5>
+        <form method="post" action="{{ url_for('main.upload_receipt', group_id=group.group_id) }}" enctype="multipart/form-data">
+          <input type="file" name="receipt" accept="image/*" required>
+          <button class="button-outline" type="submit" style="margin-top:.6rem">Upload</button>
+        </form>
+      </section>
+
+      <!-- PAYMENTS -->
+      <section class="card">
+        <h4>Record payment</h4>
+        <form method="post" action="{{ url_for('main.create_payment', group_id=group.group_id) }}">
+          <label for="receiver_id">Receiver user_id</label>
+          <input id="receiver_id" name="receiver_id" type="number" min="1" required>
+          <label for="pay_amount">Amount (€)</label>
+          <input id="pay_amount" name="amount" type="number" min="0" step="0.01" required>
+          <label for="method">Method</label>
+          <select id="method" name="method">
+            <option value="iban">IBAN</option>
+            <option value="revolut">Revolut</option>
+            <option value="payconiq">Payconiq</option>
+          </select>
+          <label for="external_ref">Reference (optional)</label>
+          <input id="external_ref" name="external_ref" type="text" placeholder="txn-…">
+          <button class="button-accent" type="submit" style="margin-top:.6rem">Create payment</button>
+        </form>
+      </section>
+    </div>
+
+    <!-- LISTS -->
+    <div class="grid" style="margin-top:1rem">
+      <section class="card">
+        <h4>Expenses</h4>
+        <table>
+          <thead><tr><th>Date</th><th>Description</th><th class="right">Total (€)</th></tr></thead>
+          <tbody>
+            {% for e in expenses %}
+            <tr>
+              <td>{{ e.created_at or '' }}</td>
+              <td>{{ e.description }}</td>
+              <td class="right">{{ '%.2f'|format(e.total_amount) }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </section>
+
+      <section class="card">
+        <h4>Payments</h4>
+        <table>
+          <thead><tr><th>Date</th><th>Sender → Receiver</th><th class="right">Amount (€)</th><th>Status</th><th></th></tr></thead>
+          <tbody>
+            {% for p in payments %}
+            <tr>
+              <td>{{ p.created_at or '' }}</td>
+              <td>#{{ p.paid_by_user_id }} → #{{ p.received_by_user_id }}</td>
+              <td class="right">{{ '%.2f'|format(p.amount) }}</td>
+              <td>{{ p.status }}</td>
+              <td class="right">
+                {% if p.status != 'confirmed' and p.received_by_user_id == user.id %}
+                <form method="post" action="{{ url_for('main.confirm_payment', payment_id=p.payment_id) }}">
+                  <button class="button-outline" type="submit">Confirm</button>
+                </form>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </section>
+    </div>
+  </main>
+</body>
+</html>
+
