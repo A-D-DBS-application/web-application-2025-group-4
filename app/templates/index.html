@@ -1,45 +1,75 @@
-<!DOCTYPE html>
+<!-- templates/index.html -->
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>TripSplit</title>
-    <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@latest/css/pico.min.css">
+  <meta charset="utf-8" />
+  <title>TripSplit — Welcome</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://unpkg.com/@picocss/pico@2/css/pico.min.css" rel="stylesheet">
+  <style>
+    header.hero{padding:6rem 0;background:linear-gradient(180deg,#f8fbff,transparent);}
+    .tag{font-size:.85rem;padding:.25rem .6rem;border-radius:999px;background:#e9f3ff;color:#1769ff;}
+    .grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1.25rem}
+    @media (max-width: 900px){.grid-3{grid-template-columns:1fr}}
+    .card{border:1px solid #eef2f7;border-radius:16px;padding:1.25rem;background:#fff}
+    nav ul{align-items:center}
+  </style>
 </head>
 <body>
-<nav>
-  <ul>
-    <li><strong>TripSplit</strong></li>
-  </ul>
-  <ul>
-    {% if user %}
-      <li>👋 {{ user.name }}</li>
-      <li>
-        <form action="{{ url_for('main.logout') }}" method="post">
-          <button type="submit" class="secondary">Logout</button>
-        </form>
-      </li>
-    {% else %}
-      <li><a href="{{ url_for('main.login') }}">Login</a></li>
-      <li><a href="{{ url_for('main.register') }}">Register</a></li>
-    {% endif %}
-  </ul>
-</nav>
-
-<main class="container">
-  {% if user %}
-    <h2>Your Groups</h2>
-    <a href="{{ url_for('main.create_group') }}">+ New Group</a>
+  <nav class="container-fluid">
+    <ul><li><strong>TripSplit</strong></li></ul>
     <ul>
-      {% for g in my_groups %}
-        <li><a href="{{ url_for('main.group_detail', group_id=g.group_id) }}">{{ g.name }}</a></li>
+      {% if user %}<li>Hi, {{ user.name }}</li>
+      <li><form method="post" action="{{ url_for('main.logout') }}"><button class="secondary">Logout</button></form></li>
       {% else %}
-        <p>No groups yet.</p>
-      {% endfor %}
+      <li><a href="{{ url_for('main.login') }}">Login</a></li>
+      <li><a href="{{ url_for('main.register') }}" role="button">Register</a></li>
+      {% endif %}
     </ul>
-  {% else %}
-    <h3>Welcome to TripSplit!</h3>
-    <p>Log in to manage your shared expenses.</p>
-  {% endif %}
-</main>
+  </nav>
+
+  <header class="hero container">
+    <span class="tag">NEW</span>
+    <h1 style="margin:.5rem 0 0">Split trip costs without the maths</h1>
+    <p class="lead">Create a temporary group, scan receipts, settle instantly, export balances.</p>
+    {% if user %}
+      <a role="button" href="{{ url_for('main.create_group') }}">+ New group</a>
+    {% else %}
+      <div>
+        <a role="button" href="{{ url_for('main.register') }}">Get started</a>
+        <a class="secondary" href="{{ url_for('main.login') }}">I already have an account</a>
+      </div>
+    {% endif %}
+  </header>
+
+  <main class="container">
+    <div class="grid-3">
+      <div class="card">
+        <h4>Auto close on end-date</h4>
+        <p>No lingering debts. Groups close when your trip ends.</p>
+      </div>
+      <div class="card">
+        <h4>Scan receipts</h4>
+        <p>Upload a photo and let the app extract the items (MVP stub).</p>
+      </div>
+      <div class="card">
+        <h4>Pay in-app</h4>
+        <p>Record Payconiq/Revolut/IBAN transfers and confirm instantly.</p>
+      </div>
+    </div>
+
+    {% if user and my_groups %}
+      <h3 style="margin-top:2.5rem">Your groups</h3>
+      <ul>
+        {% for g in my_groups %}
+          <li><a href="{{ url_for('main.group_detail', group_id=g.group_id) }}">{{ g.name }}</a></li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </main>
+
+  <footer class="container" style="margin:3rem auto 2rem;color:#79808a">
+    <small>© {{ 2025 }} TripSplit. Built for fast, fair group expenses.</small>
+  </footer>
 </body>
 </html>
