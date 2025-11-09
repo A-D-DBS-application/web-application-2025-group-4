@@ -5,31 +5,25 @@
   <title>Register – FairSplit+</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://unpkg.com/@picocss/pico@2/css/pico.min.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
       --accent: hsl(142, 76%, 59%);
       --accent-dark: hsl(142, 76%, 45%);
-      --bg: #fff;
-      --text: #000;
-      --muted: #666;
       font-family: "Inter", sans-serif;
     }
-    body { background: var(--bg); color: var(--text); margin: 0; }
+    body { background: #fff; color: #000; margin: 0; }
     .wrap { max-width: 420px; margin: 3rem auto; padding: 0 1rem; }
-    h1 { font-weight: 700; margin-bottom: .25rem; }
-    p.lead { color: var(--muted); margin-bottom: 1.5rem; }
-    .card { border: 1px solid #e5e5e5; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.05); background: #fff; }
+    .card { border: 1px solid #e5e5e5; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
     input { border-radius: 10px; }
-    button { border-radius: 10px; background: var(--accent); color: white; font-weight: 600; border: none; padding: .7rem 1.4rem; transition: .2s; width: 100%; }
-    button:hover { background: var(--accent-dark); transform: scale(1.02); }
+    button { border-radius: 10px; background: var(--accent); color: #fff; font-weight: 600; border: none; padding: .7rem 1.4rem; width: 100%; }
+    button:hover { background: var(--accent-dark); }
     .error { background: #fff6f6; border: 1px solid #ffcccc; padding: .6rem 1rem; border-radius: 8px; color: #a00; margin-bottom: 1rem; }
   </style>
 </head>
 <body>
   <main class="wrap">
-    <h1>Register</h1>
-    <p class="lead">Maak je FairSplit+ account aan.</p>
+    <h1>Registreren</h1>
+    <p>Maak je FairSplit+ account aan.</p>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
@@ -41,21 +35,31 @@
 
     <form class="card" method="post" action="{{ url_for('main.register') }}">
       <label for="name">Naam</label>
-      <input type="text" id="name" name="name" placeholder="Je naam" required>
+      <input type="text" id="name" name="name" required>
 
       <label for="email">E-mail</label>
-      <input type="email" id="email" name="email" placeholder="je@voorbeeld.be" required>
+      <input type="email" id="email" name="email" required>
 
-      <label for="username">Username</label>
-      <input type="text" id="username" name="username" placeholder="Kies een gebruikersnaam" required>
+      <label for="username">Gebruikersnaam</label>
+      <input type="text" id="username" name="username" required>
 
-      <label for="password">Password</label>
-      <input type="password" id="password" name="password" placeholder="min. 6 tekens" required>
+      <label for="phone_number">Telefoonnummer</label>
+      <input type="tel" id="phone_number" name="phone_number" placeholder="+32..." required>
+
+      <label for="iban">IBAN</label>
+      <input type="text" id="iban" name="iban"
+             pattern="[A-Z]{2}[0-9A-Z]{14,32}"
+             placeholder="BE12 3456 7890 1234"
+             title="Voer een geldig IBAN-nummer in, beginnend met BE"
+             required>
+
+      <label for="password">Wachtwoord</label>
+      <input type="password" id="password" name="password" minlength="6" required>
 
       <button type="submit">Account aanmaken</button>
     </form>
 
-    <p style="text-align:center; margin-top:1rem;">
+    <p style="text-align:center;margin-top:1rem;">
       Heb je al een account? <a href="{{ url_for('main.login') }}">Log in</a>
     </p>
   </main>
