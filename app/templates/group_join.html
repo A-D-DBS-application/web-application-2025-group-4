@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <title>Groep joinen – FairSplit+</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://unpkg.com/@picocss/pico@2/css/pico.min.css" rel="stylesheet">
+  <style>
+    .wrap { max-width: 420px; margin: 3rem auto; }
+    h1 { font-weight: 700; }
+    button { width: 100%; background: hsl(142,76%,59%); border: none; border-radius: 8px; color: #fff; padding: .7rem; font-weight: 600; }
+    button:hover { background: hsl(142,76%,45%); }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <h1>Groep joinen</h1>
+    <p>Voer hieronder de unieke code van de groep in.</p>
+
+    <form method="POST" action="{{ url_for('main.join_group') }}">
+      <label for="join_code">Groepscode</label>
+      <input type="text" id="join_code" name="join_code" placeholder="bv. A3F9C2" required>
+      <button type="submit">Join groep</button>
+    </form>
+
+    <p style="text-align:center; margin-top:1rem;">
+      <a href="{{ url_for('main.index') }}">Terug naar overzicht</a>
+    </p>
+  </main>
+</body>
+</html>

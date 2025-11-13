@@ -1,205 +1,63 @@
 <!doctype html>
-<html lang="en">
+<html lang="nl">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>{{ group.name }} • FairSplit+</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <meta charset="utf-8">
+  <title>{{ group.name }} – FairSplit+</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://unpkg.com/@picocss/pico@2/css/pico.min.css" rel="stylesheet">
   <style>
-    :root { --accent: hsl(142, 76%, 59%); }
-    * { box-sizing: border-box; }
-    body { margin:0; font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial; background:#fff; color:#111; }
-    header { display:flex; align-items:center; justify-content:space-between; padding:18px 22px; border-bottom:1px solid #f1f1f1; }
-    .brand { display:flex; align-items:center; gap:10px; font-weight:800; }
-    .logo { width:34px; height:34px; border-radius:10px; background: var(--accent); display:grid; place-items:center; color:#111; font-weight:900; }
-    .container { max-width:1100px; margin:0 auto; padding:28px 20px 64px; }
-    h1 { font-size:32px; margin:0 0 4px; }
-    .muted { color:#666; }
-    .grid { display:grid; grid-template-columns: 1.1fr 0.9fr; gap:22px; margin-top:22px; }
-    .card { background:#fff; border:1px solid #eee; border-radius:16px; padding:20px; box-shadow: 0 8px 28px rgba(0,0,0,.06); }
-    h2 { font-size:20px; margin:0 0 14px; }
-    label { font-size:14px; font-weight:600; display:block; margin:10px 0 6px; }
-    input[type="text"], input[type="number"], textarea, select {
-      width:100%; padding:12px 14px; border:1px solid #e6e6e6; border-radius:12px; font-size:16px;
-    }
-    textarea { min-height:88px; resize:vertical; }
-    .row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-    .btn {
-      display:inline-flex; align-items:center; gap:8px; padding:10px 14px; border-radius:12px;
-      background: var(--accent); color:#fff; border:none; font-weight:700; cursor:pointer; text-decoration:none;
-    }
-    .btn.secondary { background:#fff; color:#111; border:1px solid #e8e8e8; }
-    .stack > * + * { margin-top:12px; }
-    .list { list-style:none; padding:0; margin:0; }
-    .list li { padding:10px 0; border-bottom:1px solid #f1f1f1; }
-    .right { text-align:right; }
-    .warn { color:#d33; font-weight:700; }
-    .pill { display:inline-block; background:#f6f6f6; border:1px solid #eee; padding:4px 8px; border-radius:999px; font-size:12px; }
-    .balances { display:grid; grid-template-columns: repeat(3, 1fr); gap:10px; }
-    .balance { border:1px solid #eee; border-radius:12px; padding:12px; text-align:center; }
-    .positive { color: #0a8a48; }
-    .negative { color: #c62f2f; }
-    .top-actions { display:flex; gap:10px; align-items:center; }
+    :root { --accent: hsl(142, 76%, 59%); --accent-dark: hsl(142, 76%, 45%); font-family: "Inter", sans-serif; }
+    header { background: var(--accent); color: #fff; padding: 1rem 2rem; border-bottom: 3px solid var(--accent-dark); }
+    main { max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+    .card { border: 1px solid #eee; border-radius: 12px; padding: 1.5rem; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 1.5rem; }
+    .positive { color: hsl(142, 70%, 40%); }
+    .negative { color: hsl(0, 70%, 50%); }
+    .join { background: #f6fef8; border: 1px solid #bde5c8; border-radius: 10px; padding: .8rem; margin-top: .6rem; }
+    .btn { background: var(--accent); color: #fff; border: none; border-radius: 8px; padding: .6rem 1.2rem; text-decoration: none; }
   </style>
 </head>
 <body>
-<header>
-  <div class="brand">
-    <div class="logo">F+</div>
-    <div>Fair <span style="color:var(--accent)">Split+</span></div>
-  </div>
-  <div class="top-actions">
-    <a class="btn secondary" href="{{ url_for('main.index') }}">← Back</a>
-    {% if closed %}<span class="pill">Closed</span>{% endif %}
-  </div>
-</header>
+  <header>
+    <h1>{{ group.name }}</h1>
+    <small>Valuta: {{ group.currency }}</small>
+  </header>
 
-<div class="container">
-  <h1>{{ group.name }}</h1>
-  <div class="muted">
-    {% if group.start_date %}Start: {{ group.start_date }} · {% endif %}
-    {% if group.end_date %}End: {{ group.end_date }} · {% endif %}
-    Currency: {{ group.currency }}
-  </div>
+  <main>
+    <section class="card">
+      <h3>Groepsleden</h3>
+      <ul>
+        {% for name in members %}
+          <li>{{ name }}</li>
+        {% endfor %}
+      </ul>
+    </section>
 
-  <div class="grid">
-    <!-- LEFT COLUMN -->
-    <div class="stack">
-      <!-- Add expense -->
-      <div class="card">
-        <h2>Add expense</h2>
-        {% if closed %}<div class="warn">This group is closed; adding is disabled.</div>{% endif %}
-        <form method="post" action="{{ url_for('main.add_expense', gid=group.group_id) }}">
-          <label>Description</label>
-          <input name="description" type="text" placeholder="Pizza & beers" {% if closed %}disabled{% endif %} required>
+    <section class="card">
+      <h3>Balansen</h3>
+      {% if balances_named %}
+      <table>
+        <tr><th>Gebruiker</th><th>Saldo</th></tr>
+        {% for uname, balance in balances_named.items() %}
+          <tr>
+            <td>{{ uname }}</td>
+            <td class="{% if balance >= 0 %}positive{% else %}negative{% endif %}">
+              {{ balance }} {{ group.currency }}
+            </td>
+          </tr>
+        {% endfor %}
+      </table>
+      {% else %}
+        <p>Nog geen transacties of leden.</p>
+      {% endif %}
+    </section>
 
-          <div class="row">
-            <div>
-              <label>Amount</label>
-              <input name="amount" type="number" step="0.01" placeholder="0.00" {% if closed %}disabled{% endif %} required>
-            </div>
-          </div>
+    <section class="card">
+      <h3>Deel deze groep</h3>
+      <p><strong>Join-code:</strong> {{ group.join_code }}</p>
+      <input type="text" readonly value="{{ join_link }}" style="width:100%; font-size:.9rem;">
+    </section>
 
-          <div style="margin-top:12px;">
-            <button class="btn" type="submit" {% if closed %}disabled{% endif %}>Add</button>
-          </div>
-        </form>
-      </div>
-
-      <!-- Voice add -->
-      <div class="card">
-        <h2>Voice add (quick)</h2>
-        <form method="post" action="{{ url_for('main.add_expense_voice', gid=group.group_id) }}">
-          <label>Command</label>
-          <input name="voice_text" type="text" placeholder='e.g. "3 beers for Tom, 2 pizzas for us"' {% if closed %}disabled{% endif %}>
-          <div style="margin-top:12px;">
-            <button class="btn" type="submit" {% if closed %}disabled{% endif %}>Parse & add</button>
-          </div>
-        </form>
-      </div>
-
-      <!-- Receipt upload -->
-      <div class="card">
-        <h2>Scan receipt (OCR MVP)</h2>
-        <form method="post" enctype="multipart/form-data" action="{{ url_for('main.add_expense_receipt', gid=group.group_id) }}">
-          <input type="file" name="receipt" {% if closed %}disabled{% endif %}>
-          <div style="margin-top:12px;">
-            <button class="btn" type="submit" {% if closed %}disabled{% endif %}>Upload</button>
-          </div>
-        </form>
-      </div>
-
-      <!-- Payments -->
-      <div class="card">
-        <h2>Register payment</h2>
-        <form method="post" action="{{ url_for('main.create_payment', gid=group.group_id) }}">
-          <label>Receiver</label>
-          <select name="receiver_id">
-            {% for m in members %}
-              <option value="{{ m.user_id }}">{{ m.user_id }}</option>
-            {% endfor %}
-          </select>
-          <label>Amount</label>
-          <input type="number" step="0.01" name="amount" placeholder="0.00">
-          <div style="margin-top:12px;">
-            <button class="btn" type="submit">Save payment</button>
-          </div>
-        </form>
-      </div>
-    </div>
-
-    <!-- RIGHT COLUMN -->
-    <div class="stack">
-      <!-- Invite link -->
-      <div class="card">
-        <h2>Invite link</h2>
-        <form method="post" action="{{ url_for('main.save_invite', group_id=group.group_id) }}">
-          <label>WhatsApp link</label>
-          <input type="text" name="invite_link" value="{{ group.invite_link or '' }}" placeholder="https://chat.whatsapp.com/...">
-          <div style="margin-top:12px;">
-            <button class="btn" type="submit">Save link</button>
-          </div>
-        </form>
-      </div>
-
-      <!-- Balances -->
-      <div class="card">
-        <h2>Balances</h2>
-        <div class="balances">
-          {% for uid, bal in balances.items() %}
-            <div class="balance">
-              <div class="muted">User {{ uid }}</div>
-              <div class="{{ 'positive' if bal >= 0 else 'negative' }}"><strong>{{ '€%.2f'|format(bal) }}</strong></div>
-            </div>
-          {% endfor %}
-        </div>
-        <div style="margin-top:12px; display:flex; gap:10px;">
-          <a class="btn secondary" href="{{ url_for('main.ledger', gid=group.group_id) }}">Open ledger</a>
-          <a class="btn" href="{{ url_for('main.export_csv', gid=group.group_id) }}">Export CSV</a>
-        </div>
-      </div>
-
-      <!-- Members -->
-      <div class="card">
-        <h2>Members</h2>
-        <ul class="list">
-          {% for m in members %}
-            <li>User {{ m.user_id }}</li>
-          {% endfor %}
-        </ul>
-      </div>
-
-      <!-- Expenses -->
-      <div class="card">
-        <h2>Expenses</h2>
-        <ul class="list">
-          {% for e in expenses %}
-            <li>
-              <strong>{{ e.description }}</strong>
-              <span class="muted">— €{{ '%.2f'|format(e.total_amount) }} · by {{ e.created_by_user_id }}</span>
-            </li>
-          {% else %}
-            <li class="muted">No expenses yet.</li>
-          {% endfor %}
-        </ul>
-      </div>
-
-      <!-- Payments -->
-      <div class="card">
-        <h2>Payments</h2>
-        <ul class="list">
-          {% for p in payments %}
-            <li>€{{ '%.2f'|format(p.amount) }} from {{ p.sender_id }} → {{ p.receiver_id }}</li>
-          {% else %}
-            <li class="muted">No payments yet.</li>
-          {% endfor %}
-        </ul>
-      </div>
-    </div>
-  </div>
-</div>
+    <a href="{{ url_for('main.index') }}" class="btn">Terug naar overzicht</a>
+  </main>
 </body>
 </html>
-
