@@ -6,166 +6,197 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://unpkg.com/@picocss/pico@2/css/pico.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
   <style>
     :root {
-      --accent: hsl(142, 76%, 45%);
-      --bg: #f5f7fa;
-      --text: #111;
-      --muted: #666;
+      --accent: #16a34a;
+      --accent-light: #22c55e;
+      --bg-light: #f8fafc;
+      --text-dark: #111827;
       font-family: "Inter", sans-serif;
     }
 
     body {
-      background: var(--bg);
-      color: var(--text);
+      background-color: var(--bg-light);
+      color: var(--text-dark);
       margin: 0;
-      padding: 2rem;
+      padding: 0;
     }
 
-    main.wrap {
-      max-width: 760px;
-      margin: 2rem auto;
+    main {
+      max-width: 850px;
+      margin: 3rem auto;
       background: white;
-      border-radius: 16px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-      padding: 2.5rem;
+      border-radius: 20px;
+      padding: 2rem 2.5rem;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
     }
 
     h1 {
       font-weight: 700;
-      margin-bottom: .5rem;
-      text-align: center;
+      font-size: 1.8rem;
+      margin-bottom: .2rem;
     }
 
-    p.lead {
-      color: var(--muted);
-      text-align: center;
-      margin-bottom: 2rem;
-    }
-
-    ul.group-list {
-      list-style: none;
-      padding: 0;
-    }
-
-    ul.group-list li {
-      background: #fff;
-      border: 1px solid #eaeaea;
-      border-radius: 12px;
-      padding: 1rem 1.25rem;
-      margin-bottom: 1rem;
-      box-shadow: 0 1px 6px rgba(0,0,0,0.04);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      transition: all 0.15s ease;
-    }
-
-    ul.group-list li:hover {
-      transform: scale(1.01);
-      border-color: var(--accent);
-    }
-
-    .group-name {
-      font-weight: 600;
-      color: var(--text);
-      text-decoration: none;
-      font-size: 1.05rem;
-    }
-
-    .group-name:hover {
-      color: var(--accent);
-    }
-
-    .actions {
-      text-align: center;
-      margin-top: 2rem;
-    }
-
-    .actions a, .actions button {
-      background: var(--accent);
-      color: #fff !important;
-      border: none;
-      padding: .8rem 1.6rem;
+    a.button, button {
       border-radius: 10px;
+      background-color: var(--accent);
+      color: white;
       font-weight: 600;
-      cursor: pointer;
+      border: none;
+      padding: .6rem 1.2rem;
       text-decoration: none;
-      transition: background .2s ease, transform .2s ease;
+      cursor: pointer;
+      transition: all 0.2s ease;
     }
 
-    .actions a:hover, .actions button:hover {
-      background: hsl(142, 76%, 35%);
-      transform: scale(1.03);
-    }
-
-    form.join-form {
-      display: flex;
-      gap: .5rem;
-      margin-top: 1rem;
-    }
-
-    form.join-form input {
-      flex: 1;
-      padding: .6rem .8rem;
-      border-radius: 8px;
-      border: 1px solid #ccc;
+    a.button:hover, button:hover {
+      background-color: var(--accent-light);
+      transform: scale(1.02);
     }
 
     .logout {
-      text-align: right;
-      font-size: .9rem;
-      margin-top: -1rem;
-      margin-bottom: 1rem;
+      font-size: 0.9rem;
+      color: #64748b;
+      text-decoration: none;
+      transition: color 0.2s ease;
     }
 
-    .logout a {
-      color: #d33;
-      text-decoration: none;
+    .logout:hover {
+      color: var(--accent);
+    }
+
+    .group-list {
+      display: grid;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .group-card {
+      background: #f9fafb;
+      padding: 1.3rem 1.5rem;
+      border-radius: 15px;
+      border: 1px solid #e5e7eb;
+      transition: 0.2s;
+    }
+
+    .group-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+    }
+
+    .group-card h3 {
+      margin: 0;
       font-weight: 600;
     }
 
-    .logout a:hover {
-      text-decoration: underline;
+    .group-card p {
+      margin: .3rem 0;
+      color: #6b7280;
     }
+
+    .join-section {
+      border-top: 1px solid #e5e7eb;
+      margin-top: 2rem;
+      padding-top: 1.5rem;
+    }
+
+    .join-row {
+      display: flex;
+      gap: .75rem;
+      align-items: center;
+      margin-top: .7rem;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      min-width: 250px;
+      padding: 0.8rem 1rem;
+      border-radius: 10px;
+      border: 1px solid #d1d5db;
+      font-size: 1rem;
+      color: var(--text-dark) !important;
+      background-color: #fff !important;
+      height: 48px;
+    }
+
+    input[type="text"]::placeholder {
+      color: #9ca3af;
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--accent);
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.15);
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 2rem;
+      color: #9ca3af;
+      font-size: 0.85rem;
+    }
+
   </style>
 </head>
 <body>
-  <main class="wrap">
-    <div class="logout">
-      Ingelogd als <strong>{{ user.username }}</strong> – <a href="{{ url_for('main.logout') }}">Log uit</a>
-    </div>
+  <main>
+    <header>
+      <div>
+        <h1>Welkom, {{ user.username }} 👋</h1>
+        <p style="margin: 0; color: #6b7280;">Overzicht van jouw groepen</p>
+      </div>
+      <a href="{{ url_for('main.logout') }}" class="logout">Log uit</a>
+    </header>
 
-    <h1>Jouw groepen</h1>
-    <p class="lead">Bekijk, maak of join een groep om kosten te delen met je vrienden.</p>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for cat, msg in messages %}
+          <div class="alert {{ cat }}">{{ msg }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
 
     {% if groups %}
-      <ul class="group-list">
-        {% for g in groups %}
-          <li>
-            <a href="{{ url_for('main.group_detail', group_id=g.group_id) }}" class="group-name">{{ g.name }}</a>
-          </li>
+      <div class="group-list">
+        {% for group in groups %}
+          <div class="group-card">
+            <h3>{{ group.name }}</h3>
+            <a href="{{ url_for('main.group_detail', group_id=group.group_id) }}" class="button small">Bekijk groep</a>
+          </div>
         {% endfor %}
-      </ul>
+      </div>
     {% else %}
-      <p class="lead">Je zit nog niet in een groep.</p>
+      <p>Je zit nog in geen enkele groep.</p>
     {% endif %}
 
-    <div class="actions">
-      <a href="{{ url_for('main.create_group') }}">Nieuwe groep aanmaken</a>
-      <form class="join-form" onsubmit="return goToJoin(event)">
-        <input type="text" id="join_code" placeholder="Voer groepscode in" required>
-        <button type="submit">Groep joinen</button>
-      </form>
+    <div style="margin-top: 1rem; display: flex; gap: 1rem;">
+      <a href="{{ url_for('main.create_group') }}" class="button">Nieuwe groep aanmaken</a>
     </div>
-  </main>
 
-  <script>
-    function goToJoin(e) {
-      e.preventDefault();
-      const code = document.getElementById("join_code").value.trim();
-      if (code) window.location.href = `/join/${code}`;
-    }
-  </script>
+    <!-- JOIN SECTION -->
+    <section class="join-section">
+      <h3>Een groep joinen</h3>
+      <form method="get" action="{{ url_for('main.join_group', join_code='PLACEHOLDER') }}" 
+            onsubmit="this.action = this.action.replace('PLACEHOLDER', document.getElementById('join_code').value)">
+        <div class="join-row">
+          <input type="text" id="join_code" name="join_code" placeholder="Voer de unieke groepcode in..." required>
+          <button type="submit">Join groep</button>
+        </div>
+      </form>
+    </section>
+
+    <footer>
+      FairSplit+ © 2025 – Alle rechten voorbehouden
+    </footer>
+  </main>
 </body>
 </html>
+
