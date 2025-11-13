@@ -8,7 +8,7 @@ db = SQLAlchemy()
 # USERS
 # ==========================
 class User(db.Model):
-    __tablename__ = "users"
+    __tablename__ = "users" 
 
     users_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)

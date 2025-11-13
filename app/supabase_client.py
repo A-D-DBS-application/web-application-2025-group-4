@@ -15,6 +15,6 @@ if not SUPABASE_URL or not SUPABASE_KEY:
         "Check that your .env file contains these keys."
     )
 
-# Maak de Supabase client aan
+# Maak de Supabase client aan 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
  

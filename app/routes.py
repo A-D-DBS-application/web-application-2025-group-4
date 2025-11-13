@@ -76,7 +76,7 @@ def register():
     return render_template("register.html") 
 
 
-@main.route("/login", methods=["GET", "POST"])
+@main.route("/login", methods=["GET", "POST"]) 
 def login():
     if request.method == "POST":
         identifier = request.form.get("username", "").strip()
