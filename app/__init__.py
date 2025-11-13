@@ -6,7 +6,7 @@ from .model import db  # laat dit staan als je SQLAlchemy nog elders gebruikt
 from dotenv import load_dotenv
 
 # Laad de .env variabelen (zodat Flask en Supabase ze zien)
-load_dotenv()
+load_dotenv() 
 
 def create_app():
     """Flask app factory."""

@@ -52,7 +52,7 @@ class GroupMember(db.Model):
 # EXPENSES
 # ==========================
 class Expense(db.Model):
-    __tablename__ = "expenses"
+    __tablename__ = "expenses" 
 
     expense_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -64,7 +64,7 @@ class Expense(db.Model):
     attachment_id = db.Column(db.Integer)
     status = db.Column(db.String(20))
     deleted_at = db.Column(db.DateTime)
-    is_active = db.Column(db.Boolean, default=True)
+    is_active = db.Column(db.Boolean, default=True) 
 
 # ==========================
 # PAYMENTS
