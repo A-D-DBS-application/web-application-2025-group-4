@@ -5,7 +5,7 @@ import secrets
 from app.supabase_client import supabase
 
 main = Blueprint("main", __name__)
-
+ 
 # -----------------------------
 # HELPERS
 # -----------------------------
