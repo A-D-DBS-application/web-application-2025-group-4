@@ -73,7 +73,7 @@ def register():
         flash("Registratie succesvol!", "success")
         return redirect(url_for("main.index"))
 
-    return render_template("register.html")
+    return render_template("register.html") 
 
 
 @main.route("/login", methods=["GET", "POST"])

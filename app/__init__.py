@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 def create_app():
-    """Flask app factory."""
+    """Flask app factory.""" 
     app = Flask(__name__)
     app.config.from_object(Config)
 

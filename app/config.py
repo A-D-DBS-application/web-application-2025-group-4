@@ -14,5 +14,5 @@ class Config:
         f"{SUPABASE_HOST}:5432/{SUPABASE_DB}?sslmode=require"
     )
 
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SQLALCHEMY_TRACK_MODIFICATIONS = False 
 

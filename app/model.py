@@ -17,7 +17,7 @@ class User(db.Model):
     phone_number = db.Column(db.String(50))
     iban = db.Column(db.String(34))
     password = db.Column(db.String(255))  # nog niet functioneel gebruikt in jouw code
-    deleted_at = db.Column(db.DateTime)
+    deleted_at = db.Column(db.DateTime) 
     is_active = db.Column(db.Boolean, default=True)
 
 # ==========================
