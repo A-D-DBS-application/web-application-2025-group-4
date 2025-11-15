@@ -81,3 +81,5 @@ class Payment(db.Model):
     currency = db.Column(db.String(3), default="EUR")
     deleted_at = db.Column(db.DateTime)
     is_active = db.Column(db.Boolean, default=True)
+
+ 

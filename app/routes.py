@@ -389,3 +389,4 @@ def join_group(join_code):
     flash(f"Je bent toegevoegd aan de groep '{group['name']}' 🎉", "success")
     return redirect(url_for("main.group_detail", group_id=group["group_id"]))
 
+ 
