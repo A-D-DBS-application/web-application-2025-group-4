@@ -1,67 +1,107 @@
-<!doctype html>
-<html lang="nl">
-<head>
-  <meta charset="utf-8">
-  <title>Registreren – FairSplit+</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link href="https://unpkg.com/@picocss/pico@2/css/pico.min.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-  <style>
-    :root { 
-      --accent: hsl(142, 76%, 59%);
-      --accent-dark: hsl(142, 76%, 45%);
-      font-family: "Inter", sans-serif;
-    }
-    body { background: #fff; color: #000; margin: 0; }
-    .wrap { max-width: 420px; margin: 3rem auto; padding: 0 1rem; }
-    .card { border: 1px solid #e5e5e5; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.05); background: #fff; }
-    input, button { border-radius: 10px; }
-    button { background: var(--accent); color: white; font-weight: 600; border: none; padding: .7rem 1.4rem; transition: .2s; width: 100%; }
-    button:hover { background: var(--accent-dark); transform: scale(1.02); }
-    h1 { font-weight: 700; margin-bottom: .5rem; }
-    .lead { color: #666; margin-bottom: 1.5rem; }
-    .error { background: #fff6f6; border: 1px solid #ffcccc; padding: .6rem 1rem; border-radius: 8px; color: #a00; margin-bottom: 1rem; }
-  </style>
-</head>
-<body>
-  <main class="wrap">
-    <h1>Account aanmaken</h1>
-    <p class="lead">Vul alle velden in om je aan te melden bij FairSplit+.</p>
+{% extends "base.html" %}
+{% block title %}Registreer – FairSplit+{% endblock %}
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        {% for cat, msg in messages %}
-          <div class="error">{{ msg }}</div>
-        {% endfor %}
-      {% endif %}
-    {% endwith %}
+{% block content %}
+<section class="auth-layout">
+  <div class="auth-copy">
+    <span class="chip">Get started free</span>
+    <h1 class="auth-title">Maak je FairSplit+ account</h1>
+    <p class="auth-sub">
+      Eén profiel voor al je groepsuitgaven. Handig voor trips, kotgenoten,
+      teamuitjes en meer.
+    </p>
 
-    <form class="card" method="post" action="{{ url_for('main.register') }}">
-      <label for="name">Volledige naam</label>
-      <input type="text" id="name" name="name" placeholder="Je naam" required>
+    <ul class="auth-benefits">
+      <li>✅ Maak onbeperkte groepen</li>
+      <li>✅ Nodig vrienden uit met een join-link</li>
+      <li>✅ Volg wie wat heeft betaald</li>
+      <li>✅ Heldere eindbalans per persoon</li>
+    </ul>
 
-      <label for="username">Gebruikersnaam</label>
-      <input type="text" id="username" name="username" placeholder="Kies een gebruikersnaam" required>
+    <p class="auth-small">
+      Heb je al een account?
+      <a href="{{ url_for('main.login') }}" class="auth-link">Log dan hier in</a>
+    </p>
+  </div>
+
+  <div class="auth-card">
+    <h2>Registreer</h2>
+    <p class="auth-card-sub">Vul je gegevens in om te starten.</p>
+
+    <form method="post" action="{{ url_for('main.register') }}" class="auth-form">
+      <div class="field-row">
+        <div class="field">
+          <label for="name">Naam</label>
+          <input
+            id="name"
+            name="name"
+            type="text"
+            placeholder="Voornaam Achternaam"
+            required
+          >
+        </div>
+        <div class="field">
+          <label for="username">Gebruikersnaam</label>
+          <input
+            id="username"
+            name="username"
+            type="text"
+            placeholder="fairsplit_legend"
+            required
+          >
+        </div>
+      </div>
 
       <label for="email">E-mailadres</label>
-      <input type="email" id="email" name="email" placeholder="je@voorbeeld.be" required>
+      <input
+        id="email"
+        name="email"
+        type="email"
+        placeholder="jij@voorbeeld.be"
+        required
+      >
 
-      <label for="phone_number">Telefoonnummer</label>
-      <input type="text" id="phone_number" name="phone_number" placeholder="+324..." required>
-
-      <label for="iban">IBAN</label>
-      <input type="text" id="iban" name="iban" placeholder="BE00 0000 0000 0000" required>
+      <div class="field-row">
+        <div class="field">
+          <label for="phone_number">GSM-nummer</label>
+          <input
+            id="phone_number"
+            name="phone_number"
+            type="tel"
+            placeholder="04xx xx xx xx"
+            required
+          >
+        </div>
+        <div class="field">
+          <label for="iban">IBAN</label>
+          <input
+            id="iban"
+            name="iban"
+            type="text"
+            placeholder="BE00 0000 0000 0000"
+            required
+          >
+        </div>
+      </div>
 
       <label for="password">Wachtwoord</label>
-      <input type="password" id="password" name="password" placeholder="min. 6 tekens" required>
+      <input
+        id="password"
+        name="password"
+        type="password"
+        placeholder="Kies een sterk wachtwoord"
+        required
+      >
 
-      <button type="submit">Account aanmaken</button>
+      <button type="submit" class="btn-primary auth-submit">
+        Account aanmaken
+      </button>
     </form>
 
-    <p style="text-align:center; margin-top:1rem;">
-      Heb je al een account? <a href="{{ url_for('main.login') }}">Log hier in</a>.
+    <p class="auth-footnote">
+      Je gegevens worden alleen gebruikt om groepen en saldi correct bij te houden.
     </p>
-  </main>
-</body>
-</html> 
+  </div>
+</section>
+{% endblock %}
 

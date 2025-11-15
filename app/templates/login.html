@@ -1,79 +1,75 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <title>FairSplit+ — Login</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="icon" href="{{ url_for('static', filename='fairsplitplus-logo.svg') }}" type="image/svg+xml">
-  <link href="https://unpkg.com/@picocss/pico@2/css/pico.min.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-  <style> 
-    :root{
-      --accent:hsl(142,76%,59%);--accent-dark:hsl(142,76%,45%);
-      --bg:#fff;--text:#000;--muted:#666;--border:#e5e5e5;
-      font-family:"Inter",sans-serif;
-    }
-    body{background:var(--bg);color:var(--text);margin:0}
-    a{text-decoration:none!important}
-    .navbar{display:flex;justify-content:space-between;align-items:center;padding:1rem 2rem;border-bottom:1px solid var(--border);background:#fff;position:sticky;top:0;z-index:20}
-    .brand-link{display:flex;align-items:center;gap:.6rem}
-    .logo{height:40px;transition:transform .2s}
-    .logo:hover{transform:scale(1.05)}
-    .nav-right{display:flex;align-items:center;gap:1rem}
-    .button-accent{background:var(--accent);color:#fff;border:none;border-radius:10px;padding:.7rem 1.4rem;font-weight:600;display:inline-block;transition:.2s}
-    .button-accent:hover{background:var(--accent-dark);transform:scale(1.03)}
-    .button-outline{border:2px solid var(--accent);color:var(--accent);background:transparent;border-radius:10px;padding:.7rem 1.4rem;font-weight:600;display:inline-block;transition:.2s}
-    .button-outline:hover{background:var(--accent);color:#fff}
-    .wrap{max-width:460px;margin:3.5rem auto;padding:0 1rem}
-    h1{font-weight:700;margin-bottom:.25rem}
-    p.lead{color:var(--muted);margin:0 0 1.2rem}
-    form.card{border:1px solid var(--border);border-radius:12px;padding:1.25rem;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.04)}
-    label{font-weight:600}
-    input{border-radius:10px}
-    .row{display:flex;gap:.8rem;align-items:center;justify-content:space-between}
-    .flash{border:1px solid #ffd8d8;background:#fff6f6;color:#8a1111;border-radius:10px;padding:.8rem 1rem;margin-bottom:1rem}
-  </style>
-</head>
-<body>
+{# templates/login.html #}
+{% extends "base.html" %}
+{% block title %}Login – FairSplit+{% endblock %}
 
-  <nav class="navbar">
-    <a class="brand-link" href="{{ url_for('main.index') }}">
-      <img class="logo" src="{{ url_for('static', filename='fairsplitplus-logo.svg') }}" alt="FairSplit+ logo">
-    </a>
-    <div class="nav-right">
-      <a class="button-outline" href="{{ url_for('main.register') }}">Register</a>
+{% block content %}
+
+<div class="auth-page">
+  <section class="auth-shell">
+
+    <!-- Linkerkant: marketing + voordelen -->
+    <div class="auth-left">
+      <span class="auth-pill">Welcome back 👋</span>
+
+      <h1 class="auth-title">
+        Log in to your <span class="accent-text">FairSplit+</span> groups
+      </h1>
+
+      <p class="auth-lead">
+        Bekijk je lopende trips, voeg uitgaven toe en settle alles eerlijk.
+        Eén login voor al je groepen.
+      </p>
+
+      <ul class="auth-benefits">
+        <li>✅ Deel uitgaven in seconden</li>
+        <li>✅ Volledige transparantie per groep</li>
+        <li>✅ Geen Excel of discussies meer</li>
+      </ul>
     </div>
-  </nav>
 
-  <main class="wrap">
-    <h1>Login</h1>
-    <p class="lead">Log in om je groepen en uitgaven te beheren.</p>
+    <!-- Rechterkant: login kaart -->
+    <div class="auth-card">
+      <h2 class="auth-card-title">Login</h2>
+      <p class="auth-card-sub">Gebruik je gebruikersnaam of e-mailadres.</p>
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        {% for cat,msg in messages %}
-          <div class="flash">{{ msg }}</div>
-        {% endfor %}
-      {% endif %}
-    {% endwith %}
+      <form method="post" action="{{ url_for('main.login') }}" class="auth-form">
 
-    <form class="card" method="post" action="{{ url_for('main.login') }}">
-      <label for="username">Username</label>
-      <input id="username" name="username" type="text" placeholder="jouwnaam" required autofocus>
+        <label class="auth-field">
+          <span>Gebruikersnaam of e-mail</span>
+          <input
+            type="text"
+            name="username"
+            autocomplete="username"
+            required
+            value="{{ request.form.username or '' }}"
+          >
+        </label>
 
-      <label for="password">Password</label>
-      <input id="password" name="password" type="password" placeholder="••••••••" required>
+        <label class="auth-field">
+          <span>Wachtwoord</span>
+          <input
+            type="password"
+            name="password"
+            autocomplete="current-password"
+            required
+          >
+        </label>
 
-      <div class="row" style="margin-top:1rem">
-        <a class="button-outline" href="{{ url_for('main.index') }}">Terug</a>
-        <button class="button-accent" type="submit">Login</button>
-      </div>
-    </form>
+        <button type="submit" class="btn-primary btn-full">Log in</button>
+      </form>
 
-    <p style="margin-top:1rem">Nog geen account?
-      <a class="button-outline" href="{{ url_for('main.register') }}" style="padding:.45rem .9rem">Registreer</a>
-    </p>
-  </main>
+      <p class="auth-switch">
+        Nog geen account?
+        <a href="{{ url_for('main.register') }}">Registreer gratis</a>
+      </p>
 
-</body>
-</html> 
+      <p class="auth-tiny">
+        Door in te loggen ga je akkoord met eerlijke splits &amp; goede vibes ✌️
+      </p>
+    </div>
+
+  </section>
+</div>
+
+{% endblock %}
+

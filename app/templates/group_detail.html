@@ -1,63 +1,137 @@
-<!doctype html>
-<html lang="nl">
-<head>
-  <meta charset="utf-8">
-  <title>{{ group.name }} – FairSplit+</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link href="https://unpkg.com/@picocss/pico@2/css/pico.min.css" rel="stylesheet">
-  <style>
-    :root { --accent: hsl(142, 76%, 59%); --accent-dark: hsl(142, 76%, 45%); font-family: "Inter", sans-serif; }
-    header { background: var(--accent); color: #fff; padding: 1rem 2rem; border-bottom: 3px solid var(--accent-dark); }
-    main { max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
-    .card { border: 1px solid #eee; border-radius: 12px; padding: 1.5rem; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 1.5rem; }
-    .positive { color: hsl(142, 70%, 40%); }
-    .negative { color: hsl(0, 70%, 50%); }
-    .join { background: #f6fef8; border: 1px solid #bde5c8; border-radius: 10px; padding: .8rem; margin-top: .6rem; }
-    .btn { background: var(--accent); color: #fff; border: none; border-radius: 8px; padding: .6rem 1.2rem; text-decoration: none; }
-  </style>
-</head>
-<body> 
-  <header>
-    <h1>{{ group.name }}</h1>
-    <small>Valuta: {{ group.currency }}</small>
+{# templates/group_detail.html #}
+{% extends "base.html" %}
+{% block title %}{{ group.name }} – FairSplit+{% endblock %}
+
+{% block content %}
+<section class="group-page">
+
+  <!-- Header / hero -->
+  <header class="group-hero">
+    <div class="group-hero-main">
+      <div class="group-pill">
+        Actieve trip
+      </div>
+      <h1 class="group-title">
+        {{ group.name }}
+      </h1>
+      <p class="group-sub">
+        Overzicht van alle uitgaven, betalingen en wie nog wat aan wie verschuldigd is.
+      </p>
+
+      <div class="group-meta-row">
+        <div class="group-meta-item">
+          <span class="meta-label">Valuta</span>
+          <span class="meta-value">{{ group.currency or "EUR" }}</span>
+        </div>
+        <div class="group-meta-item">
+          <span class="meta-label">Groepscode</span>
+          <span class="meta-value code">{{ group.join_code }}</span>
+        </div>
+        <div class="group-meta-item">
+          <span class="meta-label">Leden</span>
+          <span class="meta-value">{{ members|length }}</span>
+        </div>
+      </div>
+
+      <div class="group-cta-row">
+        <button type="button"
+                class="btn-secondary"
+                onclick="navigator.clipboard.writeText('{{ join_link }}')">
+          🔗 Deel invite-link
+        </button>
+        <button type="button"
+                class="btn-pill-ghost"
+                onclick="navigator.clipboard.writeText('{{ group.join_code }}')">
+          Code kopiëren
+        </button>
+      </div>
+    </div>
+
+    <aside class="group-hero-card">
+      <h2>Saldo per persoon</h2>
+      <p class="card-sub">
+        Positief = krijgt nog geld. Negatief = moet nog betalen.
+      </p>
+
+      {% if balances_named %}
+        <ul class="balance-list">
+          {% for name, amount in balances_named.items() %}
+            {% set cls = "pos" if amount > 0 else ("neg" if amount < 0 else "neu") %}
+            <li class="balance-item {{ cls }}">
+              <span class="balance-name">{{ name }}</span>
+              <span class="balance-amount">
+                {% if amount > 0 %}+{% endif %}
+                {{ "%.2f"|format(amount) }} {{ group.currency or "EUR" }}
+              </span>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="card-empty">
+          Nog geen uitgaven of betalingen. Voeg je eerste kost toe om de saldi te zien.
+        </p>
+      {% endif %}
+    </aside>
   </header>
 
-  <main>
-    <section class="card">
-      <h3>Groepsleden</h3>
-      <ul>
-        {% for name in members %}
-          <li>{{ name }}</li>
-        {% endfor %}
-      </ul>
-    </section>
-
-    <section class="card">
-      <h3>Balansen</h3>
-      {% if balances_named %}
-      <table>
-        <tr><th>Gebruiker</th><th>Saldo</th></tr>
-        {% for uname, balance in balances_named.items() %}
-          <tr>
-            <td>{{ uname }}</td>
-            <td class="{% if balance >= 0 %}positive{% else %}negative{% endif %}">
-              {{ balance }} {{ group.currency }}
-            </td>
-          </tr>
-        {% endfor %}
-      </table>
+  <!-- Main layout: leden + acties -->
+  <div class="group-body">
+    <!-- Ledenkaart -->
+    <section class="group-card">
+      <div class="group-card-header">
+        <h3>Groepsleden</h3>
+        <span class="chip">{{ members|length }} personen</span>
+      </div>
+      {% if members %}
+        <ul class="member-list">
+          {% for name in members %}
+            <li class="member-item">
+              <span class="avatar-circle">
+                {{ name[0]|upper }}
+              </span>
+              <div class="member-text">
+                <span class="member-name">{{ name }}</span>
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
       {% else %}
-        <p>Nog geen transacties of leden.</p>
+        <p class="card-empty">Nog geen leden gevonden.</p>
       {% endif %}
     </section>
 
-    <section class="card">
-      <h3>Deel deze groep</h3>
-      <p><strong>Join-code:</strong> {{ group.join_code }}</p>
-      <input type="text" readonly value="{{ join_link }}" style="width:100%; font-size:.9rem;">
-    </section>
+    <!-- Acties -->
+    <section class="group-card">
+      <div class="group-card-header">
+        <h3>Acties in deze groep</h3>
+      </div>
 
-    <a href="{{ url_for('main.index') }}" class="btn">Terug naar overzicht</a>
-  </main>
-</body>
-</html> 
+      <div class="action-grid">
+        <a href="#" class="action-tile disabled">
+          <div class="action-icon">➕</div>
+          <div class="action-text">
+            <h4>Uitgave toevoegen</h4>
+            <p>Registreer een rekening of betaling die je voorgeschoten hebt.</p>
+          </div>
+          <span class="badge-soon">MVP</span>
+        </a>
+
+        <a href="#" class="action-tile disabled">
+          <div class="action-icon">💸</div>
+          <div class="action-text">
+            <h4>Betaling registreren</h4>
+            <p>Noteer wie aan wie betaald heeft buiten de app om.</p>
+          </div>
+          <span class="badge-soon">Binnenkort</span>
+        </a>
+      </div>
+
+      <p class="hint-text">
+        Voor deze MVP houden we het bij een simpel saldo per persoon. 
+        Extra flows (uitgaven-detail, settlement, …) kunnen jullie later uitwerken.
+      </p>
+    </section>
+  </div>
+
+</section>
+{% endblock %}

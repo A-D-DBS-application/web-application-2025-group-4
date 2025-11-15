@@ -1,202 +1,114 @@
-<!doctype html>
-<html lang="nl">
-<head>
-  <meta charset="utf-8">
-  <title>Mijn groepen – FairSplit+</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link href="https://unpkg.com/@picocss/pico@2/css/pico.min.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+{# templates/index.html #}
+{% extends "base.html" %}
+{% block title %}Dashboard – FairSplit+{% endblock %}
 
-  <style>
-    :root {
-      --accent: #16a34a;
-      --accent-light: #22c55e;
-      --bg-light: #f8fafc;
-      --text-dark: #111827;
-      font-family: "Inter", sans-serif;
-    }
+{% block content %}
+<div class="dash-page">
+  <!-- Bovenste welcome banner -->
+  <section class="dash-banner">
+    <p class="dash-pill">Welkom terug 👋</p>
+    <h1 class="dash-title">
+      {{ user.name }}, <span class="accent-text">mooi je weer te zien</span>
+    </h1>
+    <p class="dash-sub">
+      Overzicht van jouw groepen, trips en vrienden die jij blut maakt 😅
+    </p>
+  </section>
 
-    body {
-      background-color: var(--bg-light);
-      color: var(--text-dark);
-      margin: 0;
-      padding: 0;
-    }
-
-    main {
-      max-width: 850px;
-      margin: 3rem auto;
-      background: white;
-      border-radius: 20px;
-      padding: 2rem 2.5rem;
-      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
-    }
-
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1.5rem;
-    }
-
-    h1 {
-      font-weight: 700;
-      font-size: 1.8rem;
-      margin-bottom: .2rem;
-    }
-
-    a.button, button {
-      border-radius: 10px;
-      background-color: var(--accent);
-      color: white;
-      font-weight: 600;
-      border: none;
-      padding: .6rem 1.2rem;
-      text-decoration: none;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    a.button:hover, button:hover {
-      background-color: var(--accent-light);
-      transform: scale(1.02);
-    }
-
-    .logout {
-      font-size: 0.9rem;
-      color: #64748b;
-      text-decoration: none;
-      transition: color 0.2s ease;
-    }
-
-    .logout:hover {
-      color: var(--accent);
-    }
-
-    .group-list {
-      display: grid;
-      gap: 1rem;
-      margin-bottom: 2rem;
-    }
-
-    .group-card {
-      background: #f9fafb;
-      padding: 1.3rem 1.5rem;
-      border-radius: 15px;
-      border: 1px solid #e5e7eb;
-      transition: 0.2s;
-    }
-
-    .group-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
-    }
-
-    .group-card h3 {
-      margin: 0;
-      font-weight: 600;
-    }
-
-    .group-card p {
-      margin: .3rem 0;
-      color: #6b7280;
-    }
-
-    .join-section {
-      border-top: 1px solid #e5e7eb;
-      margin-top: 2rem;
-      padding-top: 1.5rem;
-    }
-
-    .join-row {
-      display: flex;
-      gap: .75rem;
-      align-items: center;
-      margin-top: .7rem;
-    }
-
-    input[type="text"] {
-      flex: 1;
-      min-width: 250px;
-      padding: 0.8rem 1rem;
-      border-radius: 10px;
-      border: 1px solid #d1d5db;
-      font-size: 1rem;
-      color: var(--text-dark) !important;
-      background-color: #fff !important;
-      height: 48px;
-    }
-
-    input[type="text"]::placeholder {
-      color: #9ca3af;
-    }
-
-    input[type="text"]:focus {
-      border-color: var(--accent);
-      outline: none;
-      box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.15);
-    }
-
-    footer {
-      text-align: center;
-      margin-top: 2rem;
-      color: #9ca3af;
-      font-size: 0.85rem;
-    }
-
-  </style>
-</head>
-<body>
-  <main>
-    <header>
-      <div>
-        <h1>Welkom, {{ user.username }} 👋</h1>
-        <p style="margin: 0; color: #6b7280;">Overzicht van jouw groepen</p>
-      </div>
-      <a href="{{ url_for('main.logout') }}" class="logout">Log uit</a>
-    </header>
-
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        {% for cat, msg in messages %}
-          <div class="alert {{ cat }}">{{ msg }}</div>
-        {% endfor %}
-      {% endif %}
-    {% endwith %}
-
-    {% if groups %}
-      <div class="group-list">
-        {% for group in groups %}
-          <div class="group-card">
-            <h3>{{ group.name }}</h3>
-            <a href="{{ url_for('main.group_detail', group_id=group.group_id) }}" class="button small">Bekijk groep</a>
+  <!-- Hoofdgrid: links groepen, rechts join-kaart -->
+  <section class="dash-main">
+    <!-- LINKERKANT: actieve groepen -->
+    <div class="dash-left">
+      <div class="dash-card">
+        <div class="dash-card-header">
+          <div>
+            <h2 class="dash-card-title">Actieve groepen</h2>
+            <p class="dash-card-sub">Je lopende trips en projecten.</p>
           </div>
-        {% endfor %}
-      </div>
-    {% else %}
-      <p>Je zit nog in geen enkele groep.</p>
-    {% endif %}
 
-    <div style="margin-top: 1rem; display: flex; gap: 1rem;">
-      <a href="{{ url_for('main.create_group') }}" class="button">Nieuwe groep aanmaken</a>
-    </div>
- 
-    <!-- JOIN SECTION -->
-    <section class="join-section">
-      <h3>Een groep joinen</h3>
-      <form method="get" action="{{ url_for('main.join_group', join_code='PLACEHOLDER') }}" 
-            onsubmit="this.action = this.action.replace('PLACEHOLDER', document.getElementById('join_code').value)">
-        <div class="join-row">
-          <input type="text" id="join_code" name="join_code" placeholder="Voer de unieke groepcode in..." required>
-          <button type="submit">Join groep</button>
+          <a href="{{ url_for('main.create_group') }}"
+             class="btn-primary dash-new-btn">
+            + Nieuwe groep aanmaken
+          </a>
         </div>
-      </form>
-    </section>
 
-    <footer>
-      FairSplit+ © 2025 – Alle rechten voorbehouden
-    </footer>
-  </main>
-</body>
-</html>
+        {% if groups %}
+          <ul class="group-list">
+            {% for g in groups %}
+            <li>
+              <a href="{{ url_for('main.group_detail',
+                                   group_id=g['group_id']) }}"
+                 class="group-card">
+                <div class="group-card-main">
+                  <div class="group-avatar">
+                    {{ g.name[0]|upper }}
+                  </div>
+                  <div>
+                    <h3 class="group-name">{{ g.name }}</h3>
+                    <p class="group-meta">
+                      {{ g.currency or 'EUR' }} • Code: {{ g.join_code }}
+                    </p>
+                  </div>
+                </div>
+
+                <span class="group-tag">
+                  Open
+                </span>
+              </a>
+            </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <div class="empty-state">
+            <h3>Nog geen groepen</h3>
+            <p>
+              Maak je eerste groep aan en begin met eerlijk splitsen
+              met je vrienden.
+            </p>
+            <a href="{{ url_for('main.create_group') }}"
+               class="btn-primary">
+              + Start je eerste groep
+            </a>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- RECHTS: join een groep -->
+    <aside class="dash-right">
+      <div class="dash-card">
+        <h2 class="dash-card-title">Een groep joinen</h2>
+        <p class="dash-card-sub">
+          Ontvang een unieke code van je vrienden en voer hem hier in.
+        </p>
+
+        {# Laat hier gewoon dezelfde action staan als je nu gebruikt
+           voor je join-formulier als dat al werkt. #}
+        <form method="post"
+              action="{{ url_for('main.join_group_form') }}"
+              class="join-form">
+          <div class="join-input-wrap">
+            <span class="join-label">Groepscode</span>
+            <input
+              type="text"
+              name="join_code"
+              placeholder="Bijv. ECC07875"
+              required
+            >
+          </div>
+
+          <button type="submit" class="btn-primary btn-full">
+            Join groep
+          </button>
+        </form>
+
+        <p class="auth-tiny">
+          Tip: stuur de code gewoon in WhatsApp of Messenger, copy-paste & join. 🚀
+        </p>
+      </div>
+    </aside>
+  </section>
+</div>
+{% endblock %}
+
 
