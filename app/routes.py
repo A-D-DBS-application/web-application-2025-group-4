@@ -390,3 +390,4 @@ def join_group(join_code):
     return redirect(url_for("main.group_detail", group_id=group["group_id"]))
 
  
+ 

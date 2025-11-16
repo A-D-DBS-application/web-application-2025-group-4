@@ -18,3 +18,4 @@ if not SUPABASE_URL or not SUPABASE_KEY:
 # Maak de Supabase client aan
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
  
+ 
