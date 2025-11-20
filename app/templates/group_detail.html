@@ -5,15 +5,24 @@
 {% block content %}
 <section class="group-page">
 
-  <!-- Header / hero -->
+  <!-- HEADER / HERO -->
   <header class="group-hero">
     <div class="group-hero-main">
       <div class="group-pill">
         Actieve trip
       </div>
-      <h1 class="group-title">
-        {{ group.name }}
-      </h1>
+
+      <div class="group-hero-top-row">
+        <h1 class="group-title">
+          {{ group.name }}
+        </h1>
+
+        <a href="{{ url_for('main.expense_new', group_id=group.group_id) }}"
+           class="btn-primary btn-hero">
+          + Uitgave toevoegen
+        </a>
+      </div>
+
       <p class="group-sub">
         Overzicht van alle uitgaven, betalingen en wie nog wat aan wie verschuldigd is.
       </p>
@@ -74,14 +83,16 @@
     </aside>
   </header>
 
-  <!-- Main layout: leden + acties -->
+  <!-- MAIN LAYOUT: LEDEN + UITGAVEN -->
   <div class="group-body">
-    <!-- Ledenkaart -->
+
+    <!-- GROEPSLEDEN -->
     <section class="group-card">
       <div class="group-card-header">
         <h3>Groepsleden</h3>
         <span class="chip">{{ members|length }} personen</span>
       </div>
+
       {% if members %}
         <ul class="member-list">
           {% for name in members %}
@@ -100,42 +111,57 @@
       {% endif %}
     </section>
 
-    <!-- Acties -->
+    <!-- UITGAVENLIJST -->
     <section class="group-card">
       <div class="group-card-header">
-        <h3>Acties in deze groep</h3>
+        <h3>Uitgaven</h3>
       </div>
 
-      <div class="action-grid">
-        <a href="#" class="action-tile disabled">
-          <div class="action-icon">➕</div>
-          <div class="action-text">
-            <h4>Uitgave toevoegen</h4>
-            <p>Registreer een rekening of betaling die je voorgeschoten hebt.</p>
-          </div>
-          <span class="badge-soon">MVP</span>
-        </a>
+      {% if expenses and expenses|length > 0 %}
+        <ul class="expense-list">
+          {% for e in expenses %}
+            <li class="expense-item">
+              <div class="expense-main">
+                <div class="expense-title-row">
+                  <span class="expense-title">{{ e.description }}</span>
+                  <span class="expense-amount">
+                    {{ "%.2f"|format(e.total_amount) }} {{ group.currency or "EUR" }}
+                  </span>
+                </div>
 
-        <a href="#" class="action-tile disabled">
-          <div class="action-icon">💸</div>
-          <div class="action-text">
-            <h4>Betaling registreren</h4>
-            <p>Noteer wie aan wie betaald heeft buiten de app om.</p>
-          </div>
-          <span class="badge-soon">Binnenkort</span>
-        </a>
-      </div>
+                <div class="expense-meta-row">
+                  <span class="expense-meta">
+                    {{ e.creator }} betaalde
+                    {{ "%.2f"|format(e.total_amount) }} {{ group.currency or "EUR" }}
+                  </span>
+                  {% if e.created_at %}
+                    <span class="expense-meta">
+                      • Toegevoegd op {{ e.created_at[:10] }}
+                    </span>
+                  {% endif %}
+                </div>
 
-      <p class="hint-text">
-        Voor deze MVP houden we het bij een simpel saldo per persoon. 
-        Extra flows (uitgaven-detail, settlement, …) kunnen jullie later uitwerken.
-      </p>
+                {% if e.shares and e.shares|length > 0 %}
+                  <div class="expense-shares">
+                    {% for s in e.shares %}
+                      <span class="share-chip">
+                        {{ s.username }} {{ "%.2f"|format(s.amount) }}
+                      </span>
+                    {% endfor %}
+                  </div>
+                {% endif %}
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="card-empty">
+          Nog geen uitgaven toegevoegd. Klik op “Uitgave toevoegen” om te starten.
+        </p>
+      {% endif %}
     </section>
-  </div>
 
-</section>
+  </div><!-- /.group-body -->
+
+</section><!-- /.group-page -->
 {% endblock %}
-
-
-
- 

@@ -1418,3 +1418,362 @@ button:focus-visible,
   border-color: rgba(59, 130, 246, 0.40);
 }
  
+/* ---------- UITGAVENLIJST IN GROUP DETAIL ---------- */
+
+.expense-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.expense-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #ffffff;
+  border: 1px solid var(--border, rgba(148, 163, 184, 0.4));
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.04);
+}
+
+.expense-description {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.expense-meta {
+  font-size: 12px;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+
+.expense-amount {
+  font-weight: 700;
+  color: hsl(142, 76%, 35%);
+  white-space: nowrap;
+}
+/* ------------------------------ */
+/*  Ongelijke verdeling — Expense */
+/* ------------------------------ */
+
+.share-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.share-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f8fafc;
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  transition: 0.2s ease;
+}
+
+.share-row:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.share-name {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-weight: 500;
+  color: #1e293b;
+}
+
+.share-row .avatar-circle {
+  background: #10b981;        /* groen */
+  color: white;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+}
+
+.share-input input {
+  width: 110px;
+  padding: 0.45rem 0.6rem;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  font-size: 1rem;
+}
+
+.share-input input:focus {
+  border-color: #0ea5e9;
+  outline: 2px solid #bae6fd;
+  background: white;
+}
+
+/* "Verdeel per persoon" tekstje */
+.auth-tiny {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-bottom: 0.3rem;
+}
+/* Toggle voor gelijk / ongelijk verdelen */
+.split-toggle {
+  display: inline-flex;
+  gap: 0.75rem;
+  padding: 0.35rem;
+  border-radius: 999px;
+  background: #eef2ff;
+}
+
+.split-toggle label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: #4b5563;
+}
+
+.split-toggle input[type="radio"] {
+  accent-color: #10b981;
+}
+
+.split-toggle input[type="radio"]:checked + span,
+.split-toggle label:has(input[type="radio"]:checked) {
+  background: white;
+  color: #0f172a;
+  box-shadow: 0 0 0 1px rgba(129, 140, 248, 0.5);
+}
+
+/* Foutmelding bij verkeerde som */
+.form-error {
+  margin-top: 0.35rem;
+  font-size: 0.8rem;
+  color: #b91c1c;
+}
+/* --------- Expense list --------- */
+
+.expense-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.expense-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  background: #f8fafc;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+}
+
+.expense-main {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.expense-title {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.expense-meta {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.expense-shares {
+  font-size: 12px;
+  color: #4b5563;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.share-tag {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.15);
+}
+
+.expense-net {
+  min-width: 80px;
+  text-align: right;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.exp-net-pos {
+  color: #16a34a;
+}
+
+.exp-net-neg {
+  color: #dc2626;
+}
+
+.exp-net-neu {
+  color: #6b7280;
+}
+
+@media (max-width: 700px) {
+  .expense-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .expense-net {
+    align-self: flex-end;
+  }
+}
+/* ---- Expense split summary ---- */
+
+.split-mode-toggle {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  margin-bottom: 6px;
+  background: #e5f0ff;
+  border-radius: 999px;
+  padding: 4px;
+}
+
+.split-pill {
+  flex: 1;
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: #64748b;
+}
+
+.split-pill span.toggle-dot {
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  border: 2px solid #cbd5f5;
+  background: #fff;
+}
+
+.split-pill.active {
+  background: #ffffff;
+  box-shadow: 0 8px 14px rgba(15, 23, 42, 0.06);
+  color: #0f172a;
+}
+
+.split-pill.active span.toggle-dot {
+  border-color: #10b981;
+  background: #dcfce7;
+}
+
+/* summary onder de per-persoon bedragen */
+
+.share-summary {
+  margin-top: 10px;
+  font-size: 13px;
+  color: #64748b;
+  display: none; /* standaard verborgen, alleen bij ongelijke verdeling tonen */
+}
+
+.share-summary-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 2px;
+}
+
+.share-summary-value.ok {
+  color: #16a34a;
+  font-weight: 600;
+}
+
+.share-summary-value.error {
+  color: #dc2626;
+  font-weight: 600;
+}
+/* ---- Expense list on group detail ---- */
+
+.expense-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.expense-item {
+  border-radius: 18px;
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  background: #ffffff;
+  padding: 14px 16px;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.04);
+}
+
+.expense-main-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.expense-title {
+  font-weight: 600;
+  font-size: 15px;
+  color: #0f172a;
+}
+
+.expense-total {
+  font-weight: 700;
+  font-size: 15px;
+  color: #16a34a;
+}
+
+.expense-meta {
+  font-size: 13px;
+  color: #6b7280;
+  margin-bottom: 6px;
+}
+
+.expense-meta strong {
+  font-weight: 600;
+}
+
+.share-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.share-chip {
+  border-radius: 999px;
+  padding: 3px 9px;
+  font-size: 12px;
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.share-chip-amount {
+  font-weight: 600;
+}

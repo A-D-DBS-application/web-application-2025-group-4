@@ -1,0 +1,261 @@
+{# templates/expense_new.html #}
+{% extends "base.html" %}
+{% block title %}Nieuwe uitgave – FairSplit+{% endblock %}
+
+{% block content %}
+<main class="auth-page">
+  <section class="auth-shell" style="max-width:1120px;">
+
+    <!-- LINKERKANT: uitleg -->
+    <div class="auth-left">
+      <span class="auth-pill">Nieuwe uitgave 💸</span>
+      <h1 class="auth-title" style="margin-top:14px;">
+        Nieuwe uitgave voor <span class="accent-text">{{ group.name }}</span>
+      </h1>
+      <p class="auth-lead">
+        Voeg een kost toe voor deze groep. Je kan kiezen tussen een
+        <strong>gelijke verdeling</strong> of een
+        <strong>ongelijke verdeling per persoon</strong>.
+      </p>
+
+      <ul class="auth-benefits">
+        <li>✅ Duidelijke saldi per persoon</li>
+        <li>✅ Per persoon een bedrag invullen</li>
+        <li>✅ Check dat de som gelijk is aan het totaal</li>
+      </ul>
+    </div>
+
+    <!-- RECHTS: formulier -->
+    <div class="auth-card">
+      <h2 class="auth-card-title">Nieuwe uitgave</h2>
+      <p class="auth-card-sub">
+        Vul de details in en kies hoe je de kost wil verdelen.
+      </p>
+
+      <form method="post"
+            action="{{ url_for('main.expense_new', group_id=group_id) }}"
+            class="auth-form"
+            id="expense-form">
+
+        <!-- Beschrijving -->
+        <label class="auth-field">
+          <span>Beschrijving</span>
+          <input
+            type="text"
+            name="description"
+            placeholder="Bv. Treintickets"
+            required>
+        </label>
+
+        <!-- Totaalbedrag -->
+        <label class="auth-field">
+          <span>Bedrag (EUR)</span>
+          <input
+            type="number"
+            step="0.01"
+            min="0"
+            name="amount"
+            id="amount-input"
+            value="0,00"
+            required>
+        </label>
+
+        <!-- Split mode toggle -->
+        <div class="auth-field">
+          <span>Verdeling</span>
+
+          {# verborgen input: niet nodig voor backend, maar handig als je later logica wil #}
+          <input type="hidden" name="split_mode" id="split-mode" value="equal">
+
+          <div class="split-mode-toggle" id="split-toggle">
+            <button type="button"
+                    class="split-pill active"
+                    data-mode="equal"
+                    id="btn-split-equal">
+              <span class="toggle-dot"></span>
+              Gelijk verdelen
+            </button>
+            <button type="button"
+                    class="split-pill"
+                    data-mode="custom"
+                    id="btn-split-custom">
+              <span class="toggle-dot"></span>
+              Ongelijke verdeling
+            </button>
+          </div>
+
+          <small id="split-helper" style="font-size:13px; color:#64748b;">
+            Geef eerst een bedrag in om gelijk te verdelen.
+          </small>
+        </div>
+
+        <!-- Per persoon -->
+        <div class="auth-field">
+          <span>Bedrag per persoon</span>
+
+          <div id="shares-container" style="display:grid; gap:6px; margin-top:6px;">
+            {% for m in members %}
+              <div style="display:flex; align-items:center; gap:8px;">
+                <div class="avatar-circle" style="flex-shrink:0;">
+                  {{ m.username[0]|upper }}
+                </div>
+                <div style="flex:1;">
+                  <div style="font-size:14px; font-weight:600; color:#0f172a;">
+                    {{ m.username }}
+                  </div>
+                </div>
+                <div style="width:120px;">
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    class="share-input"
+                    name="share_{{ m.user_id }}"
+                    placeholder="0,00"
+                    style="width:100%; padding:6px 8px; border-radius:10px; border:1px solid #d4d4d8; font-size:14px; text-align:right;">
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+
+          <!-- Summary blok (alleen bij ongelijke verdeling tonen) -->
+          <div class="share-summary" id="share-summary">
+            <div class="share-summary-row">
+              <span>Totaal ingevuld</span>
+              <span id="share-total" class="share-summary-value">€ 0,00</span>
+            </div>
+            <div class="share-summary-row">
+              <span>Nog te verdelen</span>
+              <span id="share-remaining" class="share-summary-value">€ 0,00</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Submit -->
+        <button type="submit" class="btn-primary btn-full" style="margin-top:10px;">
+          Opslaan
+        </button>
+
+        <p class="auth-tiny">
+          <a href="{{ url_for('main.group_detail', group_id=group_id) }}" style="text-decoration:none;">
+            ← Terug naar groep
+          </a>
+        </p>
+      </form>
+    </div>
+  </section>
+</main>
+
+<script>
+(function () {
+  const amountInput = document.getElementById('amount-input');
+  const splitModeInput = document.getElementById('split-mode');
+  const btnEqual = document.getElementById('btn-split-equal');
+  const btnCustom = document.getElementById('btn-split-custom');
+  const shareInputs = Array.from(document.querySelectorAll('.share-input'));
+  const helperText = document.getElementById('split-helper');
+
+  const summaryBox = document.getElementById('share-summary');
+  const totalSpan = document.getElementById('share-total');
+  const remainingSpan = document.getElementById('share-remaining');
+
+  let currentMode = 'equal';
+
+  function parseAmount(value) {
+    if (!value) return 0;
+    // ondersteuning voor komma's
+    value = value.replace(',', '.');
+    const n = parseFloat(value);
+    return isNaN(n) ? 0 : n;
+  }
+
+  function formatEuro(n) {
+    return '€ ' + n.toFixed(2).replace('.', ',');
+  }
+
+  function setMode(mode) {
+    currentMode = mode;
+    splitModeInput.value = mode;
+
+    if (mode === 'equal') {
+      btnEqual.classList.add('active');
+      btnCustom.classList.remove('active');
+      helperText.textContent = 'Het bedrag wordt gelijk verdeeld over alle leden.';
+      distributeEqually();
+      summaryBox.style.display = 'none';
+    } else {
+      btnCustom.classList.add('active');
+      btnEqual.classList.remove('active');
+      helperText.textContent = 'Vul per persoon een bedrag in. De som moet gelijk zijn aan het totaal.';
+      // inputs mogen aangepast worden
+      shareInputs.forEach(inp => inp.readOnly = false);
+      summaryBox.style.display = 'block';
+      updateCustomSummary();
+    }
+  }
+
+  function distributeEqually() {
+    const total = parseAmount(amountInput.value);
+    const count = shareInputs.length || 1;
+    const perPerson = total / count;
+
+    shareInputs.forEach(inp => {
+      inp.readOnly = true;
+      inp.value = perPerson ? perPerson.toFixed(2) : '';
+    });
+
+    // geen summary tonen in equal mode
+  }
+
+  function updateCustomSummary() {
+    const total = parseAmount(amountInput.value);
+    let sumShares = 0;
+
+    shareInputs.forEach(inp => {
+      sumShares += parseAmount(inp.value);
+    });
+
+    const remaining = total - sumShares;
+
+    totalSpan.textContent = formatEuro(sumShares);
+    remainingSpan.textContent = formatEuro(remaining);
+
+    // styling ok / error op remaining
+    totalSpan.classList.remove('ok', 'error');
+    remainingSpan.classList.remove('ok', 'error');
+
+    // kleine marge van 0.01
+    if (Math.abs(remaining) <= 0.01) {
+      totalSpan.classList.add('ok');
+      remainingSpan.classList.add('ok');
+    } else {
+      remainingSpan.classList.add('error');
+    }
+  }
+
+  // Event listeners
+  btnEqual.addEventListener('click', function () { setMode('equal'); });
+  btnCustom.addEventListener('click', function () { setMode('custom'); });
+
+  amountInput.addEventListener('input', function () {
+    if (currentMode === 'equal') {
+      distributeEqually();
+    } else {
+      updateCustomSummary();
+    }
+  });
+
+  shareInputs.forEach(inp => {
+    inp.addEventListener('input', function () {
+      if (currentMode === 'custom') {
+        updateCustomSummary();
+      }
+    });
+  });
+
+  // init
+  setMode('equal');
+})();
+</script>
+{% endblock %}
+
