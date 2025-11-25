@@ -1,31 +1,73 @@
+{# templates/group_new.html #}
 {% extends "base.html" %}
 {% block title %}{{ _('New group') }} – FairSplit+{% endblock %}
 
 {% block content %}
 <main class="auth-page">
-  <section class="auth-shell">
+  <section class="auth-shell" style="max-width:1120px;">
 
     <div class="auth-left">
       <span class="auth-pill">{{ _('New group') }}</span>
-      <h1 class="auth-title">
+      <h1 class="auth-title" style="margin-top:14px;">
         {{ _('Create a new group') }}
       </h1>
       <p class="auth-lead">
         {{ _('Start a trip or project and split expenses fairly with friends.') }}
       </p>
+
+      <ul class="auth-benefits">
+        <li>✅ {{ _('Create unlimited groups') }}</li>
+        <li>✅ {{ _('Invite friends with a join link') }}</li>
+        <li>✅ {{ _('Track who paid what') }}</li>
+        <li>✅ {{ _('Clear final balances per person') }}</li>
+      </ul>
+
+      <p class="auth-lead" style="margin-top:18px; font-size:14px; color:#64748b;">
+        {{ _('We charge a small app fee:') }}
+        <br>
+        • {{ _('€2 for groups up to 8 people') }}<br>
+        • {{ _('€5 for groups with 9 or more people') }}
+        <br><br>
+        {{ _('The fee is paid by the group creator and is automatically re-split equally every time someone joins.') }}
+      </p>
     </div>
 
     <div class="auth-card">
       <h2 class="auth-card-title">{{ _('New group') }}</h2>
-      <p class="auth-card-sub">{{ _('Give your group a name.') }}</p>
+      <p class="auth-card-sub">
+        {{ _('Give your group a name.') }}
+      </p>
 
-      <form method="post" action="{{ url_for('main.create_group') }}" class="auth-form">
+      <form method="post"
+            action="{{ url_for('main.create_group') }}"
+            class="auth-form">
+
+        <!-- Group name -->
         <label class="auth-field">
           <span>{{ _('Group name') }}</span>
-          <input type="text" name="name" placeholder="{{ _('e.g. Weekend Paris') }}" required>
+          <input type="text"
+                 name="name"
+                 placeholder="{{ _('e.g. Weekend Paris') }}"
+                 required>
         </label>
 
-        <button type="submit" class="btn-primary btn-full">
+        <!-- Start date -->
+        <label class="auth-field">
+          <span>{{ _('Start date') }}</span>
+          <input type="date"
+                 name="start_date"
+                 required>
+        </label>
+
+        <!-- End date -->
+        <label class="auth-field">
+          <span>{{ _('End date') }}</span>
+          <input type="date"
+                 name="end_date"
+                 required>
+        </label>
+
+        <button type="submit" class="btn-primary btn-full" style="margin-top:10px;">
           {{ _('Create group') }}
         </button>
       </form>
@@ -34,6 +76,7 @@
   </section>
 </main>
 {% endblock %}
+
 
 
 

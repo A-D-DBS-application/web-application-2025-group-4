@@ -19,6 +19,7 @@ from app.supabase_client import supabase
 
 main = Blueprint("main", __name__)
 
+
 # -----------------------------
 # HELPERS
 # -----------------------------
@@ -43,6 +44,91 @@ def login_required(func):
         return func(*args, **kwargs)
 
     return wrapper
+
+
+# -----------------------------
+# APP-FEE HELPER
+# -----------------------------
+def ensure_app_fee(group_id, creator_id=None):
+    """
+    Zorgt dat er één 'App fee' expense bestaat in deze groep
+    en dat die gelijk verdeeld is over alle leden.
+
+    - voor groepen met <= 8 leden: totaal 2 EUR
+    - voor groepen met >= 9 leden: totaal 5 EUR
+    """
+
+    # 1) alle leden ophalen
+    gm_rows = (
+        supabase.table("group_members")
+        .select("user_id")
+        .eq("group_id", group_id)
+        .execute()
+        .data
+        or []
+    )
+    member_ids = [gm["user_id"] for gm in gm_rows]
+    member_count = len(member_ids) or 1
+
+    # 2) totale fee bepalen
+    fee_total = Decimal("2.00") if member_count <= 8 else Decimal("5.00")
+
+    # 3) bestaande app-fee zoeken (vaste description, NIET vertalen)
+    app_exp_res = (
+        supabase.table("expenses")
+        .select("*")
+        .eq("group_id", group_id)
+        .eq("description", "App fee")
+        .execute()
+    )
+    app_exp_data = app_exp_res.data or []
+
+    if app_exp_data:
+        expense = app_exp_data[0]
+        expense_id = expense["expense_id"]
+        supabase.table("expenses").update(
+            {"total_amount": float(fee_total)}
+        ).eq("expense_id", expense_id).execute()
+    else:
+        expense = (
+            supabase.table("expenses")
+            .insert(
+                {
+                    "group_id": group_id,
+                    "created_by_user_id": creator_id,
+                    "description": "App fee",  # NIET vertalen
+                    "total_amount": float(fee_total),
+                    "created_at": datetime.utcnow().isoformat(),
+                    "is_active": True,
+                }
+            )
+            .execute()
+            .data[0]
+        )
+        expense_id = expense["expense_id"]
+
+    # 4) bestaande shares verwijderen
+    supabase.table("expense_shares").delete().eq(
+        "expense_id", expense_id
+    ).execute()
+
+    # 5) shares opnieuw gelijk verdelen
+    per_person = (fee_total / member_count).quantize(Decimal("0.01"))
+
+    rows = []
+    for uid in member_ids:
+        rows.append(
+            {
+                "expense_id": expense_id,
+                "group_id": group_id,
+                "user_id": uid,
+                "amount": float(per_person),
+                "created_at": datetime.utcnow().isoformat(),
+            }
+        )
+
+    if rows:
+        supabase.table("expense_shares").insert(rows).execute()
 
 
 # -----------------------------
@@ -98,7 +184,7 @@ def register():
             return redirect(url_for("main.join_group", join_code=join_code))
 
         flash(_("Registratie succesvol!"), "success")
-        return redirect(url_for("main.index"))
+        return redirect(url_for("main.dashboard"))
 
     return render_template("register.html")
 
@@ -132,7 +218,7 @@ def login():
             return redirect(url_for("main.join_group", join_code=join_code))
 
         flash(_("Welkom terug, %(username)s!", username=data[0]["username"]), "success")
-        return redirect(url_for("main.index"))
+        return redirect(url_for("main.dashboard"))
 
     return render_template("login.html")
 
@@ -152,11 +238,26 @@ def logout():
 
 
 # -----------------------------
-# HOME / GROEPEN
+# HOME / LANDING + DASHBOARD
 # -----------------------------
 @main.route("/")
+def home():
+    """
+    Publieke landing page.
+    Als de gebruiker al ingelogd is -> stuur naar dashboard.
+    """
+    user = current_user()
+    if user:
+        return redirect(url_for("main.dashboard"))
+    return render_template("home.html")
+
+
+@main.route("/dashboard")
 @login_required
-def index():
+def dashboard():
+    """
+    Jouw oude index/dashboard met groepen.
+    """
     user = current_user()
     groups = []
 
@@ -197,38 +298,79 @@ def index():
     return render_template("index.html", user=user, groups=groups)
 
 
+# -----------------------------
+# GROUPS – AANMAKEN
+# -----------------------------
 @main.route("/groups/new", methods=["GET", "POST"])
 @login_required
 def create_group():
     user = current_user()
     if request.method == "POST":
         name = request.form.get("name", "").strip()
+        start_date = request.form.get("start_date", "").strip()
+        end_date = request.form.get("end_date", "").strip()
+        max_members_raw = request.form.get("max_members", "").strip()
+
         if not name:
             flash(_("Geef een groepsnaam in."), "danger")
             return redirect(url_for("main.create_group"))
 
+        # optioneel: max members
+        try:
+            max_members = int(max_members_raw) if max_members_raw else None
+        except ValueError:
+            max_members = None
+
         join_code = secrets.token_hex(4).upper()
+        now_iso = datetime.utcnow().isoformat()
+
+        # --- bepaal app fee: < 8 leden = 2 EUR, anders 5 EUR ---
+        if max_members and max_members >= 8:
+            app_fee_amount = 5.0
+        else:
+            app_fee_amount = 2.0
+
+        # 1) groep aanmaken
         group_payload = {
             "name": name,
             "currency": "EUR",
             "join_code": join_code,
             "created_by_user_id": user["users_id"],
-            "created_at": datetime.utcnow().isoformat(),
+            "created_at": now_iso,
+            "start_date": start_date or None,
+            "end_date": end_date or None,
+            "max_members": max_members,
+            "app_fee_amount": app_fee_amount,
         }
         group_resp = supabase.table("groups").insert(group_payload).execute()
         group = group_resp.data[0]
 
+        # 2) maker als lid toevoegen
         supabase.table("group_members").insert(
             {
                 "group_id": group["group_id"],
                 "user_id": user["users_id"],
-                "created_at": datetime.utcnow().isoformat(),
+                "created_at": now_iso,
+            }
+        ).execute()
+
+        # 3) App-fee expense aanmaken (flag voor UI)
+        supabase.table("expenses").insert(
+            {
+                "group_id": group["group_id"],
+                "created_by_user_id": user["users_id"],
+                "description": "App fee",
+                "total_amount": app_fee_amount,
+                "created_at": now_iso,
+                "is_active": True,
+                "is_app_fee": True,
             }
         ).execute()
 
         flash(_("Groep aangemaakt!"), "success")
         return redirect(url_for("main.group_detail", group_id=group["group_id"]))
 
+    # GET
     return render_template("group_new.html")
 
 
@@ -266,7 +408,7 @@ def group_detail(group_id):
     for gm in gm_rows:
         u = (
             supabase.table("users")
-            .select("users_id, username")
+            .select("users_id, username, email")
             .eq("users_id", gm["user_id"])
             .execute()
             .data
@@ -274,10 +416,11 @@ def group_detail(group_id):
         if u:
             members.append(u[0])
 
+    # map user_id -> username (voor saldi + lijsten)
     username_map = {m["users_id"]: m["username"] for m in members}
 
-    # 3) Uitgaven ophalen
-    expenses = (
+    # 3) Uitgaven ophalen (incl. app fee)
+    expenses_rows = (
         supabase.table("expenses")
         .select("*")
         .eq("group_id", group_id)
@@ -287,8 +430,17 @@ def group_detail(group_id):
         or []
     )
 
+    app_fee_expense = None
+    normal_expenses = []
+    for exp in expenses_rows:
+        if exp.get("is_app_fee"):
+            if app_fee_expense is None or exp["created_at"] > app_fee_expense["created_at"]:
+                app_fee_expense = exp
+        else:
+            normal_expenses.append(exp)
+
     # 4) Shares ophalen
-    shares = (
+    shares_rows = (
         supabase.table("expense_shares")
         .select("*")
         .eq("group_id", group_id)
@@ -297,12 +449,10 @@ def group_detail(group_id):
         or []
     )
 
-    # shares per expense_id
     shares_by_expense = {}
-    for s in shares:
+    for s in shares_rows:
         eid = s["expense_id"]
-        shares_by_expense.setdefault(eid, [])
-        shares_by_expense[eid].append(
+        shares_by_expense.setdefault(eid, []).append(
             {
                 "user_id": s["user_id"],
                 "username": username_map.get(s["user_id"], _("Onbekend")),
@@ -310,42 +460,52 @@ def group_detail(group_id):
             }
         )
 
-    # 5) Saldo-berekening
+    # 5) Saldi berekenen  (incl. app fee)
     balances = {m["users_id"]: Decimal("0.00") for m in members}
 
-    for exp in expenses:
+    for exp in expenses_rows:
         creator_id = exp["created_by_user_id"]
-        total = Decimal(str(exp["total_amount"]))
+        total = Decimal(str(exp["total_amount"] or 0))
         eid = exp["expense_id"]
 
-        if eid in shares_by_expense:
-            # custom verdeling
-            for sh in shares_by_expense[eid]:
+        # 5a) App fee: altijd equal split
+        if exp.get("is_app_fee"):
+            count = max(1, len(members))
+            equal_share = total / count
+            for m in members:
+                balances[m["users_id"]] -= equal_share
+            balances[creator_id] += total
+            continue
+
+        # 5b) Gewone expenses
+        exp_shares = shares_by_expense.get(eid)
+
+        if exp_shares:  # custom / expliciete shares
+            for sh in exp_shares:
                 uid = sh["user_id"]
                 val = Decimal(str(sh["amount"]))
                 balances[uid] -= val
             balances[creator_id] += total
-        else:
-            # gelijke verdeling
+        else:  # equal split fallback
             count = max(1, len(members))
             equal_share = total / count
             for m in members:
                 balances[m["users_id"]] -= equal_share
             balances[creator_id] += total
 
-    balances_named = {
-        username_map[uid]: float(amount)
-        for uid, amount in balances.items()
-    }
+    balance_rows = []
+    for uid, amount in balances.items():
+        balance_rows.append(
+            {
+                "user_id": uid,
+                "username": username_map.get(uid, _("Unknown")),
+                "balance": float(amount),
+            }
+        )
 
-    join_link = url_for(
-        "main.join_group",
-        join_code=group["join_code"],
-        _external=True
-    )
-
+    # 6) Uitgavenlijst voor de tabel (zonder app fee)
     expense_list = []
-    for exp in expenses:
+    for exp in normal_expenses:
         eid = exp["expense_id"]
         expense_list.append(
             {
@@ -353,8 +513,29 @@ def group_detail(group_id):
                 "description": exp["description"],
                 "total_amount": exp["total_amount"],
                 "created_at": exp["created_at"],
-                "creator": username_map.get(exp["created_by_user_id"], _("Onbekend")),
+                "payer_username": username_map.get(exp["created_by_user_id"], _("Onbekend")),
                 "shares": shares_by_expense.get(eid, []),
+            }
+        )
+
+    # 7) Betalingen ophalen
+    payments_rows = (
+        supabase.table("payments")
+        .select("*")
+        .eq("group_id", group_id)
+        .execute()
+        .data
+        or []
+    )
+
+    payments = []
+    for p in payments_rows:
+        payments.append(
+            {
+                "created_at": p["created_at"],
+                "amount": p["amount"],
+                "sender_username": username_map.get(p["sender_user_id"], _("Onbekend")),
+                "receiver_username": username_map.get(p["receiver_user_id"], _("Onbekend")),
             }
         )
 
@@ -362,10 +543,11 @@ def group_detail(group_id):
         "group_detail.html",
         user=user,
         group=group,
-        members=[m["username"] for m in members],
-        balances_named=balances_named,
-        join_link=join_link,
+        members=members,
+        balances=balance_rows,
         expenses=expense_list,
+        payments=payments,
+        app_fee_expense=app_fee_expense,
     )
 
 
@@ -379,7 +561,7 @@ def join_group_form():
 
     if not code:
         flash(_("Vul een groepscode in om te joinen."), "warning")
-        return redirect(url_for("main.index"))
+        return redirect(url_for("main.dashboard"))
 
     return redirect(url_for("main.join_group", join_code=code))
 
@@ -410,7 +592,7 @@ def join_group(join_code):
             _("Geen groep gevonden met deze code. Controleer de code en probeer opnieuw."),
             "danger",
         )
-        return redirect(url_for("main.index"))
+        return redirect(url_for("main.dashboard"))
 
     group = g[0]
 
@@ -433,6 +615,9 @@ def join_group(join_code):
             "created_at": datetime.utcnow().isoformat(),
         }
     ).execute()
+
+    # App fee opnieuw verdelen over alle leden
+    ensure_app_fee(group["group_id"], creator_id=group["created_by_user_id"])
 
     flash(_("Je bent toegevoegd aan de groep '%(name)s' 🎉", name=group["name"]), "success")
     return redirect(url_for("main.group_detail", group_id=group["group_id"]))
@@ -457,7 +642,7 @@ def expense_new(group_id):
     )
     if not membership:
         flash(_("Je hebt geen toegang tot deze groep."), "danger")
-        return redirect(url_for("main.index"))
+        return redirect(url_for("main.dashboard"))
 
     g = (
         supabase.table("groups")
@@ -604,4 +789,15 @@ def set_language(lang):
     if lang not in ["nl", "en"]:
         lang = "nl"
     session["lang"] = lang
-    return redirect(request.referrer or url_for("main.index"))
+    return redirect(request.referrer or url_for("main.home"))
+
+
+# -----------------------------
+# LEDGER (TODO)
+# -----------------------------
+@main.route("/groups/<int:group_id>/ledger")
+@login_required
+def ledger(group_id):
+    # TODO: implement ledger
+    return render_template("ledger.html", group_id=group_id)
+

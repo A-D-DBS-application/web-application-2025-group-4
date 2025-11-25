@@ -1,166 +1,221 @@
+{# templates/group_detail.html #}
 {% extends "base.html" %}
 {% block title %}{{ group.name }} – FairSplit+{% endblock %}
 
 {% block content %}
-<section class="group-page">
+<div class="dash-page">
+  <section class="dash-shell" style="max-width:1200px;">
 
-  <!-- HEADER / HERO -->
-  <header class="group-hero">
-    <div class="group-hero-main">
-      <div class="group-pill">
-        {{ _('Active trip') }}
-      </div>
+    <!-- HEADER / HERO -->
+    <header class="dash-banner" style="margin-bottom:24px;">
+      <p class="dash-pill">{{ _('Active trip') }}</p>
+      <div style="display:flex; justify-content:space-between; gap:24px; align-items:flex-start; flex-wrap:wrap;">
+        <div>
+          <h1 class="dash-title">{{ group.name }}</h1>
+          <p class="dash-sub">
+            {{ _('Overview of all expenses, payments and who owes who.') }}
+          </p>
 
-      <div class="group-hero-top-row">
-        <h1 class="group-title">
-          {{ group.name }}
-        </h1>
+          <!-- META: currency, code, dates -->
+          <p class="dash-sub" style="margin-top:8px; font-size:14px; color:#64748b;">
+            {{ _('Currency') }}:
+            <strong>{{ group.currency or 'EUR' }}</strong>
+            •
+            {{ _('Group code') }}:
+            <strong>{{ group.join_code }}</strong>
+          </p>
 
-        <a href="{{ url_for('main.expense_new', group_id=group.group_id) }}"
-           class="btn-primary btn-hero">
-          + {{ _('Add expense') }}
-        </a>
-      </div>
-
-      <p class="group-sub">
-        {{ _('Overview of all expenses, payments and who owes who.') }}
-      </p>
-
-      <div class="group-meta-row">
-        <div class="group-meta-item">
-          <span class="meta-label">{{ _('Currency') }}</span>
-          <span class="meta-value">{{ group.currency or "EUR" }}</span>
+          <p class="dash-sub" style="margin-top:2px; font-size:14px; color:#64748b;">
+            {{ _('Trip dates') }}:
+            {% if group.start_date %}
+              <strong>
+                {{ group.start_date }}
+                {% if group.end_date %} – {{ group.end_date }}{% endif %}
+              </strong>
+            {% else %}
+              <strong>{{ _('Unknown') }}</strong>
+            {% endif %}
+          </p>
         </div>
-        <div class="group-meta-item">
-          <span class="meta-label">{{ _('Group code') }}</span>
-          <span class="meta-value code">{{ group.join_code }}</span>
+
+        <div style="display:flex; flex-direction:column; gap:8px; align-items:flex-end;">
+          <a href="{{ url_for('main.expense_new', group_id=group.group_id) }}"
+             class="btn-primary">
+            {{ _('Add expense') }}
+          </a>
+          <div style="font-size:13px; color:#64748b; text-align:right;">
+            {{ _('Share invite link') }}
+            <br>
+            <code style="background:#eef2ff; padding:2px 6px; border-radius:6px; font-size:12px;">
+              {{ group.join_code }}
+            </code>
+            <button type="button"
+                    class="btn-pill-ghost"
+                    style="margin-left:4px; font-size:12px; padding:4px 10px; box-shadow:none;"
+                    onclick="navigator.clipboard.writeText('{{ group.join_code }}')">
+              {{ _('Copy code') }}
+            </button>
+          </div>
         </div>
-        <div class="group-meta-item">
-          <span class="meta-label">{{ _('Members') }}</span>
-          <span class="meta-value">{{ members|length }}</span>
+      </div>
+    </header>
+
+    <!-- MAIN LAYOUT: 3 kolommen -->
+    <section class="dash-main" style="grid-template-columns:2fr 3fr 2fr; gap:20px; align-items:flex-start;">
+
+      <!-- BALANCES -->
+      <div class="dash-card">
+        <div class="dash-card-header">
+          <div>
+            <h2 class="dash-card-title">{{ _('Balance per person') }}</h2>
+            <p class="dash-card-sub">
+              {{ _('Positive = gets money back. Negative = still has to pay.') }}
+            </p>
+          </div>
         </div>
+
+        {% if balances %}
+          <table class="table">
+            <thead>
+              <tr>
+                <th>{{ _('User') }}</th>
+                <th style="text-align:right;">{{ _('Balance (€)') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in balances %}
+                <tr>
+                  <td>{{ row.username or _('Unknown') }}</td>
+                  <td style="text-align:right;">
+                    {% if row.balance >= 0 %}
+                      <span style="color:#16a34a; font-weight:600;">
+                        € {{ '%.2f'|format(row.balance) }}
+                      </span>
+                    {% else %}
+                      <span style="color:#dc2626; font-weight:600;">
+                        € {{ '%.2f'|format(row.balance) }}
+                      </span>
+                    {% endif %}
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <p class="card-empty">
+            {{ _('No expenses yet. Add your first one to see balances.') }}
+          </p>
+        {% endif %}
       </div>
 
-      <div class="group-cta-row">
-        <button type="button"
-                class="btn-secondary"
-                onclick="navigator.clipboard.writeText('{{ join_link }}')">
-          🔗 {{ _('Share invite link') }}
-        </button>
-        <button type="button"
-                class="btn-pill-ghost"
-                onclick="navigator.clipboard.writeText('{{ group.join_code }}')">
-          {{ _('Copy code') }}
-        </button>
-      </div>
-    </div>
+      <!-- EXPENSES LIST -->
+      <div class="dash-card">
+        <div class="dash-card-header">
+          <div>
+            <h2 class="dash-card-title">{{ _('Expenses') }}</h2>
+          </div>
+        </div>
 
-    <aside class="group-hero-card">
-      <h2>{{ _('Balance per person') }}</h2>
-      <p class="card-sub">
-        {{ _('Positive = gets money back. Negative = still has to pay.') }}
-      </p>
-
-      {% if balances_named %}
-        <ul class="balance-list">
-          {% for name, amount in balances_named.items() %}
-            {% set cls = "pos" if amount > 0 else ("neg" if amount < 0 else "neu") %}
-            <li class="balance-item {{ cls }}">
-              <span class="balance-name">{{ name }}</span>
-              <span class="balance-amount">
-                {% if amount > 0 %}+{% endif %}
-                {{ "%.2f"|format(amount) }} {{ group.currency or "EUR" }}
-              </span>
-            </li>
-          {% endfor %}
-        </ul>
-      {% else %}
-        <p class="card-empty">
-          {{ _('No expenses yet. Add your first one to see balances.') }}
-        </p>
-      {% endif %}
-    </aside>
-  </header>
-
-  <!-- MAIN LAYOUT: LEDEN + UITGAVEN -->
-  <div class="group-body">
-
-    <!-- GROEPSLEDEN -->
-    <section class="group-card">
-      <div class="group-card-header">
-        <h3>{{ _('Group members') }}</h3>
-        <span class="chip">{{ members|length }} {{ _('people') }}</span>
-      </div>
-
-      {% if members %}
-        <ul class="member-list">
-          {% for name in members %}
-            <li class="member-item">
-              <span class="avatar-circle">
-                {{ name[0]|upper }}
-              </span>
-              <div class="member-text">
-                <span class="member-name">{{ name }}</span>
-              </div>
-            </li>
-          {% endfor %}
-        </ul>
-      {% else %}
-        <p class="card-empty">{{ _('No members found.') }}</p>
-      {% endif %}
-    </section>
-
-    <!-- UITGAVENLIJST -->
-    <section class="group-card">
-      <div class="group-card-header">
-        <h3>{{ _('Expenses') }}</h3>
-      </div>
-
-      {% if expenses and expenses|length > 0 %}
-        <ul class="expense-list">
-          {% for e in expenses %}
-            <li class="expense-item">
-              <div class="expense-main">
-                <div class="expense-title-row">
+        {% if expenses %}
+          <ul class="expense-list">
+            {% for e in expenses %}
+              <li class="expense-item">
+                <div class="expense-main-row">
                   <span class="expense-title">{{ e.description }}</span>
-                  <span class="expense-amount">
-                    {{ "%.2f"|format(e.total_amount) }} {{ group.currency or "EUR" }}
+                  <span class="expense-total">
+                    € {{ '%.2f'|format(e.total_amount or 0) }}
                   </span>
                 </div>
+                <div class="expense-meta">
+                  {{ e.created_at[:10] }}
+                  ·
+                  {{ e.payer_username or _('Unknown') }} {{ _('paid') }}
+                </div>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="card-empty">
+            {{ _('No expenses yet. Click “Add expense” to start.') }}
+          </p>
+        {% endif %}
 
-                <div class="expense-meta-row">
-                  <span class="expense-meta">
-                    {{ e.creator }} {{ _('paid') }}
-                    {{ "%.2f"|format(e.total_amount) }} {{ group.currency or "EUR" }}
-                  </span>
-                  {% if e.created_at %}
-                    <span class="expense-meta">
-                      • {{ _('Added on') }} {{ e.created_at[:10] }}
-                    </span>
+        <div style="margin-top:12px;">
+          <a href="{{ url_for('main.ledger', group_id=group.group_id) }}"
+             class="btn-pill-ghost">
+            {{ _('Ledger') }}
+          </a>
+        </div>
+      </div>
+
+      <!-- MEMBERS + PAYMENTS -->
+      <div class="dash-card">
+        <div class="dash-card-header">
+          <div>
+            <h2 class="dash-card-title">{{ _('Group members') }}</h2>
+            <p class="dash-card-sub">
+              {{ members|length }} {{ _('people') }}
+            </p>
+          </div>
+        </div>
+
+        {% if members %}
+          <ul class="member-list">
+            {% for m in members %}
+              <li class="member-item">
+                <div class="avatar-circle">
+                  {{ m.username[0]|upper }}
+                </div>
+                <div>
+                  <div class="member-name">{{ m.username }}</div>
+                  {% if m.email %}
+                    <div class="expense-meta">{{ m.email }}</div>
                   {% endif %}
                 </div>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="card-empty">
+            {{ _('No members found.') }}
+          </p>
+        {% endif %}
 
-                {% if e.shares and e.shares|length > 0 %}
-                  <div class="expense-shares">
-                    {% for s in e.shares %}
-                      <span class="share-chip">
-                        {{ s.username }} {{ "%.2f"|format(s.amount) }}
-                      </span>
-                    {% endfor %}
-                  </div>
-                {% endif %}
-              </div>
-            </li>
-          {% endfor %}
-        </ul>
-      {% else %}
-        <p class="card-empty">
-          {{ _('No expenses yet. Click “Add expense” to start.') }}
-        </p>
-      {% endif %}
+        {% if payments %}
+          <hr style="margin:16px 0; border:none; border-top:1px solid #e5e7eb;">
+
+          <h3 style="font-size:14px; font-weight:600; margin-bottom:6px;">
+            {{ _('Payments (confirmed)') }}
+          </h3>
+
+          <table class="table" style="font-size:13px;">
+            <thead>
+              <tr>
+                <th>{{ _('Date') }}</th>
+                <th>{{ _('Sender → Receiver') }}</th>
+                <th style="text-align:right;">{{ _('Amount (€)') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for p in payments %}
+                <tr>
+                  <td>{{ p.created_at[:10] }}</td>
+                  <td>
+                    {{ p.sender_username or _('Unknown') }} →
+                    {{ p.receiver_username or _('Unknown') }}
+                  </td>
+                  <td style="text-align:right;">
+                    € {{ '%.2f'|format(p.amount or 0) }}
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% endif %}
+      </div>
+
     </section>
-
-  </div><!-- /.group-body -->
-
-</section><!-- /.group-page -->
+  </section>
+</div>
 {% endblock %}
+
