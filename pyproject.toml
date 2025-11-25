@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "web-application-2025-group-4"
+version = "0.1.0"
+description = "Webapplicatie voor groep 4, klaar voor Render deploy"
+authors = ["Margaux Maertens <margaux.maertens@ugent.be>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.110.0"          # Webframework
+uvicorn = "^0.26.0"           # Voor het draaien van de server
+requests = "^2.32.0"          # HTTP-verzoeken
+sqlalchemy = "^2.0.20"        # ORM voor database
+python-dotenv = "^1.0.0"      # Environment variables
+jinja2 = "^3.1.2"             # Templates (optioneel)
+#passlib = "^1.7.9"            # Wachtwoord-hashing
+
+[tool.poetry.dev-dependencies]
+pytest = "^8.0.0"             # Testen
+#pytest-asyncio = "^0.22.0"    # Async testen
+black = "^24.0.0"             # Code formatteren
+isort = "^6.0.0"              # Imports sorteren
+
+[build-system]
+requires = ["poetry-core>=1.5.0"]
+build-backend = "poetry.core.masonry.api"
