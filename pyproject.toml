@@ -4,6 +4,8 @@ version = "0.1.0"
 description = "Webapplicatie voor groep 4, klaar voor Render deploy"
 authors = ["Margaux Maertens <margaux.maertens@ugent.be>"]
 readme = "README.md"
+packages = []   # voeg dit toe
+
 
 [tool.poetry.dependencies]
 python = "^3.11"
@@ -24,3 +26,4 @@ isort = "^6.0.0"              # Imports sorteren
 [build-system]
 requires = ["poetry-core>=1.5.0"]
 build-backend = "poetry.core.masonry.api"
+
