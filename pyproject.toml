@@ -10,16 +10,17 @@ packages = []
 python = "^3.11"
 fastapi = "^0.110.0"
 uvicorn = "^0.26.0"
-gunicorn = "^22.1.0"
+gunicorn = "^20.1.0"
 requests = "^2.32.0"
 sqlalchemy = "^2.0.20"
 python-dotenv = "^1.0.0"
 jinja2 = "^3.1.2"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 pytest = "^8.0.0"
 black = "^24.0.0"
 isort = "^6.0.0"
+
 
 [build-system]
 requires = ["poetry-core>=1.5.0"]
