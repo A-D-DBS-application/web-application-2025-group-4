@@ -115,7 +115,7 @@
             {% endfor %}
           </div>
 
-          <!-- ✅ Samenvatting (hard inline gestyled zodat hij altijd zichtbaar is) -->
+          <!-- Samenvatting met id 'share-summary' zodat JS de kleuren kan zetten -->
           <div id="share-summary"
                style="
                  margin-top:10px;
@@ -163,20 +163,51 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-  const amountInput = document.getElementById("amount-input");
+  const amountInput   = document.getElementById("amount-input");
   const splitModeInput = document.getElementById("split-mode");
 
-  const btnEqual = document.getElementById("btn-split-equal");
+  const btnEqual  = document.getElementById("btn-split-equal");
   const btnCustom = document.getElementById("btn-split-custom");
-  const buttons = [btnEqual, btnCustom];
+  const buttons   = [btnEqual, btnCustom];
 
-  const shareInputs = Array.from(document.querySelectorAll(".share-input"));
-  const totalEl = document.getElementById("share-total");
-  const remainingEl = document.getElementById("share-remaining");
+  const shareInputs  = Array.from(document.querySelectorAll(".share-input"));
+  const totalEl      = document.getElementById("share-total");
+  const remainingEl  = document.getElementById("share-remaining");
+  const summaryBox   = document.getElementById("share-summary");
 
   function getAmount() {
     const v = parseFloat((amountInput.value || "0").replace(",", "."));
     return isNaN(v) ? 0 : v;
+  }
+
+  function setSummaryColors(remaining) {
+    // reset eerst
+    summaryBox.style.background  = "#f8fafc";
+    summaryBox.style.borderColor = "#e2e8f0";
+    totalEl.style.color          = "#0f172a";
+    remainingEl.style.color      = "#0f172a";
+
+    const eps = 0.005; // marge op afronding
+
+    if (Math.abs(remaining) < eps) {
+      // ✅ mooi verdeeld
+      summaryBox.style.background  = "#ecfdf3";
+      summaryBox.style.borderColor = "#22c55e55";
+      totalEl.style.color          = "#15803d";
+      remainingEl.style.color      = "#15803d";
+    } else if (remaining > 0) {
+      // nog te weinig verdeeld
+      summaryBox.style.background  = "#fefce8";
+      summaryBox.style.borderColor = "#eab30855";
+      totalEl.style.color          = "#92400e";
+      remainingEl.style.color      = "#92400e";
+    } else {
+      // te veel verdeeld (blijft negatief over)
+      summaryBox.style.background  = "#fef2f2";
+      summaryBox.style.borderColor = "#ef444455";
+      totalEl.style.color          = "#991b1b";
+      remainingEl.style.color      = "#991b1b";
+    }
   }
 
   function updateSummary() {
@@ -188,8 +219,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const remaining = amount - sumShares;
 
-    totalEl.textContent = "€ " + sumShares.toFixed(2);
+    totalEl.textContent     = "€ " + sumShares.toFixed(2);
     remainingEl.textContent = "€ " + remaining.toFixed(2);
+
+    setSummaryColors(remaining);
   }
 
   function applyEqualSplit() {
@@ -219,6 +252,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  // events
   buttons.forEach(btn => {
     btn.addEventListener("click", () => {
       setActive(btn.dataset.mode);
@@ -246,5 +280,6 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 </script>
 {% endblock %}
+
 
 

@@ -1,0 +1,104 @@
+{# templates/home.html #}
+{% extends "base.html" %}
+{% block title %}FairSplit+ – Minder stress bij gedeelde uitgaven{% endblock %}
+
+{% block content %}
+<div class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-inner">
+
+    <span class="pill">
+      💸 {{ _('Minder stress bij gedeelde uitgaven') }}
+    </span>
+
+    <h1 class="hero-title">
+      {{ _('Deel uitgaven eerlijk') }}
+      <span class="accent-text">
+        {{ _('met vrienden, huisgenoten of op reis.') }}
+      </span>
+    </h1>
+
+    <p class="hero-sub">
+      {{ _(
+        "Hou saldo’s bij per groep, trip of kot. Eén duidelijk overzicht van wie wat betaalde – zonder Excel, discussies of vergeten terugbetalingen."
+      ) }}
+    </p>
+
+    <div class="hero-cta">
+      <a href="{{ url_for('main.register') }}" class="btn-primary">
+        {{ _('Registreer gratis') }}
+      </a>
+      <a href="{{ url_for('main.login') }}" class="btn-ghost btn-sm">
+        {{ _('Ik heb al een account') }}
+      </a>
+    </div>
+
+    <div class="kpis">
+      <div class="kpi">
+        <div class="kpi-n">⚡</div>
+        <div class="kpi-l">
+          {{ _('Uitgaven splitten in seconden') }}
+        </div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-n">👥</div>
+        <div class="kpi-l">
+          {{ _('Perfect voor trips, kot & ploegen') }}
+        </div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-n">📱</div>
+        <div class="kpi-l">
+          {{ _('Werkt op laptop, tablet en smartphone') }}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section class="section">
+  <h2 class="section-title">{{ _('Hoe werkt FairSplit+?') }}</h2>
+
+  <div class="feature-grid">
+    <div class="feature">
+      <div class="feature-emoji">✈️</div>
+      <h3>{{ _('Reizen met vrienden') }}</h3>
+      <p>
+        {{ _(
+          'Maak een groep per reis en houd alle boekingen, boodschappen en activiteiten netjes bij.'
+        ) }}
+      </p>
+    </div>
+
+    <div class="feature">
+      <div class="feature-emoji">🏠</div>
+      <h3>{{ _('Huis of kot-uitgaven') }}</h3>
+      <p>
+        {{ _(
+          'Van huur en energie tot boodschappen: iedereen ziet meteen wie wat betaalde.'
+        ) }}
+      </p>
+    </div>
+
+    <div class="feature">
+      <div class="feature-emoji">🏃</div>
+      <h3>{{ _('Teams & clubs') }}</h3>
+      <p>
+        {{ _(
+          'Gebruik FairSplit+ voor ploegkassen, weekendjes weg of events met je vereniging.'
+        ) }}
+      </p>
+    </div>
+
+    <div class="feature">
+      <div class="feature-emoji">✅</div>
+      <h3>{{ _('Eerlijke afrekening') }}</h3>
+      <p>
+        {{ _(
+          'Automatische berekening van saldi per persoon – simpel, transparant en discussie-vrij.'
+        ) }}
+      </p>
+    </div>
+  </div>
+</section>
+{% endblock %}
