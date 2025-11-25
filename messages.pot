@@ -1,0 +1,593 @@
+# Translations template for PROJECT.
+# Copyright (C) 2025 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2025-11-24 23:37+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.17.0\n"
+
+#: app/routes.py:41
+msgid "Log eerst in om deze pagina te bekijken."
+msgstr ""
+
+#: app/routes.py:62 app/routes.py:113 app/routes.py:492
+msgid "Vul alle velden in."
+msgstr ""
+
+#: app/routes.py:73
+msgid "Gebruikersnaam of e-mailadres bestaat al."
+msgstr ""
+
+#: app/routes.py:100
+msgid "Registratie succesvol!"
+msgstr ""
+
+#: app/routes.py:124
+msgid "Ongeldige inloggegevens."
+msgstr ""
+
+#: app/routes.py:134
+#, python-format
+msgid "Welkom terug, %(username)s!"
+msgstr ""
+
+#: app/routes.py:143
+msgid "Je bent uitgelogd."
+msgstr ""
+
+#: app/routes.py:200
+msgid "Geef een groepsnaam in."
+msgstr ""
+
+#: app/routes.py:222
+msgid "Groep aangemaakt!"
+msgstr ""
+
+#: app/routes.py:301 app/routes.py:349
+msgid "Onbekend"
+msgstr ""
+
+#: app/routes.py:374
+msgid "Vul een groepscode in om te joinen."
+msgstr ""
+
+#: app/routes.py:389
+msgid "Log in of registreer om aan de groep toegevoegd te worden."
+msgstr ""
+
+#: app/routes.py:403
+msgid "Geen groep gevonden met deze code. Controleer de code en probeer opnieuw."
+msgstr ""
+
+#: app/routes.py:419
+#, python-format
+msgid "Je bent al lid van '%(name)s'."
+msgstr ""
+
+#: app/routes.py:430
+#, python-format
+msgid "Je bent toegevoegd aan de groep '%(name)s' 🎉"
+msgstr ""
+
+#: app/routes.py:452
+msgid "Je hebt geen toegang tot deze groep."
+msgstr ""
+
+#: app/routes.py:498
+msgid "Bedrag moet een getal zijn."
+msgstr ""
+
+#: app/routes.py:502
+msgid "Bedrag moet groter zijn dan 0."
+msgstr ""
+
+#: app/routes.py:517
+#, python-format
+msgid "Bedrag bij %(user)s is geen geldig getal."
+msgstr ""
+
+#: app/routes.py:524
+#, python-format
+msgid "Bedrag bij %(user)s mag niet negatief zijn."
+msgstr ""
+
+#: app/routes.py:537
+#, python-format
+msgid ""
+"De som van de individuele bedragen (%(sum).2f) komt niet overeen met het "
+"totaal (%(total).2f)."
+msgstr ""
+
+#: app/routes.py:561
+msgid "Kon uitgave niet opslaan."
+msgstr ""
+
+#: app/routes.py:581
+msgid "Uitgave toegevoegd!"
+msgstr ""
+
+#: app/templates/base.html:33
+msgid "Ingelogd"
+msgstr ""
+
+#: app/templates/base.html:36
+msgid "Log uit"
+msgstr ""
+
+#: app/templates/base.html:41 app/templates/login.html:2
+#: app/templates/login.html:24
+msgid "Login"
+msgstr ""
+
+#: app/templates/base.html:45
+msgid "Registreer"
+msgstr ""
+
+#: app/templates/base.html:69
+msgid "Alle rechten voorbehouden"
+msgstr ""
+
+#: app/templates/expense_new.html:2 app/templates/expense_new.html:28
+msgid "New expense"
+msgstr ""
+
+#: app/templates/expense_new.html:9
+msgid "New expense 💸"
+msgstr ""
+
+#: app/templates/expense_new.html:11
+msgid "New expense for"
+msgstr ""
+
+#: app/templates/expense_new.html:14
+msgid "Add an expense to this group. You can choose an"
+msgstr ""
+
+#: app/templates/expense_new.html:15
+msgid "equal split"
+msgstr ""
+
+#: app/templates/expense_new.html:16
+msgid "or a"
+msgstr ""
+
+#: app/templates/expense_new.html:17
+msgid "custom split per person"
+msgstr ""
+
+#: app/templates/expense_new.html:21
+msgid "Clear balances per person"
+msgstr ""
+
+#: app/templates/expense_new.html:22
+msgid "Enter an amount per person"
+msgstr ""
+
+#: app/templates/expense_new.html:23
+msgid "Check that totals match"
+msgstr ""
+
+#: app/templates/expense_new.html:30
+msgid "Fill in the details and choose how to split the cost."
+msgstr ""
+
+#: app/templates/expense_new.html:39 app/templates/ledger.html:50
+msgid "Description"
+msgstr ""
+
+#: app/templates/expense_new.html:40
+msgid "e.g. Train tickets"
+msgstr ""
+
+#: app/templates/expense_new.html:44
+msgid "Amount (EUR)"
+msgstr ""
+
+#: app/templates/expense_new.html:49
+msgid "Split"
+msgstr ""
+
+#: app/templates/expense_new.html:55
+msgid "Equal split"
+msgstr ""
+
+#: app/templates/expense_new.html:59
+msgid "Custom split"
+msgstr ""
+
+#: app/templates/expense_new.html:64
+msgid "Enter an amount first to split equally."
+msgstr ""
+
+#: app/templates/expense_new.html:69
+msgid "Amount per person"
+msgstr ""
+
+#: app/templates/expense_new.html:98
+msgid "Total entered"
+msgstr ""
+
+#: app/templates/expense_new.html:102
+msgid "Remaining"
+msgstr ""
+
+#: app/templates/expense_new.html:109
+msgid "Save"
+msgstr ""
+
+#: app/templates/expense_new.html:114 app/templates/ledger.html:35
+msgid "Back to group"
+msgstr ""
+
+#: app/templates/group_detail.html:11
+msgid "Active trip"
+msgstr ""
+
+#: app/templates/group_detail.html:21
+msgid "Add expense"
+msgstr ""
+
+#: app/templates/group_detail.html:26
+msgid "Overview of all expenses, payments and who owes who."
+msgstr ""
+
+#: app/templates/group_detail.html:31
+msgid "Currency"
+msgstr ""
+
+#: app/templates/group_detail.html:35 app/templates/group_join.html:21
+#: app/templates/index.html:84
+msgid "Group code"
+msgstr ""
+
+#: app/templates/group_detail.html:39
+msgid "Members"
+msgstr ""
+
+#: app/templates/group_detail.html:48
+msgid "Share invite link"
+msgstr ""
+
+#: app/templates/group_detail.html:53
+msgid "Copy code"
+msgstr ""
+
+#: app/templates/group_detail.html:59
+msgid "Balance per person"
+msgstr ""
+
+#: app/templates/group_detail.html:61
+msgid "Positive = gets money back. Negative = still has to pay."
+msgstr ""
+
+#: app/templates/group_detail.html:79
+msgid "No expenses yet. Add your first one to see balances."
+msgstr ""
+
+#: app/templates/group_detail.html:91
+msgid "Group members"
+msgstr ""
+
+#: app/templates/group_detail.html:92
+msgid "people"
+msgstr ""
+
+#: app/templates/group_detail.html:109
+msgid "No members found."
+msgstr ""
+
+#: app/templates/group_detail.html:116 app/templates/ledger.html:45
+msgid "Expenses"
+msgstr ""
+
+#: app/templates/group_detail.html:133
+msgid "paid"
+msgstr ""
+
+#: app/templates/group_detail.html:138
+msgid "Added on"
+msgstr ""
+
+#: app/templates/group_detail.html:158
+msgid "No expenses yet. Click “Add expense” to start."
+msgstr ""
+
+#: app/templates/group_join.html:5 app/templates/group_join.html:17
+#: app/templates/group_join.html:23 app/templates/index.html:89
+msgid "Join group"
+msgstr ""
+
+#: app/templates/group_join.html:18
+msgid "Enter the unique code of the group below."
+msgstr ""
+
+#: app/templates/group_join.html:22
+msgid "e.g. A3F9C2"
+msgstr ""
+
+#: app/templates/group_join.html:27
+msgid "Back to dashboard"
+msgstr ""
+
+#: app/templates/group_new.html:2 app/templates/group_new.html:9
+#: app/templates/group_new.html:19
+msgid "New group"
+msgstr ""
+
+#: app/templates/group_new.html:11
+msgid "Create a new group"
+msgstr ""
+
+#: app/templates/group_new.html:14
+msgid "Start a trip or project and split expenses fairly with friends."
+msgstr ""
+
+#: app/templates/group_new.html:20
+msgid "Give your group a name."
+msgstr ""
+
+#: app/templates/group_new.html:24
+msgid "Group name"
+msgstr ""
+
+#: app/templates/group_new.html:25
+msgid "e.g. Weekend Paris"
+msgstr ""
+
+#: app/templates/group_new.html:29
+msgid "Create group"
+msgstr ""
+
+#: app/templates/index.html:3
+msgid "Dashboard"
+msgstr ""
+
+#: app/templates/index.html:8
+msgid "Welcome back"
+msgstr ""
+
+#: app/templates/index.html:11
+msgid "good to see you again"
+msgstr ""
+
+#: app/templates/index.html:15
+msgid "Overview of your groups, trips and friends you bankrupt 😅"
+msgstr ""
+
+#: app/templates/index.html:24
+msgid "Active groups"
+msgstr ""
+
+#: app/templates/index.html:25
+msgid "Your ongoing trips and projects."
+msgstr ""
+
+#: app/templates/index.html:30
+msgid "Create new group"
+msgstr ""
+
+#: app/templates/index.html:47
+msgid "Code"
+msgstr ""
+
+#: app/templates/index.html:53
+msgid "Open"
+msgstr ""
+
+#: app/templates/index.html:61
+msgid "No groups yet"
+msgstr ""
+
+#: app/templates/index.html:63
+msgid "Create your first group and start splitting expenses fairly with friends."
+msgstr ""
+
+#: app/templates/index.html:66
+msgid "Start your first group"
+msgstr ""
+
+#: app/templates/index.html:75
+msgid "Join a group"
+msgstr ""
+
+#: app/templates/index.html:77
+msgid "Enter the unique code you received from your friends."
+msgstr ""
+
+#: app/templates/index.html:85
+msgid "e.g. ECC07875"
+msgstr ""
+
+#: app/templates/index.html:94
+msgid "Tip: just send the code via WhatsApp or Messenger, copy-paste & join. 🚀"
+msgstr ""
+
+#: app/templates/ledger.html:5 app/templates/ledger.html:41
+msgid "Ledger"
+msgstr ""
+
+#: app/templates/ledger.html:49 app/templates/ledger.html:71
+msgid "Date"
+msgstr ""
+
+#: app/templates/ledger.html:51
+msgid "Total (€)"
+msgstr ""
+
+#: app/templates/ledger.html:67
+msgid "Payments (confirmed)"
+msgstr ""
+
+#: app/templates/ledger.html:72
+msgid "Sender → Receiver"
+msgstr ""
+
+#: app/templates/ledger.html:73
+msgid "Amount (€)"
+msgstr ""
+
+#: app/templates/ledger.html:90
+msgid "Final balances"
+msgstr ""
+
+#: app/templates/ledger.html:94
+msgid "User"
+msgstr ""
+
+#: app/templates/ledger.html:95
+msgid "Balance (€)"
+msgstr ""
+
+#: app/templates/ledger.html:110
+msgid "Export CSV"
+msgstr ""
+
+#: app/templates/login.html:9
+msgid "Welcome back 👋"
+msgstr ""
+
+#: app/templates/login.html:11
+msgid "Log in to your"
+msgstr ""
+
+#: app/templates/login.html:11
+msgid "groups"
+msgstr ""
+
+#: app/templates/login.html:14
+msgid ""
+"See your trips, add expenses and settle everything fairly. One login for "
+"all groups."
+msgstr ""
+
+#: app/templates/login.html:17
+msgid "Split expenses in seconds"
+msgstr ""
+
+#: app/templates/login.html:18
+msgid "Full transparency per group"
+msgstr ""
+
+#: app/templates/login.html:19
+msgid "No more Excel or arguments"
+msgstr ""
+
+#: app/templates/login.html:25
+msgid "Use your username or email address."
+msgstr ""
+
+#: app/templates/login.html:29
+msgid "Username or email"
+msgstr ""
+
+#: app/templates/login.html:35 app/templates/register.html:57
+msgid "Password"
+msgstr ""
+
+#: app/templates/login.html:39
+msgid "Log in"
+msgstr ""
+
+#: app/templates/login.html:43
+msgid "No account yet?"
+msgstr ""
+
+#: app/templates/login.html:44
+msgid "Register for free"
+msgstr ""
+
+#: app/templates/login.html:48
+msgid "By logging in you agree to fair splits & good vibes ✌️"
+msgstr ""
+
+#: app/templates/register.html:2 app/templates/register.html:27
+msgid "Register"
+msgstr ""
+
+#: app/templates/register.html:7
+msgid "Get started free"
+msgstr ""
+
+#: app/templates/register.html:8
+msgid "Create your FairSplit+ account"
+msgstr ""
+
+#: app/templates/register.html:10
+msgid "One profile for all your group expenses: trips, roommates, teams and more."
+msgstr ""
+
+#: app/templates/register.html:14
+msgid "Create unlimited groups"
+msgstr ""
+
+#: app/templates/register.html:15
+msgid "Invite friends with a join link"
+msgstr ""
+
+#: app/templates/register.html:16
+msgid "Track who paid what"
+msgstr ""
+
+#: app/templates/register.html:17
+msgid "Clear final balances per person"
+msgstr ""
+
+#: app/templates/register.html:21
+msgid "Already have an account?"
+msgstr ""
+
+#: app/templates/register.html:22
+msgid "Log in here"
+msgstr ""
+
+#: app/templates/register.html:28
+msgid "Fill in your details to start."
+msgstr ""
+
+#: app/templates/register.html:34
+msgid "Name"
+msgstr ""
+
+#: app/templates/register.html:35
+msgid "First Last"
+msgstr ""
+
+#: app/templates/register.html:38
+msgid "Username"
+msgstr ""
+
+#: app/templates/register.html:43
+msgid "Email"
+msgstr ""
+
+#: app/templates/register.html:48
+msgid "Phone number"
+msgstr ""
+
+#: app/templates/register.html:52
+msgid "IBAN"
+msgstr ""
+
+#: app/templates/register.html:58
+msgid "Choose a strong password"
+msgstr ""
+
+#: app/templates/register.html:61
+msgid "Create account"
+msgstr ""
+
+#: app/templates/register.html:66
+msgid "Your data is only used to keep balances correct."
+msgstr ""
+

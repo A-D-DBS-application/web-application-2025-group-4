@@ -1777,3 +1777,59 @@ button:focus-visible,
 .share-chip-amount {
   font-weight: 600;
 }
+.topnav{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:1rem 0;
+}
+
+.brand-link{
+  display:flex;
+  align-items:center;
+  gap:.75rem;
+  text-decoration:none;
+}
+
+.brand-logo{
+  height:32px;
+  width:auto;
+}
+
+.brand-name{
+  font-weight:700;
+  font-size:1.1rem;
+}
+
+.nav-right{
+  display:flex;
+  gap:.75rem;
+  align-items:center;
+}
+
+.nav-muted{
+  font-size:.9rem;
+  color:#64748b;
+}
+
+.lang-switch{
+  display:flex;
+  gap:.4rem;
+  align-items:center;
+  font-size:.9rem;
+  color:#64748b;
+}
+
+.lang-link{
+  text-decoration:none;
+  font-weight:600;
+  color:#64748b;
+}
+
+.lang-link.active{
+  color:hsl(142,76%,45%);
+}
+
+.lang-sep{
+  opacity:.5;
+}

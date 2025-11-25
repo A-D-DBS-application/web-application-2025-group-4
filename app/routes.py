@@ -13,6 +13,8 @@ from datetime import datetime
 from decimal import Decimal
 import secrets
 
+from flask_babel import gettext as _  # ✅ i18n
+
 from app.supabase_client import supabase
 
 main = Blueprint("main", __name__)
@@ -36,7 +38,7 @@ def login_required(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         if not current_user():
-            flash("Log eerst in om deze pagina te bekijken.", "warning")
+            flash(_("Log eerst in om deze pagina te bekijken."), "warning")
             return redirect(url_for("main.login"))
         return func(*args, **kwargs)
 
@@ -57,7 +59,7 @@ def register():
         password = request.form.get("password", "").strip()
 
         if not all([name, username, email, phone_number, iban, password]):
-            flash("Vul alle velden in.", "danger")
+            flash(_("Vul alle velden in."), "danger")
             return redirect(url_for("main.register"))
 
         existing = (
@@ -68,7 +70,7 @@ def register():
             .data
         )
         if existing:
-            flash("Gebruikersnaam of e-mailadres bestaat al.", "danger")
+            flash(_("Gebruikersnaam of e-mailadres bestaat al."), "danger")
             return redirect(url_for("main.register"))
 
         new_user = (
@@ -95,7 +97,7 @@ def register():
         if join_code:
             return redirect(url_for("main.join_group", join_code=join_code))
 
-        flash("Registratie succesvol!", "success")
+        flash(_("Registratie succesvol!"), "success")
         return redirect(url_for("main.index"))
 
     return render_template("register.html")
@@ -108,7 +110,7 @@ def login():
         password = request.form.get("password", "").strip()
 
         if not identifier or not password:
-            flash("Vul alle velden in.", "danger")
+            flash(_("Vul alle velden in."), "danger")
             return redirect(url_for("main.login"))
 
         res = (
@@ -119,7 +121,7 @@ def login():
         )
         data = res.data or []
         if not data or data[0].get("password") != password:
-            flash("Ongeldige inloggegevens.", "danger")
+            flash(_("Ongeldige inloggegevens."), "danger")
             return redirect(url_for("main.login"))
 
         session["users_id"] = data[0]["users_id"]
@@ -129,7 +131,7 @@ def login():
         if join_code:
             return redirect(url_for("main.join_group", join_code=join_code))
 
-        flash(f"Welkom terug, {data[0]['username']}!", "success")
+        flash(_("Welkom terug, %(username)s!", username=data[0]["username"]), "success")
         return redirect(url_for("main.index"))
 
     return render_template("login.html")
@@ -137,8 +139,15 @@ def login():
 
 @main.route("/logout")
 def logout():
+    # bewaar taalkeuze
+    lang = session.get("lang", "nl")
+
     session.clear()
-    flash("Je bent uitgelogd.", "info")
+
+    # zet taal terug
+    session["lang"] = lang
+
+    flash(_("Je bent uitgelogd."), "info")
     return redirect(url_for("main.login"))
 
 
@@ -195,7 +204,7 @@ def create_group():
     if request.method == "POST":
         name = request.form.get("name", "").strip()
         if not name:
-            flash("Geef een groepsnaam in.", "danger")
+            flash(_("Geef een groepsnaam in."), "danger")
             return redirect(url_for("main.create_group"))
 
         join_code = secrets.token_hex(4).upper()
@@ -217,7 +226,7 @@ def create_group():
             }
         ).execute()
 
-        flash("Groep aangemaakt!", "success")
+        flash(_("Groep aangemaakt!"), "success")
         return redirect(url_for("main.group_detail", group_id=group["group_id"]))
 
     return render_template("group_new.html")
@@ -265,7 +274,6 @@ def group_detail(group_id):
         if u:
             members.append(u[0])
 
-    # { user_id: username } voor snelle lookup
     username_map = {m["users_id"]: m["username"] for m in members}
 
     # 3) Uitgaven ophalen
@@ -289,7 +297,7 @@ def group_detail(group_id):
         or []
     )
 
-    # shares per expense_id groeperen
+    # shares per expense_id
     shares_by_expense = {}
     for s in shares:
         eid = s["expense_id"]
@@ -297,7 +305,7 @@ def group_detail(group_id):
         shares_by_expense[eid].append(
             {
                 "user_id": s["user_id"],
-                "username": username_map.get(s["user_id"], "Onbekend"),
+                "username": username_map.get(s["user_id"], _("Onbekend")),
                 "amount": s["amount"],
             }
         )
@@ -311,30 +319,31 @@ def group_detail(group_id):
         eid = exp["expense_id"]
 
         if eid in shares_by_expense:
-            # Ongelijke verdeling via expense_shares
+            # custom verdeling
             for sh in shares_by_expense[eid]:
                 uid = sh["user_id"]
                 val = Decimal(str(sh["amount"]))
                 balances[uid] -= val
-            # De betaler heeft alles voorgeschoten
             balances[creator_id] += total
         else:
-            # Gelijke verdeling
+            # gelijke verdeling
             count = max(1, len(members))
             equal_share = total / count
             for m in members:
                 balances[m["users_id"]] -= equal_share
             balances[creator_id] += total
 
-    # Map saldo naar usernames
     balances_named = {
-        username_map[uid]: float(amount) for uid, amount in balances.items()
+        username_map[uid]: float(amount)
+        for uid, amount in balances.items()
     }
 
-    # 6) Join link
-    join_link = url_for("main.join_group", join_code=group["join_code"], _external=True)
+    join_link = url_for(
+        "main.join_group",
+        join_code=group["join_code"],
+        _external=True
+    )
 
-    # 7) Uitgaven voorbereiden voor template
     expense_list = []
     for exp in expenses:
         eid = exp["expense_id"]
@@ -344,12 +353,11 @@ def group_detail(group_id):
                 "description": exp["description"],
                 "total_amount": exp["total_amount"],
                 "created_at": exp["created_at"],
-                "creator": username_map.get(exp["created_by_user_id"], "Onbekend"),
+                "creator": username_map.get(exp["created_by_user_id"], _("Onbekend")),
                 "shares": shares_by_expense.get(eid, []),
             }
         )
 
-    # 8) Renderen
     return render_template(
         "group_detail.html",
         user=user,
@@ -362,42 +370,34 @@ def group_detail(group_id):
 
 
 # -----------------------------
-# JOIN GROUP (via formulier op dashboard)
+# JOIN GROUP (via dashboard form)
 # -----------------------------
 @main.route("/join", methods=["POST"])
 @login_required
 def join_group_form():
-    """
-    Leest de code uit het join-formulier op de dashboardpagina,
-    valideert ze globaal en stuurt door naar de echte join_route.
-    """
     code = request.form.get("join_code", "").strip().upper()
 
     if not code:
-        flash("Vul een groepscode in om te joinen.", "warning")
+        flash(_("Vul een groepscode in om te joinen."), "warning")
         return redirect(url_for("main.index"))
 
-    # Gewoon redirecten naar de 'echte' join-route
     return redirect(url_for("main.join_group", join_code=code))
 
 
 # -----------------------------
-# JOIN GROUP (werkt ook voor niet-ingelogden via link)
+# JOIN GROUP (link)
 # -----------------------------
 @main.route("/join/<string:join_code>")
 def join_group(join_code):
-    # Normaliseer code
     join_code = (join_code or "").strip().upper()
 
-    # Niet ingelogd? Code bewaren en naar login sturen
     if "users_id" not in session:
         session["pending_join_code"] = join_code
-        flash("Log in of registreer om aan de groep toegevoegd te worden.", "info")
+        flash(_("Log in of registreer om aan de groep toegevoegd te worden."), "info")
         return redirect(url_for("main.login"))
 
     user = current_user()
 
-    # 1) Bestaat deze groep?
     g = (
         supabase.table("groups")
         .select("*")
@@ -406,12 +406,14 @@ def join_group(join_code):
         .data
     )
     if not g:
-        flash("Geen groep gevonden met deze code. Controleer de code en probeer opnieuw.", "danger")
+        flash(
+            _("Geen groep gevonden met deze code. Controleer de code en probeer opnieuw."),
+            "danger",
+        )
         return redirect(url_for("main.index"))
 
     group = g[0]
 
-    # 2) Is gebruiker al lid?
     existing = (
         supabase.table("group_members")
         .select("*")
@@ -421,10 +423,9 @@ def join_group(join_code):
         .data
     )
     if existing:
-        flash(f"Je bent al lid van '{group['name']}'.", "info")
+        flash(_("Je bent al lid van '%(name)s'.", name=group["name"]), "info")
         return redirect(url_for("main.group_detail", group_id=group["group_id"]))
 
-    # 3) Toevoegen aan groep
     supabase.table("group_members").insert(
         {
             "group_id": group["group_id"],
@@ -433,7 +434,7 @@ def join_group(join_code):
         }
     ).execute()
 
-    flash(f"Je bent toegevoegd aan de groep '{group['name']}' 🎉", "success")
+    flash(_("Je bent toegevoegd aan de groep '%(name)s' 🎉", name=group["name"]), "success")
     return redirect(url_for("main.group_detail", group_id=group["group_id"]))
 
 
@@ -443,11 +444,8 @@ def join_group(join_code):
 @main.route("/group/<int:group_id>/expense/new", methods=["GET", "POST"])
 @login_required
 def expense_new(group_id):
-    """Nieuwe uitgave aanmaken (met optie per persoon verdelen)."""
-
     uid = session.get("users_id")
 
-    # Check of de gebruiker lid is van deze groep
     membership = (
         supabase.table("group_members")
         .select("*")
@@ -458,10 +456,9 @@ def expense_new(group_id):
         or []
     )
     if not membership:
-        flash("Je hebt geen toegang tot deze groep.", "danger")
+        flash(_("Je hebt geen toegang tot deze groep."), "danger")
         return redirect(url_for("main.index"))
 
-    # Groep info ophalen (voor titel / valuta)
     g = (
         supabase.table("groups")
         .select("*")
@@ -471,7 +468,6 @@ def expense_new(group_id):
     )
     group = g[0] if g else None
 
-    # Alle leden van de groep ophalen (met id + naam)
     gm_rows = (
         supabase.table("group_members")
         .select("*")
@@ -500,20 +496,19 @@ def expense_new(group_id):
         amount_raw = request.form.get("amount", "").strip()
 
         if not description or not amount_raw:
-            flash("Vul alle velden in.", "danger")
+            flash(_("Vul alle velden in."), "danger")
             return redirect(request.url)
 
         try:
             total_amount = float(amount_raw.replace(",", "."))
         except ValueError:
-            flash("Bedrag moet een getal zijn.", "danger")
+            flash(_("Bedrag moet een getal zijn."), "danger")
             return redirect(request.url)
 
         if total_amount <= 0:
-            flash("Bedrag moet groter zijn dan 0.", "danger")
+            flash(_("Bedrag moet groter zijn dan 0."), "danger")
             return redirect(request.url)
 
-        # --------------- lees per-persoon bedragen ---------------
         shares = []
         for m in members:
             field_name = f"share_{m['user_id']}"
@@ -526,38 +521,34 @@ def expense_new(group_id):
                 share_val = float(share_raw.replace(",", "."))
             except ValueError:
                 flash(
-                    f"Bedrag bij {m['username']} is geen geldig getal.",
+                    _("Bedrag bij %(user)s is geen geldig getal.", user=m["username"]),
                     "danger",
                 )
                 return redirect(request.url)
 
             if share_val < 0:
                 flash(
-                    f"Bedrag bij {m['username']} mag niet negatief zijn.",
+                    _("Bedrag bij %(user)s mag niet negatief zijn.", user=m["username"]),
                     "danger",
                 )
                 return redirect(request.url)
 
             if share_val > 0:
-                shares.append(
-                    {
-                        "user_id": m["user_id"],
-                        "amount": share_val,
-                    }
-                )
+                shares.append({"user_id": m["user_id"], "amount": share_val})
 
-        # Als er custom shares zijn, moet de som gelijk zijn aan totaalbedrag
         if shares:
             sum_shares = sum(s["amount"] for s in shares)
-            if abs(sum_shares - total_amount) > 0.01:  # kleine marge
+            if abs(sum_shares - total_amount) > 0.01:
                 flash(
-                    f"De som van de individuele bedragen ({sum_shares:.2f}) "
-                    f"komt niet overeen met het totaal ({total_amount:.2f}).",
+                    _(
+                        "De som van de individuele bedragen (%(sum).2f) komt niet overeen met het totaal (%(total).2f).",
+                        sum=sum_shares,
+                        total=total_amount,
+                    ),
                     "danger",
                 )
                 return redirect(request.url)
 
-        # --------------- expense bewaren ---------------
         exp_resp = (
             supabase.table("expenses")
             .insert(
@@ -574,13 +565,12 @@ def expense_new(group_id):
         )
 
         if not exp_resp.data:
-            flash("Kon uitgave niet opslaan.", "danger")
+            flash(_("Kon uitgave niet opslaan."), "danger")
             return redirect(request.url)
 
         expense = exp_resp.data[0]
         expense_id = expense["expense_id"]
 
-        # --------------- shares bewaren (indien ingevuld) ---------------
         if shares:
             rows = []
             for s in shares:
@@ -593,16 +583,25 @@ def expense_new(group_id):
                         "created_at": datetime.utcnow().isoformat(),
                     }
                 )
-
             supabase.table("expense_shares").insert(rows).execute()
 
-        flash("Uitgave toegevoegd!", "success")
+        flash(_("Uitgave toegevoegd!"), "success")
         return redirect(url_for("main.group_detail", group_id=group_id))
 
-    # GET: toon formulier
     return render_template(
         "expense_new.html",
         group=group,
         group_id=group_id,
         members=members,
     )
+
+
+# -----------------------------
+# TAAL SWITCH
+# -----------------------------
+@main.route("/set-lang/<lang>")
+def set_language(lang):
+    if lang not in ["nl", "en"]:
+        lang = "nl"
+    session["lang"] = lang
+    return redirect(request.referrer or url_for("main.index"))

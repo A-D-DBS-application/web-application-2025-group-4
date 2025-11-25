@@ -1,4 +1,3 @@
-{# templates/group_detail.html #}
 {% extends "base.html" %}
 {% block title %}{{ group.name }} – FairSplit+{% endblock %}
 
@@ -9,7 +8,7 @@
   <header class="group-hero">
     <div class="group-hero-main">
       <div class="group-pill">
-        Actieve trip
+        {{ _('Active trip') }}
       </div>
 
       <div class="group-hero-top-row">
@@ -19,25 +18,25 @@
 
         <a href="{{ url_for('main.expense_new', group_id=group.group_id) }}"
            class="btn-primary btn-hero">
-          + Uitgave toevoegen
+          + {{ _('Add expense') }}
         </a>
       </div>
 
       <p class="group-sub">
-        Overzicht van alle uitgaven, betalingen en wie nog wat aan wie verschuldigd is.
+        {{ _('Overview of all expenses, payments and who owes who.') }}
       </p>
 
       <div class="group-meta-row">
         <div class="group-meta-item">
-          <span class="meta-label">Valuta</span>
+          <span class="meta-label">{{ _('Currency') }}</span>
           <span class="meta-value">{{ group.currency or "EUR" }}</span>
         </div>
         <div class="group-meta-item">
-          <span class="meta-label">Groepscode</span>
+          <span class="meta-label">{{ _('Group code') }}</span>
           <span class="meta-value code">{{ group.join_code }}</span>
         </div>
         <div class="group-meta-item">
-          <span class="meta-label">Leden</span>
+          <span class="meta-label">{{ _('Members') }}</span>
           <span class="meta-value">{{ members|length }}</span>
         </div>
       </div>
@@ -46,20 +45,20 @@
         <button type="button"
                 class="btn-secondary"
                 onclick="navigator.clipboard.writeText('{{ join_link }}')">
-          🔗 Deel invite-link
+          🔗 {{ _('Share invite link') }}
         </button>
         <button type="button"
                 class="btn-pill-ghost"
                 onclick="navigator.clipboard.writeText('{{ group.join_code }}')">
-          Code kopiëren
+          {{ _('Copy code') }}
         </button>
       </div>
     </div>
 
     <aside class="group-hero-card">
-      <h2>Saldo per persoon</h2>
+      <h2>{{ _('Balance per person') }}</h2>
       <p class="card-sub">
-        Positief = krijgt nog geld. Negatief = moet nog betalen.
+        {{ _('Positive = gets money back. Negative = still has to pay.') }}
       </p>
 
       {% if balances_named %}
@@ -77,7 +76,7 @@
         </ul>
       {% else %}
         <p class="card-empty">
-          Nog geen uitgaven of betalingen. Voeg je eerste kost toe om de saldi te zien.
+          {{ _('No expenses yet. Add your first one to see balances.') }}
         </p>
       {% endif %}
     </aside>
@@ -89,8 +88,8 @@
     <!-- GROEPSLEDEN -->
     <section class="group-card">
       <div class="group-card-header">
-        <h3>Groepsleden</h3>
-        <span class="chip">{{ members|length }} personen</span>
+        <h3>{{ _('Group members') }}</h3>
+        <span class="chip">{{ members|length }} {{ _('people') }}</span>
       </div>
 
       {% if members %}
@@ -107,14 +106,14 @@
           {% endfor %}
         </ul>
       {% else %}
-        <p class="card-empty">Nog geen leden gevonden.</p>
+        <p class="card-empty">{{ _('No members found.') }}</p>
       {% endif %}
     </section>
 
     <!-- UITGAVENLIJST -->
     <section class="group-card">
       <div class="group-card-header">
-        <h3>Uitgaven</h3>
+        <h3>{{ _('Expenses') }}</h3>
       </div>
 
       {% if expenses and expenses|length > 0 %}
@@ -131,12 +130,12 @@
 
                 <div class="expense-meta-row">
                   <span class="expense-meta">
-                    {{ e.creator }} betaalde
+                    {{ e.creator }} {{ _('paid') }}
                     {{ "%.2f"|format(e.total_amount) }} {{ group.currency or "EUR" }}
                   </span>
                   {% if e.created_at %}
                     <span class="expense-meta">
-                      • Toegevoegd op {{ e.created_at[:10] }}
+                      • {{ _('Added on') }} {{ e.created_at[:10] }}
                     </span>
                   {% endif %}
                 </div>
@@ -156,7 +155,7 @@
         </ul>
       {% else %}
         <p class="card-empty">
-          Nog geen uitgaven toegevoegd. Klik op “Uitgave toevoegen” om te starten.
+          {{ _('No expenses yet. Click “Add expense” to start.') }}
         </p>
       {% endif %}
     </section>

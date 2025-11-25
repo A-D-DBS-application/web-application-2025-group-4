@@ -1,8 +1,8 @@
 <!doctype html>
-<html lang="nl">
+<html lang="{{ session.get('lang','nl') }}">
 <head>
   <meta charset="utf-8">
-  <title>Groep joinen – FairSplit+</title>
+  <title>{{ _('Join group') }} – FairSplit+</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://unpkg.com/@picocss/pico@2/css/pico.min.css" rel="stylesheet">
   <style>
@@ -14,19 +14,19 @@
 </head>
 <body> 
   <main class="wrap">
-    <h1>Groep joinen</h1>
-    <p>Voer hieronder de unieke code van de groep in.</p>
+    <h1>{{ _('Join group') }}</h1>
+    <p>{{ _('Enter the unique code of the group below.') }}</p>
 
-    <form method="POST" action="{{ url_for('main.join_group') }}">
-      <label for="join_code">Groepscode</label>
-      <input type="text" id="join_code" name="join_code" placeholder="bv. A3F9C2" required>
-      <button type="submit">Join groep</button>
+    <form method="POST" action="{{ url_for('main.join_group_form') }}">
+      <label for="join_code">{{ _('Group code') }}</label>
+      <input type="text" id="join_code" name="join_code" placeholder="{{ _('e.g. A3F9C2') }}" required>
+      <button type="submit">{{ _('Join group') }}</button>
     </form>
 
     <p style="text-align:center; margin-top:1rem;">
-      <a href="{{ url_for('main.index') }}">Terug naar overzicht</a>
+      <a href="{{ url_for('main.index') }}">{{ _('Back to dashboard') }}</a>
     </p>
   </main>
 </body>
-</html> 
- 
+</html>
+

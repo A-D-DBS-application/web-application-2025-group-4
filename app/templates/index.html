@@ -1,34 +1,33 @@
 {# templates/index.html #}
 {% extends "base.html" %}
-{% block title %}Dashboard – FairSplit+{% endblock %}
+{% block title %}{{ _('Dashboard') }} – FairSplit+{% endblock %}
 
 {% block content %}
 <div class="dash-page">
-  <!-- Bovenste welcome banner -->
   <section class="dash-banner">
-    <p class="dash-pill">Welkom terug 👋</p>
+    <p class="dash-pill">{{ _('Welcome back') }} 👋</p>
+
     <h1 class="dash-title">
-      {{ user.name }}, <span class="accent-text">mooi je weer te zien</span>
+      {{ user.name }}, <span class="accent-text">{{ _('good to see you again') }}</span>
     </h1>
+
     <p class="dash-sub">
-      Overzicht van jouw groepen, trips en vrienden die jij blut maakt 😅
+      {{ _('Overview of your groups, trips and friends you bankrupt 😅') }}
     </p>
   </section>
 
-  <!-- Hoofdgrid: links groepen, rechts join-kaart -->
   <section class="dash-main">
-    <!-- LINKERKANT: actieve groepen -->
     <div class="dash-left">
       <div class="dash-card">
         <div class="dash-card-header">
           <div>
-            <h2 class="dash-card-title">Actieve groepen</h2>
-            <p class="dash-card-sub">Je lopende trips en projecten.</p>
+            <h2 class="dash-card-title">{{ _('Active groups') }}</h2>
+            <p class="dash-card-sub">{{ _('Your ongoing trips and projects.') }}</p>
           </div>
 
           <a href="{{ url_for('main.create_group') }}"
              class="btn-primary dash-new-btn">
-            + Nieuwe groep aanmaken
+            + {{ _('Create new group') }}
           </a>
         </div>
 
@@ -36,8 +35,7 @@
           <ul class="group-list">
             {% for g in groups %}
             <li>
-              <a href="{{ url_for('main.group_detail',
-                                   group_id=g['group_id']) }}"
+              <a href="{{ url_for('main.group_detail', group_id=g['group_id']) }}"
                  class="group-card">
                 <div class="group-card-main">
                   <div class="group-avatar">
@@ -46,13 +44,13 @@
                   <div>
                     <h3 class="group-name">{{ g.name }}</h3>
                     <p class="group-meta">
-                      {{ g.currency or 'EUR' }} • Code: {{ g.join_code }}
+                      {{ g.currency or 'EUR' }} • {{ _('Code') }}: {{ g.join_code }}
                     </p>
                   </div>
                 </div>
 
                 <span class="group-tag">
-                  Open
+                  {{ _('Open') }}
                 </span>
               </a>
             </li>
@@ -60,50 +58,40 @@
           </ul>
         {% else %}
           <div class="empty-state">
-            <h3>Nog geen groepen</h3>
+            <h3>{{ _('No groups yet') }}</h3>
             <p>
-              Maak je eerste groep aan en begin met eerlijk splitsen
-              met je vrienden.
+              {{ _('Create your first group and start splitting expenses fairly with friends.') }}
             </p>
-            <a href="{{ url_for('main.create_group') }}"
-               class="btn-primary">
-              + Start je eerste groep
+            <a href="{{ url_for('main.create_group') }}" class="btn-primary">
+              + {{ _('Start your first group') }}
             </a>
           </div>
         {% endif %}
       </div>
     </div>
 
-    <!-- RECHTS: join een groep -->
     <aside class="dash-right">
       <div class="dash-card">
-        <h2 class="dash-card-title">Een groep joinen</h2>
+        <h2 class="dash-card-title">{{ _('Join a group') }}</h2>
         <p class="dash-card-sub">
-          Ontvang een unieke code van je vrienden en voer hem hier in.
+          {{ _('Enter the unique code you received from your friends.') }}
         </p>
 
-        {# Laat hier gewoon dezelfde action staan als je nu gebruikt
-           voor je join-formulier als dat al werkt. #}
         <form method="post"
               action="{{ url_for('main.join_group_form') }}"
               class="join-form">
           <div class="join-input-wrap">
-            <span class="join-label">Groepscode</span>
-            <input
-              type="text"
-              name="join_code"
-              placeholder="Bijv. ECC07875"
-              required
-            >
+            <span class="join-label">{{ _('Group code') }}</span>
+            <input type="text" name="join_code" placeholder="{{ _('e.g. ECC07875') }}" required>
           </div>
 
           <button type="submit" class="btn-primary btn-full">
-            Join groep
+            {{ _('Join group') }}
           </button>
         </form>
 
         <p class="auth-tiny">
-          Tip: stuur de code gewoon in WhatsApp of Messenger, copy-paste & join. 🚀
+          {{ _('Tip: just send the code via WhatsApp or Messenger, copy-paste & join. 🚀') }}
         </p>
       </div>
     </aside>
@@ -112,4 +100,3 @@
 {% endblock %}
 
 
- 

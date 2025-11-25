@@ -1,108 +1,70 @@
 {% extends "base.html" %}
-{% block title %}Registreer – FairSplit+{% endblock %}
+{% block title %}{{ _('Register') }} – FairSplit+{% endblock %}
 
 {% block content %}
 <section class="auth-layout">
   <div class="auth-copy">
-    <span class="chip">Get started free</span>
-    <h1 class="auth-title">Maak je FairSplit+ account</h1>
+    <span class="chip">{{ _('Get started free') }}</span>
+    <h1 class="auth-title">{{ _('Create your FairSplit+ account') }}</h1>
     <p class="auth-sub">
-      Eén profiel voor al je groepsuitgaven. Handig voor trips, kotgenoten,
-      teamuitjes en meer.
+      {{ _('One profile for all your group expenses: trips, roommates, teams and more.') }}
     </p>
 
     <ul class="auth-benefits">
-      <li>✅ Maak onbeperkte groepen</li>
-      <li>✅ Nodig vrienden uit met een join-link</li>
-      <li>✅ Volg wie wat heeft betaald</li>
-      <li>✅ Heldere eindbalans per persoon</li>
+      <li>✅ {{ _('Create unlimited groups') }}</li>
+      <li>✅ {{ _('Invite friends with a join link') }}</li>
+      <li>✅ {{ _('Track who paid what') }}</li>
+      <li>✅ {{ _('Clear final balances per person') }}</li>
     </ul>
 
     <p class="auth-small">
-      Heb je al een account?
-      <a href="{{ url_for('main.login') }}" class="auth-link">Log dan hier in</a>
+      {{ _('Already have an account?') }}
+      <a href="{{ url_for('main.login') }}" class="auth-link">{{ _('Log in here') }}</a>
     </p>
   </div>
 
   <div class="auth-card">
-    <h2>Registreer</h2>
-    <p class="auth-card-sub">Vul je gegevens in om te starten.</p>
+    <h2>{{ _('Register') }}</h2>
+    <p class="auth-card-sub">{{ _('Fill in your details to start.') }}</p>
 
     <form method="post" action="{{ url_for('main.register') }}" class="auth-form">
-      <div class="field-row">
-        <div class="field">
-          <label for="name">Naam</label>
-          <input
-            id="name"
-            name="name"
-            type="text"
-            placeholder="Voornaam Achternaam"
-            required
-          >
-        </div>
-        <div class="field">
-          <label for="username">Gebruikersnaam</label>
-          <input
-            id="username"
-            name="username"
-            type="text"
-            placeholder="fairsplit_legend"
-            required
-          >
-        </div>
-      </div>
-
-      <label for="email">E-mailadres</label>
-      <input
-        id="email"
-        name="email"
-        type="email"
-        placeholder="jij@voorbeeld.be"
-        required
-      >
 
       <div class="field-row">
         <div class="field">
-          <label for="phone_number">GSM-nummer</label>
-          <input
-            id="phone_number"
-            name="phone_number"
-            type="tel"
-            placeholder="04xx xx xx xx"
-            required
-          >
+          <label for="name">{{ _('Name') }}</label>
+          <input id="name" name="name" type="text" placeholder="{{ _('First Last') }}" required>
         </div>
         <div class="field">
-          <label for="iban">IBAN</label>
-          <input
-            id="iban"
-            name="iban"
-            type="text"
-            placeholder="BE00 0000 0000 0000"
-            required
-          >
+          <label for="username">{{ _('Username') }}</label>
+          <input id="username" name="username" type="text" placeholder="fairsplit_legend" required>
         </div>
       </div>
 
-      <label for="password">Wachtwoord</label>
-      <input
-        id="password"
-        name="password"
-        type="password"
-        placeholder="Kies een sterk wachtwoord"
-        required
-      >
+      <label for="email">{{ _('Email') }}</label>
+      <input id="email" name="email" type="email" placeholder="you@example.com" required>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="phone_number">{{ _('Phone number') }}</label>
+          <input id="phone_number" name="phone_number" type="tel" placeholder="04xx xx xx xx" required>
+        </div>
+        <div class="field">
+          <label for="iban">{{ _('IBAN') }}</label>
+          <input id="iban" name="iban" type="text" placeholder="BE00 0000 0000 0000" required>
+        </div>
+      </div>
+
+      <label for="password">{{ _('Password') }}</label>
+      <input id="password" name="password" type="password" placeholder="{{ _('Choose a strong password') }}" required>
 
       <button type="submit" class="btn-primary auth-submit">
-        Account aanmaken
+        {{ _('Create account') }}
       </button>
     </form>
 
     <p class="auth-footnote">
-      Je gegevens worden alleen gebruikt om groepen en saldi correct bij te houden.
+      {{ _('Your data is only used to keep balances correct.') }}
     </p>
   </div>
 </section>
 {% endblock %}
-
- 

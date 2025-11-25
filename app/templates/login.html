@@ -1,76 +1,57 @@
-{# templates/login.html #}
 {% extends "base.html" %}
-{% block title %}Login – FairSplit+{% endblock %}
+{% block title %}{{ _('Login') }} – FairSplit+{% endblock %}
 
 {% block content %}
-
 <div class="auth-page">
   <section class="auth-shell">
 
-    <!-- Linkerkant: marketing + voordelen -->
     <div class="auth-left">
-      <span class="auth-pill">Welcome back 👋</span>
-
+      <span class="auth-pill">{{ _('Welcome back 👋') }}</span>
       <h1 class="auth-title">
-        Log in to your <span class="accent-text">FairSplit+</span> groups
+        {{ _('Log in to your') }} <span class="accent-text">FairSplit+</span> {{ _('groups') }}
       </h1>
-
       <p class="auth-lead">
-        Bekijk je lopende trips, voeg uitgaven toe en settle alles eerlijk.
-        Eén login voor al je groepen.
+        {{ _('See your trips, add expenses and settle everything fairly. One login for all groups.') }}
       </p>
-
       <ul class="auth-benefits">
-        <li>✅ Deel uitgaven in seconden</li>
-        <li>✅ Volledige transparantie per groep</li>
-        <li>✅ Geen Excel of discussies meer</li>
+        <li>✅ {{ _('Split expenses in seconds') }}</li>
+        <li>✅ {{ _('Full transparency per group') }}</li>
+        <li>✅ {{ _('No more Excel or arguments') }}</li>
       </ul>
     </div>
 
-    <!-- Rechterkant: login kaart -->
     <div class="auth-card">
-      <h2 class="auth-card-title">Login</h2>
-      <p class="auth-card-sub">Gebruik je gebruikersnaam of e-mailadres.</p>
+      <h2 class="auth-card-title">{{ _('Login') }}</h2>
+      <p class="auth-card-sub">{{ _('Use your username or email address.') }}</p>
 
       <form method="post" action="{{ url_for('main.login') }}" class="auth-form">
-
         <label class="auth-field">
-          <span>Gebruikersnaam of e-mail</span>
-          <input
-            type="text"
-            name="username"
-            autocomplete="username"
-            required
-            value="{{ request.form.username or '' }}"
-          >
+          <span>{{ _('Username or email') }}</span>
+          <input type="text" name="username" autocomplete="username" required
+                 value="{{ request.form.username or '' }}">
         </label>
 
         <label class="auth-field">
-          <span>Wachtwoord</span>
-          <input
-            type="password"
-            name="password"
-            autocomplete="current-password"
-            required
-          >
+          <span>{{ _('Password') }}</span>
+          <input type="password" name="password" autocomplete="current-password" required>
         </label>
 
-        <button type="submit" class="btn-primary btn-full">Log in</button>
+        <button type="submit" class="btn-primary btn-full">{{ _('Log in') }}</button>
       </form>
 
       <p class="auth-switch">
-        Nog geen account?
-        <a href="{{ url_for('main.register') }}">Registreer gratis</a>
+        {{ _('No account yet?') }}
+        <a href="{{ url_for('main.register') }}">{{ _('Register for free') }}</a>
       </p>
 
       <p class="auth-tiny">
-        Door in te loggen ga je akkoord met eerlijke splits &amp; goede vibes ✌️
+        {{ _('By logging in you agree to fair splits & good vibes ✌️') }}
       </p>
     </div>
 
   </section>
 </div>
-
 {% endblock %}
+
 
  

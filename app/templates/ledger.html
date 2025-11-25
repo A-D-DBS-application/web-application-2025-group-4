@@ -1,12 +1,13 @@
 <!doctype html>
-<html lang="en">
+<html lang="{{ session.get('lang','nl') }}">
 <head>
   <meta charset="utf-8" />
-  <title>FairSplit+ — Ledger</title>
+  <title>FairSplit+ — {{ _('Ledger') }}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="icon" href="{{ url_for('static', filename='fairsplitplus-logo.svg') }}" type="image/svg+xml">
   <link href="https://unpkg.com/@picocss/pico@2/css/pico.min.css" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
   <style> 
     :root{--accent:hsl(142,76%,59%);--accent-dark:hsl(142,76%,45%);--bg:#fff;--text:#000;--muted:#666;--border:#e5e5e5;font-family:"Inter",sans-serif}
     body{background:var(--bg);color:var(--text);margin:0}
@@ -23,24 +24,33 @@
     table{width:100%} th,td{padding:.45rem .4rem;border-bottom:1px solid var(--border)} .right{text-align:right}
   </style>
 </head>
+
 <body>
   <nav class="navbar">
     <a class="brand-link" href="{{ url_for('main.index') }}">
       <img class="logo" src="{{ url_for('static', filename='fairsplitplus-logo.svg') }}" alt="FairSplit+ logo">
     </a>
     <div class="nav-right">
-      <a class="button-outline" href="{{ url_for('main.group_detail', group_id=group.group_id) }}">Back to group</a>
+      <a class="button-outline" href="{{ url_for('main.group_detail', group_id=group.group_id) }}">
+        {{ _('Back to group') }}
+      </a>
     </div>
   </nav>
 
   <main class="wrap">
-    <h1>Ledger — {{ group.name }}</h1>
+    <h1>{{ _('Ledger') }} — {{ group.name }}</h1>
 
     <div class="grid" style="margin-top:1rem">
       <section class="card">
-        <h3>Expenses</h3>
+        <h3>{{ _('Expenses') }}</h3>
         <table>
-          <thead><tr><th>Date</th><th>Description</th><th class="right">Total (€)</th></tr></thead>
+          <thead>
+            <tr>
+              <th>{{ _('Date') }}</th>
+              <th>{{ _('Description') }}</th>
+              <th class="right">{{ _('Total (€)') }}</th>
+            </tr>
+          </thead>
           <tbody>
             {% for e in expenses %}
               <tr>
@@ -54,9 +64,15 @@
       </section>
 
       <section class="card">
-        <h3>Payments (confirmed)</h3>
+        <h3>{{ _('Payments (confirmed)') }}</h3>
         <table>
-          <thead><tr><th>Date</th><th>Sender → Receiver</th><th class="right">Amount (€)</th></tr></thead>
+          <thead>
+            <tr>
+              <th>{{ _('Date') }}</th>
+              <th>{{ _('Sender → Receiver') }}</th>
+              <th class="right">{{ _('Amount (€)') }}</th>
+            </tr>
+          </thead>
           <tbody>
             {% for p in payments %}
               <tr>
@@ -71,9 +87,14 @@
     </div>
 
     <section class="card" style="margin-top:1rem">
-      <h3>Final balances</h3>
+      <h3>{{ _('Final balances') }}</h3>
       <table>
-        <thead><tr><th>User ID</th><th class="right">Balance (€)</th></tr></thead>
+        <thead>
+          <tr>
+            <th>{{ _('User') }}</th>
+            <th class="right">{{ _('Balance (€)') }}</th>
+          </tr>
+        </thead>
         <tbody>
           {% for uid, bal in balances.items() %}
             <tr>
@@ -85,11 +106,12 @@
       </table>
 
       <div style="margin-top:.8rem">
-        <a class="button-outline" href="{{ url_for('main.export_csv', group_id=group.group_id) }}">Export CSV</a>
+        <a class="button-outline" href="{{ url_for('main.export_csv', group_id=group.group_id) }}">
+          {{ _('Export CSV') }}
+        </a>
       </div>
     </section>
   </main>
 </body>
-</html> 
+</html>
 
- 
