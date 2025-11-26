@@ -17,11 +17,12 @@
       <li>✅ {{ _('Clear final balances per person') }}</li>
     </ul>
 
-    <p class="auth-small">
-      {{ _('Already have an account?') }}
-      <a href="{{ url_for('main.login') }}" class="auth-link">{{ _('Log in here') }}</a>
-    </p>
-  </div>
+    <p class="auth-switch">
+  {{ _('Already have an account?') }}
+  <a href="{{ url_for('main.login') }}" class="btn-pill-ghost" style="margin-left:6px;">
+    {{ _('Log in here') }}
+  </a>
+</p>
 
   <div class="auth-card">
     <h2>{{ _('Register') }}</h2>
@@ -57,7 +58,7 @@
       <label for="password">{{ _('Password') }}</label>
       <input id="password" name="password" type="password" placeholder="{{ _('Choose a strong password') }}" required>
 
-      <button type="submit" class="btn-primary auth-submit">
+      <button type="submit" class="btn-primary btn-full">
         {{ _('Create account') }}
       </button>
     </form>

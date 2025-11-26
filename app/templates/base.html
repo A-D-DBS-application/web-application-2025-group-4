@@ -29,22 +29,25 @@
            class="lang-link {% if session.get('lang') == 'en' %}active{% endif %}">EN</a>
       </div>
 
-      {% if session.get('users_id') %}
-        <span class="nav-muted">{{ _('Ingelogd') }}</span>
-        <a href="{{ url_for('main.logout') }}"
-           class="btn btn-header btn-header-outline">
-          {{ _('Log uit') }}
-        </a>
-      {% else %}
-        <a href="{{ url_for('main.login') }}"
-           class="btn btn-header btn-header-outline">
-          {{ _('Login') }}
-        </a>
-        <a href="{{ url_for('main.register') }}"
-           class="btn btn-header btn-header-secondary">
-          {{ _('Registreer') }}
-        </a>
-      {% endif %}
+    <!-- in base.html, binnen <div class="nav-right"> -->
+
+{% if session.get('users_id') %}
+  <span class="nav-muted">{{ _('Ingelogd') }}</span>
+  <a href="{{ url_for('main.logout') }}"
+     class="btn-chip btn-chip-outline">
+    {{ _('Log uit') }}
+  </a>
+{% else %}
+  <a href="{{ url_for('main.login') }}"
+     class="btn-chip btn-chip-outline">
+    {{ _('Login') }}
+  </a>
+  <a href="{{ url_for('main.register') }}"
+     class="btn-chip btn-chip-primary">
+    {{ _('Registreer') }}
+  </a>
+{% endif %}
+ 
     </div>
   </nav>
 </header>
@@ -71,8 +74,3 @@
 
 </body>
 </html>
-
-
-
-
-

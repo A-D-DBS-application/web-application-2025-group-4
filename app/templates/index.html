@@ -4,99 +4,108 @@
 
 {% block content %}
 <div class="dash-page">
-  <section class="dash-banner">
-    <p class="dash-pill">{{ _('Welcome back') }} 👋</p>
+  <section class="dash-shell">
 
-    <h1 class="dash-title">
-      {{ user.name }}, <span class="accent-text">{{ _('good to see you again') }}</span>
-    </h1>
+    <!-- BANNER -->
+    <section class="dash-banner">
+      <p class="dash-pill">{{ _('Welcome back') }} 👋</p>
 
-    <p class="dash-sub">
-      {{ _('Overview of your groups, trips and friends you bankrupt 😅') }}
-    </p>
-  </section>
+      <h1 class="dash-title">
+        {{ user.name }}, <span class="accent-text">{{ _('good to see you again') }}</span>
+      </h1>
 
-  <section class="dash-main">
-    <div class="dash-left">
-      <div class="dash-card">
-        <div class="dash-card-header">
-          <div>
-            <h2 class="dash-card-title">{{ _('Active groups') }}</h2>
-            <p class="dash-card-sub">{{ _('Your ongoing trips and projects.') }}</p>
-          </div>
+      <p class="dash-sub">
+        {{ _('Overview of your groups, trips and friends you bankrupt 😅') }}
+      </p>
+    </section>
 
-          <a href="{{ url_for('main.create_group') }}"
-             class="btn-primary dash-new-btn">
-            + {{ _('Create new group') }}
-          </a>
-        </div>
+    <!-- MAIN LAYOUT -->
+    <section class="dash-main">
+      <!-- LINKERKANT: groepen -->
+      <div class="dash-left">
+        <div class="dash-card">
+          <div class="dash-card-header">
+            <div>
+              <h2 class="dash-card-title">{{ _('Active groups') }}</h2>
+              <p class="dash-card-sub">{{ _('Your ongoing trips and projects.') }}</p>
+            </div>
 
-        {% if groups %}
-          <ul class="group-list">
-            {% for g in groups %}
-            <li>
-              <a href="{{ url_for('main.group_detail', group_id=g['group_id']) }}"
-                 class="group-card">
-                <div class="group-card-main">
-                  <div class="group-avatar">
-                    {{ g.name[0]|upper }}
-                  </div>
-                  <div>
-                    <h3 class="group-name">{{ g.name }}</h3>
-                    <p class="group-meta">
-                      {{ g.currency or 'EUR' }} • {{ _('Code') }}: {{ g.join_code }}
-                    </p>
-                  </div>
-                </div>
-
-                <span class="group-tag">
-                  {{ _('Open') }}
-                </span>
-              </a>
-            </li>
-            {% endfor %}
-          </ul>
-        {% else %}
-          <div class="empty-state">
-            <h3>{{ _('No groups yet') }}</h3>
-            <p>
-              {{ _('Create your first group and start splitting expenses fairly with friends.') }}
-            </p>
-            <a href="{{ url_for('main.create_group') }}" class="btn-primary">
-              + {{ _('Start your first group') }}
+            <a href="{{ url_for('main.create_group') }}"
+               class="btn-primary dash-new-btn">
+              + {{ _('Create new group') }}
             </a>
           </div>
-        {% endif %}
+
+          {% if groups %}
+            <ul class="group-list">
+              {% for g in groups %}
+              <li>
+                <a href="{{ url_for('main.group_detail', group_id=g['group_id']) }}"
+                   class="group-card">
+                  <div class="group-card-main">
+                    <div class="group-avatar">
+                      {{ g.name[0]|upper }}
+                    </div>
+                    <div>
+                      <h3 class="group-name">{{ g.name }}</h3>
+                      <p class="group-meta">
+                        {{ g.currency or 'EUR' }} • {{ _('Code') }}: {{ g.join_code }}
+                      </p>
+                    </div>
+                  </div>
+
+                  <span class="group-tag">
+                    {{ _('Open') }}
+                  </span>
+                </a>
+              </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <div class="empty-state">
+              <h3>{{ _('No groups yet') }}</h3>
+              <p>
+                {{ _('Create your first group and start splitting expenses fairly with friends.') }}
+              </p>
+              <a href="{{ url_for('main.create_group') }}" class="btn-primary">
+                + {{ _('Start your first group') }}
+              </a>
+            </div>
+          {% endif %}
+        </div>
       </div>
-    </div>
 
-    <aside class="dash-right">
-      <div class="dash-card">
-        <h2 class="dash-card-title">{{ _('Join a group') }}</h2>
-        <p class="dash-card-sub">
-          {{ _('Enter the unique code you received from your friends.') }}
-        </p>
+      <!-- RECHTS: join group -->
+      <aside class="dash-right">
+        <div class="dash-card">
+          <h2 class="dash-card-title">{{ _('Join a group') }}</h2>
+          <p class="dash-card-sub">
+            {{ _('Enter the unique code you received from your friends.') }}
+          </p>
 
-        <form method="post"
-              action="{{ url_for('main.join_group_form') }}"
-              class="join-form">
-          <div class="join-input-wrap">
-            <span class="join-label">{{ _('Group code') }}</span>
-            <input type="text" name="join_code" placeholder="{{ _('e.g. ECC07875') }}" required>
-          </div>
+          <form method="post"
+                action="{{ url_for('main.join_group_form') }}"
+                class="join-form">
+            <div class="join-input-wrap">
+              <span class="join-label">{{ _('Group code') }}</span>
+              <input type="text"
+                     name="join_code"
+                     placeholder="{{ _('e.g. ECC07875') }}"
+                     required>
+            </div>
 
-          <button type="submit" class="btn-primary btn-full">
-            {{ _('Join group') }}
-          </button>
-        </form>
+            <button type="submit" class="btn-primary btn-full">
+              {{ _('Join group') }}
+            </button>
+          </form>
 
-        <p class="auth-tiny">
-          {{ _('Tip: just send the code via WhatsApp or Messenger, copy-paste & join. 🚀') }}
-        </p>
-      </div>
-    </aside>
+          <p class="auth-tiny">
+            {{ _('Tip: just send the code via WhatsApp or Messenger, copy-paste & join. 🚀') }}
+          </p>
+        </div>
+      </aside>
+    </section>
+
   </section>
 </div>
 {% endblock %}
-
-

@@ -29,43 +29,73 @@ body {
     var(--bg);
 }
 
-/* Containers van Pico zijn al prima; we doen hier weinig extra’s */
-
-
 /* =======================
    HERO / LANDING PAGE
    ======================= */
 
-/* ---------- HERO ---------- */
+/* Buitenste hero-blok */
+
 .hero {
   position: relative;
+  margin-top: 2.5rem;
+  margin-bottom: 3.5rem;
+  padding: 3.5rem 3rem;
+  border-radius: 32px;
   overflow: hidden;
-  border-radius: 18px;
-  padding: 64px 28px;
-  margin-bottom: 32px;
   background:
-    radial-gradient(1200px 600px at 10% -20%, rgba(16, 185, 129, 0.18), transparent 60%),
-    radial-gradient(1000px 500px at 100% 0%, rgba(16, 185, 129, 0.1), transparent 65%),
-    #fff;
+    radial-gradient(circle at 0% 0%, rgba(16, 185, 129, 0.12), transparent 55%),
+    radial-gradient(circle at 100% 0%, rgba(59, 130, 246, 0.16), transparent 55%),
+    #ffffff;
   border: 1px solid var(--border);
-  box-shadow: var(--shadow);
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.16);
 }
-.hero-glow {
+
+/* Zachte animated glow op de achtergrond */
+
+.hero-background {
   position: absolute;
-  inset: -2px;
-  background: radial-gradient(
-    600px 300px at 40% 0%,
-    rgba(16, 185, 129, 0.12),
-    transparent 60%
-  );
-  pointer-events: none;
+  inset: -40%;
+  background:
+    radial-gradient(circle at 10% 0%, rgba(74, 222, 128, 0.25), transparent 55%),
+    radial-gradient(circle at 90% 20%, rgba(59, 130, 246, 0.18), transparent 55%),
+    radial-gradient(circle at 50% 120%, rgba(16, 185, 129, 0.25), transparent 55%);
+  opacity: 0.9;
+  filter: blur(4px);
+  animation: heroGlow 18s ease-in-out infinite alternate;
+  z-index: 0;
 }
-.hero-inner {
-  max-width: 900px;
-  margin: 0 auto;
-  text-align: center;
+
+@keyframes heroGlow {
+  0% {
+    transform: translate3d(-10px, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(20px, -10px, 0) scale(1.03);
+  }
+  100% {
+    transform: translate3d(-15px, 10px, 0) scale(1.02);
+  }
+}
+
+/* Grid: links tekst, rechts “device” */
+
+.hero-grid {
   position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2.4fr);
+  gap: 3rem;
+  align-items: center;
 }
+
+/* LINKERKANT */
+
+.hero-left {
+  max-width: 560px;
+}
+
+/* Eyebrow pill */
+
 .pill {
   display: inline-flex;
   gap: 8px;
@@ -73,54 +103,267 @@ body {
   padding: 6px 12px;
   border-radius: 999px;
   border: 1px solid var(--border);
-  background: #fff;
-  margin-bottom: 14px;
+  background: rgba(255, 255, 255, 0.9);
+  margin-bottom: 10px;
   font-weight: 600;
   color: var(--accent-ink);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+  backdrop-filter: blur(8px);
 }
+
+/* Titel & subtitel */
+
 .hero-title {
-  font-size: 56px;
+  font-size: clamp(2.4rem, 3vw + 1.7rem, 3.6rem);
   line-height: 1.05;
   margin: 0 0 10px;
+  font-weight: 800;
+  color: var(--ink);
 }
+
+.hero-title .accent-text {
+  display: block;
+  color: #22c55e;
+}
+
 .hero-sub {
   color: var(--muted);
-  font-size: 18px;
-  margin: 0 auto 22px;
-  max-width: 720px;
+  font-size: 1rem;
+  margin: 0 0 22px;
+  max-width: 34rem;
+  line-height: 1.6;
 }
+
+/* CTA knoppen */
+
 .hero-cta {
   display: flex;
   gap: 12px;
-  justify-content: center;
+  flex-wrap: wrap;
   margin-bottom: 24px;
 }
-.accent-ink {
-  color: var(--ink);
+
+.btn-hero {
+  min-width: 210px;
+  justify-content: center;
+  font-size: 0.98rem;
+  padding: 0.8rem 1.4rem;
 }
+
+/* Kleine bullets onder CTA */
 
 .kpis {
   display: flex;
   gap: 18px;
-  justify-content: center;
+  justify-content: flex-start;
   flex-wrap: wrap;
 }
+
 .kpi {
   background: #fff;
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 12px 16px;
   min-width: 180px;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
 }
+
 .kpi-n {
   font-weight: 800;
   font-size: 22px;
-}
-.kpi-l {
-  color: var(--muted);
+  margin-bottom: 4px;
 }
 
-/* ---------- TRUST ---------- */
+.kpi-l {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+/* RECHTERKANT: “device” met zwevende kaarten */
+
+.hero-right {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.hero-device {
+  position: relative;
+  width: 100%;
+  max-width: 360px;
+  aspect-ratio: 3 / 5;
+  border-radius: 28px;
+  padding: 1.4rem 1.4rem 1.2rem;
+  background: linear-gradient(145deg, #020617, #0b1120);
+  box-shadow: 0 28px 60px rgba(15, 23, 42, 0.8);
+  overflow: hidden;
+}
+
+/* Algemene card-stijl binnen de hero */
+
+.hero-card {
+  border-radius: 20px;
+  background: rgba(15, 23, 42, 0.96);
+  color: #e5e7eb;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.65);
+}
+
+.hero-card-main {
+  padding: 1.35rem 1.3rem;
+}
+
+.hero-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  font-size: 0.78rem;
+}
+
+.hero-chip {
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.14);
+  border: 1px solid rgba(148, 163, 184, 0.4);
+}
+
+.hero-amount {
+  font-weight: 600;
+  color: #4ade80;
+}
+
+.hero-card-title {
+  font-weight: 600;
+  margin-bottom: 0.15rem;
+}
+
+.hero-card-sub {
+  font-size: 0.8rem;
+  color: #9ca3af;
+  margin-bottom: 0.9rem;
+}
+
+.hero-card-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid rgba(148, 163, 184, 0.25);
+}
+
+.hero-card-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 0.45rem;
+  font-size: 0.82rem;
+  color: #e5e7eb;
+}
+
+/* Zwevende kleine kaartjes */
+
+.hero-card-small {
+  position: absolute;
+  width: 175px;
+  padding: 0.9rem 1rem;
+  font-size: 0.8rem;
+  background: #f9fafb;
+  color: #0f172a;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.25);
+}
+
+.hero-card-left {
+  left: -12%;
+  bottom: 6%;
+  border-radius: 18px;
+  animation: floatLeft 11s ease-in-out infinite alternate;
+}
+
+.hero-card-right {
+  right: -10%;
+  top: 6%;
+  border-radius: 18px;
+  animation: floatRight 13s ease-in-out infinite alternate;
+}
+
+.hero-card-label {
+  font-weight: 600;
+}
+
+.hero-card-number {
+  margin-top: 0.15rem;
+  font-weight: 700;
+  color: #16a34a;
+}
+
+.hero-card-muted {
+  margin-top: 0.15rem;
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+@keyframes floatLeft {
+  0% { transform: translate3d(0, 0, 0) rotate(-3deg); }
+  100% { transform: translate3d(6px, -10px, 0) rotate(-1deg); }
+}
+
+@keyframes floatRight {
+  0% { transform: translate3d(0, 0, 0) rotate(3deg); }
+  100% { transform: translate3d(-8px, 12px, 0) rotate(1deg); }
+}
+
+/* Responsive hero */
+
+@media (max-width: 960px) {
+  .hero {
+    padding: 2.7rem 1.9rem 2.4rem;
+    border-radius: 26px;
+  }
+
+  .hero-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2.2rem;
+  }
+
+  .hero-right {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 640px) {
+  .hero {
+    padding: 2.4rem 1.4rem 2.1rem;
+  }
+
+  .hero-title {
+    font-size: 2.1rem;
+  }
+
+  .hero-sub {
+    font-size: 0.95rem;
+  }
+
+  .hero-cta {
+    flex-direction: column;
+  }
+
+  .btn-hero {
+    width: 100%;
+  }
+
+  .hero-device {
+    max-width: 290px;
+  }
+
+  .hero-card-small {
+    width: 150px;
+  }
+}
+
+/* =======================
+   OVERIGE LANDING SECTIES
+   ======================= */
+
+/* TRUST */
+
 .trust {
   display: flex;
   gap: 18px;
@@ -141,7 +384,8 @@ body {
   background: #fff;
 }
 
-/* ---------- SECTIONS ---------- */
+/* SECTIONS */
+
 .section {
   margin-top: 42px;
 }
@@ -150,7 +394,8 @@ body {
   margin: 0 0 14px;
 }
 
-/* ---------- FEATURES ---------- */
+/* FEATURES */
+
 .feature-grid {
   display: grid;
   gap: 18px;
@@ -172,10 +417,13 @@ body {
   border-radius: 14px;
   padding: 18px;
   box-shadow: var(--shadow);
-  transition: transform 0.2s ease;
+  cursor: default;
+  transform: translateY(0);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 .feature:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px);
+  box-shadow: 0 18px 30px rgba(15, 23, 42, 0.12);
 }
 .feature-emoji {
   font-size: 22px;
@@ -190,6 +438,7 @@ body {
 }
 
 /* ---------- TIMELINE ---------- */
+
 .timeline {
   list-style: none;
   margin: 0;
@@ -223,6 +472,7 @@ body {
 }
 
 /* ---------- TESTIMONIALS ---------- */
+
 .testimonials {
   display: grid;
   gap: 18px;
@@ -250,6 +500,7 @@ body {
 }
 
 /* ---------- PRICING ---------- */
+
 .pricing {
   display: grid;
   gap: 18px;
@@ -299,6 +550,7 @@ body {
 }
 
 /* ---------- FAQ ---------- */
+
 .faq details {
   border: 1px solid var(--border);
   border-radius: 10px;
@@ -315,7 +567,8 @@ body {
   color: var(--muted);
 }
 
-/* ---------- GROUP LIST ---------- */
+/* ---------- GROUP LIST (simpel) ---------- */
+
 .group-list {
   list-style: none;
   padding: 0;
@@ -337,12 +590,10 @@ body {
   border-color: var(--accent);
 }
 
-
 /* =======================
    AUTH / LOGIN & REGISTER
    ======================= */
 
-/* Oudere layout-classes – nog bruikbaar in sommige templates */
 .auth-layout {
   display: grid;
   grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
@@ -531,12 +782,9 @@ body {
   color: #9ca3af;
 }
 
-
 /* =======================
    KNOPPEN
    ======================= */
-
-/* Basis voor alle buttons + links met role="button" */
 
 button,
 [type="submit"],
@@ -556,7 +804,7 @@ button,
   box-shadow: 0 14px 30px rgba(15, 23, 42, 0.15);
 }
 
-/* Primary – groene gradient (ook voor auth-submit) */
+/* Primary – groene gradient */
 
 .btn-primary,
 form button[type="submit"] {
@@ -591,7 +839,7 @@ form button[type="submit"]:active {
   width: 100%;
 }
 
-/* Ghost / secundaire knop (navbar “Login”) */
+/* Ghost / secundaire knop */
 
 .btn-ghost {
   background: rgba(15, 23, 42, 0.02);
@@ -635,6 +883,7 @@ button:focus-visible,
   outline: 2px solid var(--accent);
   outline-offset: 3px;
 }
+
 /* =========================================
    DASHBOARD / GROEPEN OVERZICHT
    ========================================= */
@@ -835,13 +1084,11 @@ button:focus-visible,
   color: var(--muted);
 }
 
-/* ---------- DASHBOARD ---------- */
+/* ---------- DASHBOARD (versie uit index) ---------- */
 
 .dash-page{
   padding: 16px 0 40px;
 }
-
-/* Bovenste tekstblok */
 
 .dash-banner{
   margin-bottom: 18px;
@@ -878,8 +1125,6 @@ button:focus-visible,
   font-size:15px;
 }
 
-/* Layout: grid met links / rechts */
-
 .dash-main{
   margin-top:12px;
   display:grid;
@@ -895,8 +1140,6 @@ button:focus-visible,
 
 .dash-left{ min-width:0; }
 .dash-right{ min-width:0; }
-
-/* Kaarten (zowel links als rechts) */
 
 .dash-card{
   background:#fff;
@@ -934,7 +1177,7 @@ button:focus-visible,
   padding-inline:18px;
 }
 
-/* Groepenlijst */
+/* Groepenlijst in dashboard */
 
 .group-list{
   list-style:none;
@@ -1012,8 +1255,6 @@ button:focus-visible,
   color:hsl(142,76%,28%);
 }
 
-/* Empty state als er geen groepen zijn */
-
 .empty-state{
   padding:20px 16px 4px;
   text-align:left;
@@ -1029,8 +1270,6 @@ button:focus-visible,
   font-size:14px;
   color:#6b7280;
 }
-
-/* Join-form rechts */
 
 .join-form{
   margin-top:14px;
@@ -1149,8 +1388,6 @@ button:focus-visible,
   gap:10px;
 }
 
-/* hero card rechts */
-
 .group-hero-card{
   background: radial-gradient(800px 600px at 100% 0%, rgba(16,185,129,0.18), transparent 65%), #ffffff;
   border-radius:20px;
@@ -1208,13 +1445,14 @@ button:focus-visible,
   color:#9ca3af;
 }
 
-/* ---------- GROUP BODY ---------- */
-
 .group-body{
   display:grid;
   grid-template-columns:minmax(0, 1.2fr) minmax(0, 1fr);
   gap:24px;
+  align-items:flex-start;   /* <— BELANGRIJK: laat kaarten hun eigen hoogte houden */
 }
+
+
 @media (max-width: 960px){
   .group-body{
     grid-template-columns:1fr;
@@ -1239,18 +1477,6 @@ button:focus-visible,
   margin:0;
   font-size:18px;
 }
-.chip{
-  display:inline-flex;
-  align-items:center;
-  padding:4px 10px;
-  border-radius:999px;
-  background:rgba(15,23,42,0.04);
-  font-size:12px;
-  font-weight:600;
-  color:#475569;
-}
-
-/* leden */
 
 .member-list{
   list-style:none;
@@ -1348,7 +1574,7 @@ button:focus-visible,
   justify-content:center;
   padding:8px 18px;
   border-radius:999px;
-  border:1px solid rgba(148,163,184,0.7);
+  border:1px solid rgba(148,163,184,.7);
   background:#ffffff;
   font-weight:600;
   font-size:14px;
@@ -1376,9 +1602,7 @@ button:focus-visible,
   background:rgba(15,23,42,0.06);
 }
 
-/* ---------------------------------------------------------- */
-/* FLASH MESSAGES (success / danger / warning / info) */
-/* ---------------------------------------------------------- */
+/* FLASH MESSAGES */
 
 .flash-message {
   padding: 14px 20px;
@@ -1390,374 +1614,104 @@ button:focus-visible,
   box-shadow: 0 4px 14px rgba(0, 0, 0, .06);
 }
 
-/* Success (groen) */
 .flash-success {
   background: rgba(16, 185, 129, 0.15);
   color: hsl(142, 72%, 25%);
   border-color: rgba(16, 185, 129, 0.35);
 }
 
-/* Foutmelding (rood) */
 .flash-danger {
   background: rgba(239, 68, 68, 0.18);
   color: hsl(0, 72%, 30%);
   border-color: rgba(239, 68, 68, 0.40);
 }
 
-/* Waarschuwing (geel) */
 .flash-warning {
   background: rgba(245, 158, 11, 0.18);
   color: hsl(40, 72%, 25%);
   border-color: rgba(245, 158, 11, 0.40);
 }
 
-/* Info (blauw) */
 .flash-info {
   background: rgba(59, 130, 246, 0.16);
   color: hsl(220, 65%, 30%);
   border-color: rgba(59, 130, 246, 0.40);
 }
- 
-/* ---------- UITGAVENLIJST IN GROUP DETAIL ---------- */
 
-.expense-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
+/* ============================
+   NIEUWE EXPENSE CARD STYLE
+   ============================ */
 
-.expense-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: 10px 12px;
-  border-radius: 12px;
-  background: #ffffff;
-  border: 1px solid var(--border, rgba(148, 163, 184, 0.4));
-  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.04);
-}
-
-.expense-description {
-  font-weight: 600;
-  color: #0f172a;
-}
-
-.expense-meta {
-  font-size: 12px;
-  color: #94a3b8;
-  margin-top: 2px;
-}
-
-.expense-amount {
-  font-weight: 700;
-  color: hsl(142, 76%, 35%);
-  white-space: nowrap;
-}
-/* ------------------------------ */
-/*  Ongelijke verdeling — Expense */
-/* ------------------------------ */
-
-.share-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  margin-top: 0.5rem;
-}
-
-.share-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: #f8fafc;
-  padding: 0.75rem 1rem;
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
-  transition: 0.2s ease;
-}
-
-.share-row:hover {
-  background: #f1f5f9;
-  border-color: #cbd5e1;
-}
-
-.share-name {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  font-weight: 500;
-  color: #1e293b;
-}
-
-.share-row .avatar-circle {
-  background: #10b981;        /* groen */
-  color: white;
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-}
-
-.share-input input {
-  width: 110px;
-  padding: 0.45rem 0.6rem;
-  border-radius: 8px;
-  border: 1px solid #cbd5e1;
-  font-size: 1rem;
-}
-
-.share-input input:focus {
-  border-color: #0ea5e9;
-  outline: 2px solid #bae6fd;
-  background: white;
-}
-
-/* "Verdeel per persoon" tekstje */
-.auth-tiny {
-  font-size: 0.75rem;
-  color: #64748b;
-  margin-bottom: 0.3rem;
-}
-/* Toggle voor gelijk / ongelijk verdelen */
-.split-toggle {
-  display: inline-flex;
-  gap: 0.75rem;
-  padding: 0.35rem;
-  border-radius: 999px;
-  background: #eef2ff;
-}
-
-.split-toggle label {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.25rem 0.7rem;
-  border-radius: 999px;
-  cursor: pointer;
-  font-size: 0.85rem;
-  color: #4b5563;
-}
-
-.split-toggle input[type="radio"] {
-  accent-color: #10b981;
-}
-
-.split-toggle input[type="radio"]:checked + span,
-.split-toggle label:has(input[type="radio"]:checked) {
-  background: white;
-  color: #0f172a;
-  box-shadow: 0 0 0 1px rgba(129, 140, 248, 0.5);
-}
-
-/* Foutmelding bij verkeerde som */
-.form-error {
-  margin-top: 0.35rem;
-  font-size: 0.8rem;
-  color: #b91c1c;
-}
-/* --------- Expense list --------- */
-
-.expense-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.expense-item {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 12px 16px;
-  border-radius: 14px;
-  background: #f8fafc;
-  border: 1px solid rgba(148, 163, 184, 0.4);
-}
-
-.expense-main {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.expense-title {
-  font-weight: 600;
-  color: #0f172a;
-}
-
-.expense-meta {
-  font-size: 13px;
-  color: #6b7280;
-}
-
-.expense-shares {
-  font-size: 12px;
-  color: #4b5563;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.share-tag {
-  padding: 2px 8px;
-  border-radius: 999px;
-  background: rgba(148, 163, 184, 0.15);
-}
-
-.expense-net {
-  min-width: 80px;
-  text-align: right;
-  font-weight: 700;
-  font-size: 15px;
-}
-
-.exp-net-pos {
-  color: #16a34a;
-}
-
-.exp-net-neg {
-  color: #dc2626;
-}
-
-.exp-net-neu {
-  color: #6b7280;
-}
-
-@media (max-width: 700px) {
-  .expense-item {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .expense-net {
-    align-self: flex-end;
-  }
-}
-/* ---- Expense split summary ---- */
-
-.split-mode-toggle {
-  display: flex;
-  gap: 8px;
-  margin-top: 10px;
-  margin-bottom: 6px;
-  background: #e5f0ff;
-  border-radius: 999px;
-  padding: 4px;
-}
-
-.split-pill {
-  flex: 1;
-  border-radius: 999px;
-  padding: 6px 10px;
-  font-size: 14px;
-  font-weight: 600;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  color: #64748b;
-}
-
-.split-pill span.toggle-dot {
-  width: 22px;
-  height: 22px;
-  border-radius: 999px;
-  border: 2px solid #cbd5f5;
-  background: #fff;
-}
-
-.split-pill.active {
-  background: #ffffff;
-  box-shadow: 0 8px 14px rgba(15, 23, 42, 0.06);
-  color: #0f172a;
-}
-
-.split-pill.active span.toggle-dot {
-  border-color: #10b981;
-  background: #dcfce7;
-}
-
-/* summary onder de per-persoon bedragen */
-
-.share-summary {
-  margin-top: 10px;
-  font-size: 13px;
-  color: #64748b;
-  display: none; /* standaard verborgen, alleen bij ongelijke verdeling tonen */
-}
-
-.share-summary-row {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 2px;
-}
-
-.share-summary-value.ok {
-  color: #16a34a;
-  font-weight: 600;
-}
-
-.share-summary-value.error {
-  color: #dc2626;
-  font-weight: 600;
-}
-/* ---- Expense list on group detail ---- */
-
-.expense-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+.expense-card {
   display: grid;
-  gap: 10px;
-}
-
-.expense-item {
-  border-radius: 18px;
-  border: 1px solid rgba(148, 163, 184, 0.45);
+  grid-template-columns: 1fr auto;
+  gap: 16px;
+  padding: 18px 22px;
+  border-radius: 20px;
   background: #ffffff;
-  padding: 14px 16px;
-  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.04);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  box-shadow: 0 12px 26px rgba(15, 23, 42, 0.06);
 }
 
-.expense-main-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 4px;
+.expense-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 34px rgba(15, 23, 42, 0.10);
 }
 
-.expense-title {
-  font-weight: 600;
-  font-size: 15px;
+/* Titel */
+.expense-title-big {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 6px;
   color: #0f172a;
 }
 
-.expense-total {
-  font-weight: 700;
-  font-size: 15px;
-  color: #16a34a;
-}
-
-.expense-meta {
+/* Categorie badge */
+.expense-category {
+  display: inline-block;
   font-size: 13px;
-  color: #6b7280;
-  margin-bottom: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-weight: 600;
+  margin-bottom: 10px;
 }
 
-.expense-meta strong {
-  font-weight: 600;
+.cat-food { background: #fef3c7; color: #92400e; }
+.cat-entertainment { background: #f3e8ff; color: #6b21a8; }
+.cat-transport { background: #e0f2fe; color: #0369a1; }
+.cat-other { background: #f3f4f6; color: #374151; }
+
+/* Kleine info rij */
+.expense-info-row {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.expense-info-row i {
+  margin-right: 6px;
+  color: #64748b;
+}
+
+/* Onderste info */
+.expense-bottom {
+  margin-top: 12px;
+  font-size: 14px;
+  color: #475569;
+}
+
+.expense-bottom strong {
+  font-weight: 700;
+}
+
+/* Rechts totaalbedrag */
+.expense-amount-big {
+  font-size: 26px;
+  font-weight: 800;
+  color: #0f172a;
+  align-self: start;
 }
 
 .share-chip-row {
@@ -1777,6 +1731,9 @@ button:focus-visible,
 .share-chip-amount {
   font-weight: 600;
 }
+
+/* header / nav */
+
 .topnav{
   display:flex;
   align-items:center;
@@ -1808,8 +1765,9 @@ button:focus-visible,
 }
 
 .nav-muted{
-  font-size:.9rem;
-  color:#64748b;
+  font-size:.85rem;
+  color:#94a3b8;
+  margin-right:0.5rem;
 }
 
 .lang-switch{
@@ -1832,4 +1790,858 @@ button:focus-visible,
 
 .lang-sep{
   opacity:.5;
+}
+
+/* --- HEADER BUTTONS --- */
+
+.btn-header {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.45rem 1.3rem;
+  border-radius: 999px;
+  font-size: 0.92rem;
+  font-weight: 500;
+  border: 1px solid transparent;
+  text-decoration: none;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background-color 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+
+/* Login = lichte “ghost” knop */
+
+.btn-header-outline {
+  background: #ffffff;
+  color: #0f172a;
+  border-color: #e2e8f0;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
+}
+
+.btn-header-outline:hover {
+  background: #f8fafc;
+  border-color: #cbd5f5;
+  transform: translateY(-1px);
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.10);
+}
+
+/* Register = kleine variant van de groene primary button */
+
+.btn-header-secondary {
+  background: linear-gradient(135deg, #16a34a, #22c55e);
+  color: #ffffff;
+  box-shadow: 0 10px 22px rgba(16, 185, 129, 0.5);
+}
+
+.btn-header-secondary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 28px rgba(16, 185, 129, 0.6);
+}
+
+/* ===== Header buttons (chip-style) ===== */
+
+.btn-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.45rem 1.4rem;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.18s ease-out;
+  box-shadow: 0 8px 18px rgba(15, 118, 110, 0.12);
+  white-space: nowrap;
+}
+
+.btn-chip-primary {
+  background: linear-gradient(135deg, #16a34a, #22c55e);
+  color: #f9fafb;
+}
+
+.btn-chip-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 28px rgba(22, 163, 74, 0.25);
+}
+
+.btn-chip-outline {
+  background: #ffffff;
+  color: #0f172a;
+  border-color: #e2e8f0;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+}
+
+.btn-chip-outline:hover {
+  background: #f8fafc;
+  border-color: #cbd5f5;
+  transform: translateY(-1px);
+}
+/* ================= EXTRA POLISH GROUP DETAIL ================= */
+
+.group-side-card {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.side-block {
+  padding-top: 4px;
+  border-top: 1px dashed rgba(148, 163, 184, 0.4);
+  margin-top: 8px;
+}
+
+.side-block:first-of-type {
+  border-top: none;
+  margin-top: 0;
+}
+
+.side-block-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.side-block-title {
+  font-weight: 600;
+  font-size: 0.92rem;
+  color: #0f172a;
+}
+
+.side-block-pill {
+  font-size: 0.78rem;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.12);
+  color: #475569;
+  font-weight: 600;
+}
+
+.member-email {
+  font-size: 0.78rem;
+  color: #6b7280;
+}
+
+/* Betalingen-timeline */
+
+.payment-list {
+  list-style: none;
+  padding: 0;
+  margin: 4px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.payment-item {
+  border-radius: 12px;
+  padding: 8px 10px;
+  background: #f8fafc;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+}
+
+.payment-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.payment-name {
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.payment-amount {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #16a34a;
+}
+
+.payment-meta {
+  margin-top: 2px;
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+.side-note {
+  margin-top: 8px;
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.side-empty {
+  font-size: 0.85rem;
+  color: #9ca3af;
+}
+/* --- Fix: rechter kolom moet niet meerekken met linkse uitgaven --- */
+
+.group-body {
+  align-items: flex-start !important;
+}
+
+/* Alle kinderen van het grid krijgen eigen hoogte */
+.group-body > * {
+  align-self: flex-start !important;
+}
+/* ===== Full-width group body ===== */
+
+.group-body {
+  margin-top: 24px;
+}
+
+/* in deze view geen 2 kolommen meer */
+.group-body-full {
+  display: block;
+}
+
+/* kaart zelf mag wat breder/meer spacing hebben */
+.group-expenses-card {
+  border-radius: 24px;
+  padding: 20px 22px 24px;
+}
+
+/* header bovenaan alle uitgaven */
+.group-expenses-header {
+  margin-bottom: 12px;
+}
+
+/* leden-strip boven de lijst */
+.exp-members-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.exp-member-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #f1f5f9;
+  border: 1px solid rgba(148, 163, 184, 0.6);
+  font-size: 13px;
+}
+
+.exp-member-avatar {
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #16a34a, #22c55e);
+  color: #ffffff;
+}
+
+.exp-member-name {
+  font-weight: 600;
+}
+
+/* app-fee note onder de strip */
+.exp-appfee-note {
+  font-size: 12px;
+  color: #6b7280;
+  margin: 0 0 10px;
+}
+
+/* brede expenses zoals Splitwise */
+.expense-list-wide {
+  gap: 12px;
+}
+
+.expense-item-wide {
+  border-radius: 22px;
+  padding: 14px 18px 12px;
+}
+
+.expense-main-wide {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* bovenste rij: titel + bedrag rechts */
+.expense-line-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.expense-amount-right {
+  font-weight: 800;
+  font-size: 18px;
+  color: #0f172a;
+  white-space: nowrap;
+}
+
+/* meta-rij met 3 blokjes */
+.expense-line-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 2px;
+}
+
+.expense-meta-block {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.expense-meta-label {
+  width: 18px;
+  text-align: center;
+}
+
+.expense-line-shares {
+  margin-top: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.share-chip-soft {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+/* betalingen onderaan kaart */
+
+.exp-payments-section {
+  margin-top: 18px;
+  border-top: 1px dashed rgba(148, 163, 184, 0.6);
+  padding-top: 12px;
+}
+
+.exp-payments-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.exp-payments-header h4 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/* responsive: cards stack mooi op mobiel */
+
+@media (max-width: 700px) {
+  .expense-item-wide {
+    padding: 12px 14px;
+  }
+
+  .expense-amount-right {
+    font-size: 16px;
+  }
+}
+/* Kleine lijst op de groep-detail pagina */
+
+.expense-preview-list {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.expense-preview-item {
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: #f8fafc;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+}
+
+.expense-preview-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.expense-preview-title {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.expense-preview-amount {
+  font-weight: 700;
+  color: #16a34a;
+  white-space: nowrap;
+}
+
+.expense-preview-meta {
+  margin-top: 2px;
+  font-size: 12px;
+  color: #6b7280;
+}
+/* ====== GROEP DETAIL – LAATSTE UITGAVEN ====== */
+
+.group-recent-card{
+  display:grid;
+  grid-template-columns:minmax(0,0.95fr) minmax(0,1.4fr) minmax(0,0.8fr);
+  gap:24px;
+  align-items:stretch;
+}
+
+.group-recent-intro{
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap:10px;
+}
+
+.group-eyebrow{
+  font-size:13px;
+  font-weight:600;
+  text-transform:uppercase;
+  letter-spacing:.09em;
+  color:#94a3b8;
+  margin:0;
+}
+
+.group-recent-title{
+  margin:0;
+  font-size:18px;
+  color:#0f172a;
+}
+
+/* rond knopje “Alle uitgaven bekijken” */
+.btn-round{
+  margin-top:12px;
+  width:140px;
+  height:140px;
+  border-radius:999px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:0 18px;
+  background:#ffffff;
+  border:2px solid rgba(148,163,184,.45);
+  font-size:14px;
+  font-weight:600;
+  color:#0f172a;
+  text-decoration:none;
+  box-shadow:0 14px 30px rgba(15,23,42,.12);
+  transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+}
+
+.btn-round:hover{
+  transform:translateY(-2px);
+  border-color:#22c55e;
+  box-shadow:0 18px 40px rgba(22,163,74,.35);
+}
+
+/* kleine kaartjes met recente uitgaven */
+
+.recent-exp-list{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.recent-exp-card{
+  border-radius:18px;
+  border:1px solid rgba(148,163,184,.35);
+  background:linear-gradient(135deg,#ffffff,#f8fafc);
+  padding:12px 14px;
+  box-shadow:0 10px 24px rgba(15,23,42,.06);
+}
+
+.recent-exp-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+  margin-bottom:4px;
+}
+
+.recent-exp-title{
+  font-weight:600;
+  color:#0f172a;
+}
+
+.recent-exp-amount{
+  font-weight:800;
+  color:#16a34a;
+}
+
+.recent-exp-meta{
+  margin:0 0 4px;
+  font-size:13px;
+  color:#6b7280;
+}
+
+.recent-exp-pill-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+}
+
+.recent-share-pill,
+.recent-equal-pill{
+  padding:3px 9px;
+  border-radius:999px;
+  font-size:12px;
+}
+
+.recent-share-pill{
+  background:#ecfdf5;
+  color:#166534;
+}
+
+.recent-equal-pill{
+  background:#eff6ff;
+  color:#1d4ed8;
+}
+
+.group-recent-more{
+  display:flex;
+  align-items:flex-end;
+  font-size:13px;
+  color:#64748b;
+}
+
+.group-recent-more a{
+  color:#0f766e;
+  font-weight:600;
+  text-decoration:none;
+}
+
+.group-recent-more a:hover{
+  text-decoration:underline;
+}
+
+@media (max-width:960px){
+  .group-recent-card{
+    grid-template-columns:1fr;
+  }
+
+  .btn-round{
+    width:120px;
+    height:120px;
+  }
+
+  .group-recent-more{
+    margin-top:8px;
+    border-top:1px dashed #e5e7eb;
+    padding-top:6px;
+  }
+}
+
+/* ====== LEDGER / VOLLEDIGE HISTORIEK ====== */
+
+.ledger-page{
+  padding:24px 0 48px;
+}
+
+.ledger-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:16px;
+  margin-bottom:24px;
+}
+
+.ledger-pill{
+  display:inline-flex;
+  align-items:center;
+  padding:6px 12px;
+  border-radius:999px;
+  border:1px solid rgba(148,163,184,.45);
+  font-size:13px;
+  font-weight:600;
+  color:#0f172a;
+  background:rgba(15,23,42,.02);
+}
+
+.ledger-title{
+  margin:8px 0 4px;
+  font-size:28px;
+  letter-spacing:-0.03em;
+}
+
+.ledger-sub{
+  margin:0;
+  font-size:14px;
+  color:#64748b;
+}
+
+.ledger-list{
+  list-style:none;
+  margin:0;
+  padding:0;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+
+.ledger-item{
+  border-radius:22px;
+  border:1px solid rgba(148,163,184,.4);
+  background:linear-gradient(135deg,#ffffff,#f8fafc);
+  box-shadow:0 18px 40px rgba(15,23,42,.06);
+  padding:14px 18px 16px;
+}
+
+.ledger-title-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+  margin-bottom:6px;
+}
+
+.ledger-exp-title{
+  font-size:16px;
+  font-weight:600;
+  color:#0f172a;
+}
+
+.ledger-amount{
+  font-size:18px;
+  font-weight:800;
+  color:#16a34a;
+}
+
+.ledger-meta-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-bottom:6px;
+}
+
+.ledger-meta-chip{
+  padding:4px 10px;
+  border-radius:999px;
+  font-size:12px;
+  background:#eff6ff;
+  color:#1d4ed8;
+}
+
+.ledger-shares{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin-top:2px;
+}
+
+.ledger-share-pill{
+  padding:3px 8px;
+  border-radius:999px;
+  font-size:12px;
+  background:#ecfdf5;
+  color:#166534;
+}
+
+@media (max-width:700px){
+  .ledger-title{
+    font-size:24px;
+  }
+
+  .ledger-item{
+    border-radius:18px;
+  }
+}
+.expense-delta {
+    font-size: 15px;
+    margin-top: 8px;
+}
+
+.delta-pos {
+    color: #1a8f39;  /* mooi groen zoals Splitwise */
+    font-weight: 600;
+}
+
+.delta-neg {
+    color: #d64545; /* splitwise rood */
+    font-weight: 600;
+}
+/* ===== Ledger pagina (alle uitgaven) ===== */
+
+.ledger-page {
+  padding-block: 24px 40px;
+}
+
+.ledger-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.ledger-eyebrow {
+  margin: 0 0 4px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #6b7280;
+}
+
+.ledger-title {
+  margin: 0;
+  font-size: 30px;
+  letter-spacing: -0.03em;
+  color: #0f172a;
+}
+
+.ledger-sub {
+  margin: 6px 0 0;
+  font-size: 14px;
+  color: #9ca3af;
+}
+
+.ledger-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.ledger-list-wrap {
+  margin-top: 8px;
+}
+
+.ledger-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.ledger-item {
+  border-radius: 20px;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  background: #ffffff;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.05);
+  padding: 16px 18px;
+}
+
+.ledger-main-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.ledger-left {
+  min-width: 0;
+}
+
+.ledger-exp-title {
+  margin: 0 0 4px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.ledger-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 13px;
+  color: #6b7280;
+  margin-bottom: 8px;
+}
+
+.ledger-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.ledger-shares-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.ledger-share-chip {
+  border-radius: 999px;
+  padding: 3px 9px;
+  font-size: 12px;
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.ledger-share-amount {
+  font-weight: 600;
+  margin-left: 4px;
+}
+
+.ledger-chip-soft {
+  border-radius: 999px;
+  padding: 3px 9px;
+  font-size: 12px;
+  background: #e5f0ff;
+  color: #475569;
+}
+
+.ledger-amount {
+  font-weight: 700;
+  font-size: 20px;
+  white-space: nowrap;
+  color: #0f172a; /* totaal altijd zwart */
+}
+
+/* Groen/rood tekstje onderaan per expense */
+
+.expense-delta {
+  font-size: 14px;
+  margin-top: 6px;
+}
+
+.delta-pos {
+  color: #16a34a;   /* groen: je leende uit */
+  font-weight: 600;
+}
+
+.delta-neg {
+  color: #dc2626;   /* rood: je leende */
+  font-weight: 600;
+}
+
+/* Empty state */
+
+.ledger-empty {
+  margin-top: 32px;
+  padding: 24px 20px;
+  border-radius: 20px;
+  background: #f9fafb;
+  border: 1px dashed rgba(148, 163, 184, 0.7);
+}
+.ledger-empty h2 {
+  margin: 0 0 4px;
+}
+.ledger-empty p {
+  margin: 0 0 12px;
+  color: #6b7280;
+}
+
+/* Responsive */
+
+@media (max-width: 768px) {
+  .ledger-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .ledger-main-row {
+    flex-direction: column-reverse;
+    align-items: flex-start;
+  }
 }

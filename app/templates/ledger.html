@@ -1,117 +1,118 @@
-<!doctype html>
-<html lang="{{ session.get('lang','nl') }}">
-<head>
-  <meta charset="utf-8" />
-  <title>FairSplit+ — {{ _('Ledger') }}</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="icon" href="{{ url_for('static', filename='fairsplitplus-logo.svg') }}" type="image/svg+xml">
-  <link href="https://unpkg.com/@picocss/pico@2/css/pico.min.css" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+{# templates/ledger.html #}
+{% extends "base.html" %}
+{% block title %}{{ _('Alle uitgaven') }} – {{ group.name }}{% endblock %}
 
-  <style> 
-    :root{--accent:hsl(142,76%,59%);--accent-dark:hsl(142,76%,45%);--bg:#fff;--text:#000;--muted:#666;--border:#e5e5e5;font-family:"Inter",sans-serif}
-    body{background:var(--bg);color:var(--text);margin:0}
-    a{text-decoration:none!important}
-    .navbar{display:flex;justify-content:space-between;align-items:center;padding:1rem 2rem;border-bottom:1px solid var(--border);background:#fff;position:sticky;top:0;z-index:20}
-    .brand-link{display:flex;align-items:center;gap:.6rem}
-    .logo{height:40px}
-    .nav-right{display:flex;gap:1rem}
-    .button-outline{border:2px solid var(--accent);color:var(--accent);background:transparent;border-radius:10px;padding:.55rem 1.1rem;font-weight:600;display:inline-block}
-    .wrap{max-width:1100px;margin:2rem auto;padding:0 1rem}
-    h1{font-weight:700;margin:.2rem 0}
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
-    .card{border:1px solid var(--border);border-radius:12px;padding:1rem;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.04)}
-    table{width:100%} th,td{padding:.45rem .4rem;border-bottom:1px solid var(--border)} .right{text-align:right}
-  </style>
-</head>
+{% block content %}
+<main class="ledger-page">
 
-<body>
-  <nav class="navbar">
-    <a class="brand-link" href="{{ url_for('main.index') }}">
-      <img class="logo" src="{{ url_for('static', filename='fairsplitplus-logo.svg') }}" alt="FairSplit+ logo">
-    </a>
-    <div class="nav-right">
-      <a class="button-outline" href="{{ url_for('main.group_detail', group_id=group.group_id) }}">
-        {{ _('Back to group') }}
+  <!-- HEADER BOVEN -->
+  <header class="ledger-header">
+    <div>
+      <p class="ledger-eyebrow">
+        {{ _('Overzicht van alle kosten in') }}
+      </p>
+      <h1 class="ledger-title">
+        {{ group.name }}
+      </h1>
+      <p class="ledger-sub">
+        {{ _('Complete historiek van alle uitgaven in deze groep.') }}
+      </p>
+    </div>
+
+    <div class="ledger-actions">
+      <a href="{{ url_for('main.group_detail', group_id=group.group_id) }}"
+         class="btn-secondary">
+        ← {{ _('Terug naar groepsoverzicht') }}
+      </a>
+      <a href="{{ url_for('main.expense_new', group_id=group.group_id) }}"
+         class="btn-primary">
+        ➕ {{ _('Nieuwe uitgave') }}
       </a>
     </div>
-  </nav>
+  </header>
 
-  <main class="wrap">
-    <h1>{{ _('Ledger') }} — {{ group.name }}</h1>
+  {% if expenses %}
+    <section class="ledger-list-wrap">
+      <ul class="ledger-list">
+        {% for exp in expenses %}
+          <li class="ledger-item">
+            <div class="ledger-main-row">
+              <div class="ledger-left">
+                <div class="ledger-title-row">
+                  <h2 class="ledger-exp-title">{{ exp.description }}</h2>
+                </div>
 
-    <div class="grid" style="margin-top:1rem">
-      <section class="card">
-        <h3>{{ _('Expenses') }}</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>{{ _('Date') }}</th>
-              <th>{{ _('Description') }}</th>
-              <th class="right">{{ _('Total (€)') }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for e in expenses %}
-              <tr>
-                <td>{{ e.created_at or '' }}</td>
-                <td>{{ e.description }}</td>
-                <td class="right">{{ '%.2f'|format(e.total_amount) }}</td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </section>
+                <div class="ledger-meta-row">
+                  <span class="ledger-meta">
+                    💳 {{ _('%(payer)s betaalde', payer=exp.payer_username) }}
+                  </span>
+                  <span class="ledger-meta">
+                    👥
+                    {% if exp.shares and exp.shares|length > 0 %}
+                      {{ _('Gesplit tussen %(n)s personen', n=exp.shares|length) }}
+                    {% else %}
+                      {{ _('Gelijk verdeeld over alle leden') }}
+                    {% endif %}
+                  </span>
+                  <span class="ledger-meta">
+                    📅 {{ exp.created_at[:10] }}
+                  </span>
+                </div>
 
-      <section class="card">
-        <h3>{{ _('Payments (confirmed)') }}</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>{{ _('Date') }}</th>
-              <th>{{ _('Sender → Receiver') }}</th>
-              <th class="right">{{ _('Amount (€)') }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for p in payments %}
-              <tr>
-                <td>{{ p.created_at or '' }}</td>
-                <td>#{{ p.paid_by_user_id }} → #{{ p.received_by_user_id }}</td>
-                <td class="right">{{ '%.2f'|format(p.amount) }}</td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </section>
-    </div>
+                {% if exp.shares and exp.shares|length > 0 %}
+                  <div class="ledger-shares-row">
+                    {% for s in exp.shares %}
+                      <span class="ledger-share-chip">
+                        {{ s.username }}
+                        <span class="ledger-share-amount">
+                          € {{ '%.2f'|format(s.amount or 0) }}
+                        </span>
+                      </span>
+                    {% endfor %}
+                  </div>
+                {% else %}
+                  <div class="ledger-shares-row">
+                    <span class="ledger-chip-soft">
+                      {{ _('Gelijk verdeeld over alle leden') }}
+                    </span>
+                  </div>
+                {% endif %}
 
-    <section class="card" style="margin-top:1rem">
-      <h3>{{ _('Final balances') }}</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>{{ _('User') }}</th>
-            <th class="right">{{ _('Balance (€)') }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for uid, bal in balances.items() %}
-            <tr>
-              <td>#{{ uid }}</td>
-              <td class="right">{{ '%.2f'|format(bal|float) }}</td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+                {# Groen / rood tekstje voor jouw positie in deze expense #}
+                {% if exp.delta %}
+                  <div class="expense-delta
+                    {% if exp.delta > 0 %}delta-pos{% elif exp.delta < 0 %}delta-neg{% endif %}">
+                    {% if exp.delta > 0 %}
+                      {{ _('Je leende uit') }} € {{ '%.2f'|format(exp.delta) }}
+                    {% else %}
+                      {{ _('Je leende') }} € {{ '%.2f'|format(-exp.delta) }}
+                    {% endif %}
+                  </div>
+                {% endif %}
+              </div>
 
-      <div style="margin-top:.8rem">
-        <a class="button-outline" href="{{ url_for('main.export_csv', group_id=group.group_id) }}">
-          {{ _('Export CSV') }}
-        </a>
-      </div>
+              <div class="ledger-amount">
+                € {{ '%.2f'|format(exp.total_amount or 0) }}
+              </div>
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
     </section>
-  </main>
-</body>
-</html>
+  {% else %}
+    <section class="ledger-empty">
+      <h2>{{ _('Nog geen uitgaven in deze groep') }}</h2>
+      <p>
+        {{ _('Voeg je eerste kost toe – bijvoorbeeld tickets, hotel of boodschappen.') }}
+      </p>
+      <a href="{{ url_for('main.expense_new', group_id=group.group_id) }}"
+         class="btn-primary">
+        {{ _('Eerste uitgave toevoegen') }}
+      </a>
+    </section>
+  {% endif %}
+</main>
+{% endblock %}
+
+
 

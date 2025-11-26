@@ -238,17 +238,14 @@ def logout():
 
 
 # -----------------------------
-# HOME / LANDING + DASHBOARD
+# HOME (landing page) + DASHBOARD
 # -----------------------------
 @main.route("/")
 def home():
     """
     Publieke landing page.
-    Als de gebruiker al ingelogd is -> stuur naar dashboard.
+    Altijd de homepage tonen, ook als je ingelogd bent.
     """
-    user = current_user()
-    if user:
-        return redirect(url_for("main.dashboard"))
     return render_template("home.html")
 
 
@@ -256,7 +253,7 @@ def home():
 @login_required
 def dashboard():
     """
-    Jouw oude index/dashboard met groepen.
+    Dashboard met overzicht van alle groepen.
     """
     user = current_user()
     groups = []
@@ -550,6 +547,113 @@ def group_detail(group_id):
         app_fee_expense=app_fee_expense,
     )
 
+@main.route("/groups/<int:group_id>/expenses")
+@login_required
+def group_expenses(group_id):
+    user = current_user()
+
+    # 1) Groep ophalen
+    g = (
+        supabase.table("groups")
+        .select("*")
+        .eq("group_id", group_id)
+        .execute()
+        .data
+    )
+    if not g:
+        abort(404)
+    group = g[0]
+
+    # 2) Leden ophalen
+    gm_rows = (
+        supabase.table("group_members")
+        .select("*")
+        .eq("group_id", group_id)
+        .execute()
+        .data
+        or []
+    )
+
+    members = []
+    for gm in gm_rows:
+        u = (
+            supabase.table("users")
+            .select("users_id, username, email")
+            .eq("users_id", gm["user_id"])
+            .execute()
+            .data
+        )
+        if u:
+            members.append(u[0])
+
+    username_map = {m["users_id"]: m["username"] for m in members}
+
+    # 3) Uitgaven ophalen (incl. app fee)
+    expenses_rows = (
+        supabase.table("expenses")
+        .select("*")
+        .eq("group_id", group_id)
+        .eq("is_active", True)
+        .order("created_at", desc=True)
+        .execute()
+        .data
+        or []
+    )
+
+    app_fee_expense = None
+    normal_expenses = []
+    for exp in expenses_rows:
+        if exp.get("is_app_fee"):
+            if app_fee_expense is None or exp["created_at"] > app_fee_expense["created_at"]:
+                app_fee_expense = exp
+        else:
+            normal_expenses.append(exp)
+
+    # 4) Shares ophalen
+    shares_rows = (
+        supabase.table("expense_shares")
+        .select("*")
+        .eq("group_id", group_id)
+        .execute()
+        .data
+        or []
+    )
+
+    shares_by_expense = {}
+    for s in shares_rows:
+        eid = s["expense_id"]
+        shares_by_expense.setdefault(eid, []).append(
+            {
+                "user_id": s["user_id"],
+                "username": username_map.get(s["user_id"], _("Onbekend")),
+                "amount": s["amount"],
+            }
+        )
+
+    # 5) Lijst voor template
+    expense_list = []
+    for exp in normal_expenses:
+        eid = exp["expense_id"]
+        expense_list.append(
+            {
+                "expense_id": eid,
+                "description": exp["description"],
+                "total_amount": exp["total_amount"],
+                "created_at": exp["created_at"],
+                "payer_username": username_map.get(exp["created_by_user_id"], _("Onbekend")),
+                "shares": shares_by_expense.get(eid, []),
+            }
+        )
+
+    return render_template(
+        "group_expenses.html",
+        user=user,
+        group=group,
+        members=members,
+        expenses=expense_list,
+        app_fee_expense=app_fee_expense,
+    )
+
 
 # -----------------------------
 # JOIN GROUP (via dashboard form)
@@ -793,11 +897,127 @@ def set_language(lang):
 
 
 # -----------------------------
-# LEDGER (TODO)
+# LEDGER – VOLLEDIGE HISTORIEK
 # -----------------------------
 @main.route("/groups/<int:group_id>/ledger")
 @login_required
 def ledger(group_id):
-    # TODO: implement ledger
-    return render_template("ledger.html", group_id=group_id)
+    user = current_user()
+    if not user:
+        abort(403)
 
+    # 1) Groep ophalen
+    g = (
+        supabase.table("groups")
+        .select("*")
+        .eq("group_id", group_id)
+        .execute()
+        .data
+    )
+    if not g:
+        abort(404)
+    group = g[0]
+
+    # 2) Leden ophalen (voor namen)
+    gm_rows = (
+        supabase.table("group_members")
+        .select("*")
+        .eq("group_id", group_id)
+        .execute()
+        .data
+        or []
+    )
+
+    members = []
+    for gm in gm_rows:
+        u = (
+            supabase.table("users")
+            .select("users_id, username, email")
+            .eq("users_id", gm["user_id"])
+            .execute()
+            .data
+        )
+        if u:
+            members.append(u[0])
+
+    username_map = {m["users_id"]: m["username"] for m in members}
+
+    # 3) Alle actieve uitgaven (meestal zonder app-fee in deze view)
+    # 3) Uitgaven ophalen (incl. app fee) – NIEUWSTE EERST
+    expenses_rows = (
+        supabase.table("expenses")
+        .select("*")
+        .eq("group_id", group_id)
+        .eq("is_active", True)
+        .order("created_at", desc=True)  # <– zelfde als in group_expenses()
+        .execute()
+        .data
+        or []
+        )
+
+    # 4) Shares ophalen
+    shares_rows = (
+        supabase.table("expense_shares")
+        .select("*")
+        .eq("group_id", group_id)
+        .execute()
+        .data
+        or []
+    )
+
+    shares_by_expense = {}
+    for s in shares_rows:
+        eid = s["expense_id"]
+        shares_by_expense.setdefault(eid, []).append(
+            {
+                "user_id": s["user_id"],
+                "username": username_map.get(s["user_id"], _("Onbekend")),
+                "amount": s["amount"],
+            }
+        )
+
+    # 5) Expense-lijst + delta per user (groen/rood tekstje)
+    current_user_id = user["users_id"]
+    expense_list = []
+
+    for exp in expenses_rows:
+        eid = exp["expense_id"]
+        total_amount = float(exp.get("total_amount") or 0.0)
+        shares = shares_by_expense.get(eid, [])
+
+        my_share = 0.0
+        for s in shares:
+            if s["user_id"] == current_user_id:
+                my_share = float(s["amount"] or 0.0)
+
+        payer_is_me = (exp["created_by_user_id"] == current_user_id)
+
+        # delta > 0 → jij leende uit; delta < 0 → jij leende
+        if payer_is_me:
+            delta = total_amount - my_share
+        else:
+            delta = -my_share
+
+        expense_list.append(
+            {
+                "expense_id": eid,
+                "description": exp["description"],
+                "total_amount": total_amount,
+                "created_at": exp["created_at"],
+                "payer_username": username_map.get(
+                    exp["created_by_user_id"], _("Onbekend")
+                ),
+                "shares": shares,
+                "delta": delta,
+            }
+        )
+
+    # Optioneel: sorteren op datum (nieuwste eerst)
+    expense_list.sort(key=lambda e: e["created_at"], reverse=True)
+
+    return render_template(
+        "ledger.html",
+        user=user,
+        group=group,
+        expenses=expense_list,
+    )

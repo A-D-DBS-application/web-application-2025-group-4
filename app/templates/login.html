@@ -40,9 +40,11 @@
       </form>
 
       <p class="auth-switch">
-        {{ _('No account yet?') }}
-        <a href="{{ url_for('main.register') }}">{{ _('Register for free') }}</a>
-      </p>
+  {{ _('No account yet?') }}
+  <a href="{{ url_for('main.register') }}" class="btn-pill-ghost" style="margin-left:6px;">
+    {{ _('Register for free') }}
+  </a>
+</p>
 
       <p class="auth-tiny">
         {{ _('By logging in you agree to fair splits & good vibes ✌️') }}
