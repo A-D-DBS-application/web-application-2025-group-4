@@ -1,118 +1,147 @@
 {# templates/ledger.html #}
 {% extends "base.html" %}
-{% block title %}{{ _('Alle uitgaven') }} – {{ group.name }}{% endblock %}
+{% block title %}{{ _('Historiek – ') }}{{ group.name }} – FairSplit+{% endblock %}
 
 {% block content %}
-<main class="ledger-page">
+<main class="group-page">
 
-  <!-- HEADER BOVEN -->
-  <header class="ledger-header">
-    <div>
-      <p class="ledger-eyebrow">
-        {{ _('Overzicht van alle kosten in') }}
-      </p>
-      <h1 class="ledger-title">
+  <!-- HEADER -->
+  <section class="group-hero">
+    <div class="group-hero-main">
+      <div class="group-pill">
+        📜 {{ _('Overzicht van alle kosten in') }}
+      </div>
+      <h1 class="group-title">
         {{ group.name }}
       </h1>
-      <p class="ledger-sub">
+      <p class="group-sub">
         {{ _('Complete historiek van alle uitgaven in deze groep.') }}
       </p>
-    </div>
 
-    <div class="ledger-actions">
-      <a href="{{ url_for('main.group_detail', group_id=group.group_id) }}"
-         class="btn-secondary">
-        ← {{ _('Terug naar groepsoverzicht') }}
-      </a>
-      <a href="{{ url_for('main.expense_new', group_id=group.group_id) }}"
-         class="btn-primary">
-        ➕ {{ _('Nieuwe uitgave') }}
-      </a>
+      <div class="group-cta-row">
+        <a href="{{ url_for('main.group_detail', group_id=group.group_id) }}"
+           class="btn-secondary">
+          ← {{ _('Terug naar groepsoverzicht') }}
+        </a>
+        <a href="{{ url_for('main.expense_new', group_id=group.group_id) }}"
+           class="btn-primary">
+          ➕ {{ _('Nieuwe uitgave') }}
+        </a>
+      </div>
     </div>
-  </header>
+  </section>
 
-  {% if expenses %}
-    <section class="ledger-list-wrap">
-      <ul class="ledger-list">
-        {% for exp in expenses %}
-          <li class="ledger-item">
-            <div class="ledger-main-row">
-              <div class="ledger-left">
-                <div class="ledger-title-row">
-                  <h2 class="ledger-exp-title">{{ exp.description }}</h2>
+  <!-- BODY VOLLEDIGE BREEDTE -->
+  <section class="group-body group-body-full">
+    <article class="group-card group-expenses-card">
+
+      {% if expenses %}
+        <ul class="expense-list expense-list-wide">
+          {% for exp in expenses %}
+
+            {% set cat = exp.category if exp.category in CATEGORY_IDS else 'activities' %}
+            {% set cat_label = CATEGORY_LABELS[cat] %}
+
+            <li class="expense-item expense-item-wide">
+              <div class="expense-main-wide">
+
+                <!-- Titel + categorie + totaalbedrag -->
+                <div class="expense-line-top">
+                  <div class="expense-title">
+                    {{ exp.description }}
+                  </div>
+
+                  <span class="expense-category-pill cat-{{ cat }}">
+                    {{ cat_label }}
+                  </span>
+
+                  <div class="expense-amount-right">
+                    € {{ '%.2f'|format(exp.total_amount or 0) }}
+                  </div>
                 </div>
 
-                <div class="ledger-meta-row">
-                  <span class="ledger-meta">
-                    💳 {{ _('%(payer)s betaalde', payer=exp.payer_username) }}
-                  </span>
-                  <span class="ledger-meta">
-                    👥
-                    {% if exp.shares and exp.shares|length > 0 %}
-                      {{ _('Gesplit tussen %(n)s personen', n=exp.shares|length) }}
-                    {% else %}
-                      {{ _('Gelijk verdeeld over alle leden') }}
-                    {% endif %}
-                  </span>
-                  <span class="ledger-meta">
-                    📅 {{ exp.created_at[:10] }}
-                  </span>
+                <!-- Meta: betaald door / split / datum -->
+                <div class="expense-line-meta">
+
+                  <div class="expense-meta-block">
+                    <span class="expense-meta-label">💳</span>
+                    <span class="expense-meta-text">
+                      {{ _('%(payer)s betaalde', payer=exp.payer_username) }}
+                    </span>
+                  </div>
+
+                  <div class="expense-meta-block">
+                    <span class="expense-meta-label">👥</span>
+                    <span class="expense-meta-text">
+                      {% if exp.shares and exp.shares|length > 0 %}
+                        {{ _('Gesplit tussen %(n)s personen', n=exp.shares|length) }}
+                      {% else %}
+                        {{ _('Gelijk verdeeld over alle leden') }}
+                      {% endif %}
+                    </span>
+                  </div>
+
+                  <div class="expense-meta-block">
+                    <span class="expense-meta-label">📅</span>
+                    <span class="expense-meta-text">
+                      {{ exp.created_at[:10] }}
+                    </span>
+                  </div>
+
                 </div>
 
+                <!-- Shares chips -->
                 {% if exp.shares and exp.shares|length > 0 %}
-                  <div class="ledger-shares-row">
+                  <div class="expense-line-shares">
                     {% for s in exp.shares %}
-                      <span class="ledger-share-chip">
-                        {{ s.username }}
-                        <span class="ledger-share-amount">
-                          € {{ '%.2f'|format(s.amount or 0) }}
+                      <span class="share-chip">
+                        <span class="share-chip-name">{{ s.username }}</span>
+                        <span class="share-chip-amount">
+                          € {{ '%.2f'|format(s.amount) }}
                         </span>
                       </span>
                     {% endfor %}
                   </div>
                 {% else %}
-                  <div class="ledger-shares-row">
-                    <span class="ledger-chip-soft">
+                  <div class="expense-line-shares">
+                    <span class="share-chip share-chip-soft">
                       {{ _('Gelijk verdeeld over alle leden') }}
                     </span>
                   </div>
                 {% endif %}
 
-                {# Groen / rood tekstje voor jouw positie in deze expense #}
-                {% if exp.delta %}
-                  <div class="expense-delta
-                    {% if exp.delta > 0 %}delta-pos{% elif exp.delta < 0 %}delta-neg{% endif %}">
-                    {% if exp.delta > 0 %}
-                      {{ _('Je leende uit') }} € {{ '%.2f'|format(exp.delta) }}
-                    {% else %}
-                      {{ _('Je leende') }} € {{ '%.2f'|format(-exp.delta) }}
-                    {% endif %}
-                  </div>
-                {% endif %}
-              </div>
+                <!-- Jouw positie: je leende uit / je leende -->
+                <div class="expense-line-you">
+                  {% if exp.delta > 0 %}
+                    <span class="you-lent">
+                      {{ _('Je leende uit €%(amt).2f', amt=exp.delta) }}
+                    </span>
+                  {% elif exp.delta < 0 %}
+                    <span class="you-borrowed">
+                      {{ _('Je leende €%(amt).2f', amt=(-exp.delta)) }}
+                    </span>
+                  {% else %}
+                    <span class="you-even">
+                      {{ _('Voor jou is deze uitgave in evenwicht.') }}
+                    </span>
+                  {% endif %}
+                </div>
 
-              <div class="ledger-amount">
-                € {{ '%.2f'|format(exp.total_amount or 0) }}
               </div>
-            </div>
-          </li>
-        {% endfor %}
-      </ul>
-    </section>
-  {% else %}
-    <section class="ledger-empty">
-      <h2>{{ _('Nog geen uitgaven in deze groep') }}</h2>
-      <p>
-        {{ _('Voeg je eerste kost toe – bijvoorbeeld tickets, hotel of boodschappen.') }}
-      </p>
-      <a href="{{ url_for('main.expense_new', group_id=group.group_id) }}"
-         class="btn-primary">
-        {{ _('Eerste uitgave toevoegen') }}
-      </a>
-    </section>
-  {% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <div class="empty-state">
+          <h3>{{ _('Nog geen uitgaven') }}</h3>
+          <p>{{ _('Zodra er kosten zijn, verschijnen ze hier.') }}</p>
+          <a href="{{ url_for('main.expense_new', group_id=group.group_id) }}"
+             class="btn-primary">
+            {{ _('Eerste uitgave toevoegen') }}
+          </a>
+        </div>
+      {% endif %}
+    </article>
+  </section>
 </main>
 {% endblock %}
-
-
-

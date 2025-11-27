@@ -123,13 +123,22 @@
 
       <div class="recent-exp-list">
         {% if expenses %}
-          {# Sorteer eerst op created_at (nieuwste eerst) en neem dan de eerste 3 #}
+          {# nieuwste 3 #}
           {% set recent_expenses = (expenses | sort(attribute='created_at', reverse=True))[:3] %}
 
           {% for exp in recent_expenses %}
+            {# categorie: uit DB, fallback naar 'activities' #}
+            {% set cat = exp.category if exp.category in CATEGORY_IDS else 'activities' %}
+            {% set cat_label = CATEGORY_LABELS[cat] %}
+
             <article class="recent-exp-card">
               <header class="recent-exp-header">
                 <span class="recent-exp-title">{{ exp.description }}</span>
+
+                <span class="expense-category-pill cat-{{ cat }}">
+                  {{ cat_label }}
+                </span>
+
                 <span class="recent-exp-amount">
                   € {{ '%.2f'|format(exp.total_amount or 0) }}
                 </span>
@@ -261,5 +270,3 @@
   </section>
 </main>
 {% endblock %}
-
-

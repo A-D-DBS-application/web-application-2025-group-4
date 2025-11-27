@@ -2645,3 +2645,127 @@ button:focus-visible,
     align-items: flex-start;
   }
 }
+/* ------- CATEGORIE BADGES ------- */
+
+.expense-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  background: #e5e7eb;
+  color: #111827;
+}
+
+/* Kleuren per categorie */
+
+.tag-food_drink {
+  background: #f9731615;
+  color: #c2410c;
+}
+
+.tag-entertainment {
+  background: #a855f715;
+  color: #7e22ce;
+}
+
+.tag-groceries {
+  background: #22c55e20;
+  color: #15803d;
+}
+
+.tag-transportation {
+  background: #0ea5e920;
+  color: #0369a1;
+}
+
+.tag-lodging {
+  background: #facc1520;
+  color: #92400e;
+}
+
+.tag-other {
+  background: #e5e7eb;
+  color: #374151;
+}
+.expense-category-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-left: 8px;
+}
+
+/* Basisstijl */
+.expense-category-pill {
+  background: #eef1f8;
+  color: #333;
+}
+
+/* Kleuren per categorie */
+.cat-food {
+  background: #fff3e0;
+  color: #e67e22;
+}
+
+.cat-transport {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.cat-groceries {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.cat-entertainment {
+  background: #f3e5f5;
+  color: #8e24aa;
+}
+
+.cat-other {
+  background: #eceff1;
+  color: #546e7a;
+}
+.expense-category-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-left: 8px;
+}
+
+/* FOOD */
+.cat-food {
+  background: #fff3e0;
+  color: #e67e22;
+}
+
+/* TRANSPORT */
+.cat-transport {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+/* GROCERIES */
+.cat-groceries {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+/* ENTERTAINMENT */
+.cat-entertainment {
+  background: #f3e5f5;
+  color: #8e24aa;
+}
+
+/* OTHER */
+.cat-other {
+  background: #eceff1;
+  color: #546e7a;
+}

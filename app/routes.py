@@ -17,6 +17,12 @@ from flask_babel import gettext as _  # ✅ i18n
 
 from app.supabase_client import supabase
 
+from openai import OpenAI
+
+# ⚠️ Vul hier je echte key in OF lees ze uit een environment variable.
+# Deel deze key nooit publiek en commit ze niet naar Git.
+client = OpenAI(api_key="YOUR_OPENAI_API_KEY_HERE")
+
 main = Blueprint("main", __name__)
 
 
@@ -44,6 +50,151 @@ def login_required(func):
         return func(*args, **kwargs)
 
     return wrapper
+
+
+# -----------------------------
+# CATEGORIEËN
+# -----------------------------
+# We gebruiken GEEN "other" meer als categorie.
+CATEGORY_IDS = [
+    "transport",
+    "food",
+    "accommodation",
+    "activities",
+    "shopping",
+]
+
+CATEGORY_LABELS = {
+    "transport": _("Transport"),
+    "food": _("Eten & drinken"),
+    "accommodation": _("Accommodatie"),
+    "activities": _("Activiteiten"),
+    "shopping": _("Winkelen"),
+}
+
+
+def category_label(cat: str) -> str:
+    """
+    Map een category-id naar een leesbaar label.
+    Als de category onbekend is (oude 'other', None, bug, …),
+    dan vallen we terug op 'activities'.
+    """
+    if cat not in CATEGORY_IDS:
+        cat = "activities"
+    return CATEGORY_LABELS[cat]
+
+def fallback_category_keywords(description: str) -> str:
+    """
+    Nood-oplossing als de AI faalt of onzin teruggeeft.
+    Probeert op basis van een paar typische woorden een categorie te kiezen.
+    """
+    desc = (description or "").lower()
+
+    # Eten & drinken
+    if any(w in desc for w in [
+        "eten", "food", "restaurant", "pizza", "pasta", "burger",
+        "diner", "lunch", "ontbijt", "drank", "bier", "wijn", "cocktail", "bar"
+    ]):
+        return "food"
+
+    # Transport
+    if any(w in desc for w in [
+        "trein", "bus", "tram", "metro", "taxi", "uber", "rit",
+        "vlucht", "vliegtuig", "ticket", "benzine", "tanken", "fuel"
+    ]):
+        return "transport"
+
+    # Accommodatie
+    if any(w in desc for w in [
+        "hotel", "airbnb", "hostel", "overnachting", "kamer", "camping"
+    ]):
+        return "accommodation"
+
+    # Shopping
+    if any(w in desc for w in [
+        "souvenir", "souvenirs", "shoppen", "shopping", "winkel", "kleding",
+        "t-shirt", "cadeau", "cadeautje"
+    ]):
+        return "shopping"
+
+    # Alles wat over activiteiten/sport/uitjes lijkt
+    if any(w in desc for w in [
+        "museum", "match", "wedstrijd", "wedstrijdje", "voetbal",
+        "basket", "basketbal", "pingpong", "zwemmen", "zwemwedstrijd",
+        "golf", "hockey", "volley", "concert", "tour", "excursie", "uitstap"
+    ]):
+        return "activities"
+
+    # Hele vage dingen → toch maar activities
+    return "activities"
+
+
+
+def infer_category_ai(description: str, raw_category: str | None = None) -> str:
+    """
+    Bepaalt de categorie met AI.
+
+    Regels:
+    - Als de user expliciet een geldige categorie kiest -> gebruik die.
+    - Als description leeg is -> kies een redelijke default ("activities").
+    - AI MOET één van deze id's teruggeven:
+        transport, food, accommodation, activities, shopping
+    - We gebruiken GEEN 'other' meer.
+    - Als de AI faalt of iets anders teruggeeft -> fallback op keywords.
+    """
+
+    # 1) User override
+    if raw_category and raw_category in CATEGORY_IDS:
+        return raw_category
+
+    # 2) Geen beschrijving? Dan kunnen we niets zinnigs doen: pak "activities"
+    if not description:
+        return "activities"
+
+    # 3) AI-prompt
+    prompt = f"""
+Je bent een classifier voor uitgaven in een reis-/trip-app.
+
+Je krijgt een korte beschrijving (meestal Nederlands of Engels) en je moet
+EXACT ÉÉN category-id kiezen uit deze lijst:
+
+- transport
+- food
+- accommodation
+- activities
+- shopping
+
+Kies NOOIT iets anders. Als je twijfelt, kies de categorie die het best past.
+Antwoord met enkel de category-id, dus één van:
+transport, food, accommodation, activities, shopping
+
+Beschrijving: {description!r}
+"""
+
+    try:
+        resp = client.responses.create(
+            model="gpt-4.1-mini",
+            input=prompt,
+            max_output_tokens=10,
+        )
+
+        raw = resp.output[0].content[0].text.strip().lower()
+        # als het model toch extra woorden stuurt, neem het eerste woord
+        cat = raw.split()[0] if raw else ""
+
+        if cat not in CATEGORY_IDS:
+            # debuglog in console om te zien wat het model deed
+            print(f"AI category raw output: {raw!r} -> parsed invalid: {cat!r}")
+            # fallback op keywords
+            cat = fallback_category_keywords(description)
+
+        return cat
+
+    except Exception as e:
+        # Eventueel loggen voor debugging
+        print("AI category error:", e)
+        # Fail-safe: keywords (toch betere gok dan altijd activities)
+        return fallback_category_keywords(description)
 
 
 # -----------------------------
@@ -100,6 +251,7 @@ def ensure_app_fee(group_id, creator_id=None):
                     "total_amount": float(fee_total),
                     "created_at": datetime.utcnow().isoformat(),
                     "is_active": True,
+                    "is_app_fee": True,
                 }
             )
             .execute()
@@ -416,12 +568,13 @@ def group_detail(group_id):
     # map user_id -> username (voor saldi + lijsten)
     username_map = {m["users_id"]: m["username"] for m in members}
 
-    # 3) Uitgaven ophalen (incl. app fee)
+    # 3) Uitgaven ophalen (incl. app fee) – NIEUWSTE EERST
     expenses_rows = (
         supabase.table("expenses")
         .select("*")
         .eq("group_id", group_id)
         .eq("is_active", True)
+        .order("created_at", desc=True)
         .execute()
         .data
         or []
@@ -431,7 +584,10 @@ def group_detail(group_id):
     normal_expenses = []
     for exp in expenses_rows:
         if exp.get("is_app_fee"):
-            if app_fee_expense is None or exp["created_at"] > app_fee_expense["created_at"]:
+            if (
+                app_fee_expense is None
+                or exp["created_at"] > app_fee_expense["created_at"]
+            ):
                 app_fee_expense = exp
         else:
             normal_expenses.append(exp)
@@ -500,20 +656,34 @@ def group_detail(group_id):
             }
         )
 
-    # 6) Uitgavenlijst voor de tabel (zonder app fee)
+    # 6) Uitgavenlijst voor de hero/laatste uitgaven (zonder app fee)
     expense_list = []
     for exp in normal_expenses:
         eid = exp["expense_id"]
+
+        # categorie uit DB (voor oude records kan dit None of 'other' zijn)
+        stored_cat = (exp.get("category") or "").lower()
+        if stored_cat not in CATEGORY_IDS:
+            stored_cat = "activities"
+        cat = stored_cat
+
         expense_list.append(
             {
                 "expense_id": eid,
                 "description": exp["description"],
                 "total_amount": exp["total_amount"],
                 "created_at": exp["created_at"],
-                "payer_username": username_map.get(exp["created_by_user_id"], _("Onbekend")),
+                "payer_username": username_map.get(
+                    exp["created_by_user_id"], _("Onbekend")
+                ),
                 "shares": shares_by_expense.get(eid, []),
+                "category": cat,
+                "category_label": category_label(cat),
             }
         )
+
+    # sorteer op datum (nieuwste eerst) zodat template gewoon expenses[:3] kan nemen
+    expense_list.sort(key=lambda e: e["created_at"], reverse=True)
 
     # 7) Betalingen ophalen
     payments_rows = (
@@ -531,8 +701,12 @@ def group_detail(group_id):
             {
                 "created_at": p["created_at"],
                 "amount": p["amount"],
-                "sender_username": username_map.get(p["sender_user_id"], _("Onbekend")),
-                "receiver_username": username_map.get(p["receiver_user_id"], _("Onbekend")),
+                "sender_username": username_map.get(
+                    p["sender_user_id"], _("Onbekend")
+                ),
+                "receiver_username": username_map.get(
+                    p["receiver_user_id"], _("Onbekend")
+                ),
             }
         )
 
@@ -545,12 +719,19 @@ def group_detail(group_id):
         expenses=expense_list,
         payments=payments,
         app_fee_expense=app_fee_expense,
+        CATEGORY_LABELS=CATEGORY_LABELS,
     )
 
+
+# -----------------------------
+# GROUP EXPENSES – VOLLEDIGE LIJST
+# -----------------------------
 @main.route("/groups/<int:group_id>/expenses")
 @login_required
 def group_expenses(group_id):
     user = current_user()
+    if not user:
+        abort(403)
 
     # 1) Groep ophalen
     g = (
@@ -588,7 +769,7 @@ def group_expenses(group_id):
 
     username_map = {m["users_id"]: m["username"] for m in members}
 
-    # 3) Uitgaven ophalen (incl. app fee)
+    # 3) Uitgaven ophalen (incl. app fee) – NIEUWSTE EERST
     expenses_rows = (
         supabase.table("expenses")
         .select("*")
@@ -604,7 +785,10 @@ def group_expenses(group_id):
     normal_expenses = []
     for exp in expenses_rows:
         if exp.get("is_app_fee"):
-            if app_fee_expense is None or exp["created_at"] > app_fee_expense["created_at"]:
+            if (
+                app_fee_expense is None
+                or exp["created_at"] > app_fee_expense["created_at"]
+            ):
                 app_fee_expense = exp
         else:
             normal_expenses.append(exp)
@@ -630,20 +814,33 @@ def group_expenses(group_id):
             }
         )
 
-    # 5) Lijst voor template
+    # 5) Lijst voor template (incl. categorie)
     expense_list = []
     for exp in normal_expenses:
         eid = exp["expense_id"]
+
+        stored_cat = (exp.get("category") or "").lower()
+        if stored_cat not in CATEGORY_IDS:
+            stored_cat = "activities"
+        cat = stored_cat
+
         expense_list.append(
             {
                 "expense_id": eid,
                 "description": exp["description"],
                 "total_amount": exp["total_amount"],
                 "created_at": exp["created_at"],
-                "payer_username": username_map.get(exp["created_by_user_id"], _("Onbekend")),
+                "payer_username": username_map.get(
+                    exp["created_by_user_id"], _("Onbekend")
+                ),
                 "shares": shares_by_expense.get(eid, []),
+                "category": cat,
+                "category_label": category_label(cat),
             }
         )
+
+    # sorteren (nieuwste eerst)
+    expense_list.sort(key=lambda e: e["created_at"], reverse=True)
 
     return render_template(
         "group_expenses.html",
@@ -652,6 +849,7 @@ def group_expenses(group_id):
         members=members,
         expenses=expense_list,
         app_fee_expense=app_fee_expense,
+        CATEGORY_LABELS=CATEGORY_LABELS,
     )
 
 
@@ -693,7 +891,9 @@ def join_group(join_code):
     )
     if not g:
         flash(
-            _("Geen groep gevonden met deze code. Controleer de code en probeer opnieuw."),
+            _(
+                "Geen groep gevonden met deze code. Controleer de code en probeer opnieuw."
+            ),
             "danger",
         )
         return redirect(url_for("main.dashboard"))
@@ -728,13 +928,14 @@ def join_group(join_code):
 
 
 # -----------------------------
-# EXPENSES – UITGAVEN
+# EXPENSES – NIEUWE UITGAVE
 # -----------------------------
 @main.route("/group/<int:group_id>/expense/new", methods=["GET", "POST"])
 @login_required
 def expense_new(group_id):
     uid = session.get("users_id")
 
+    # Check of de user lid is van de groep
     membership = (
         supabase.table("group_members")
         .select("*")
@@ -748,6 +949,7 @@ def expense_new(group_id):
         flash(_("Je hebt geen toegang tot deze groep."), "danger")
         return redirect(url_for("main.dashboard"))
 
+    # Groep ophalen
     g = (
         supabase.table("groups")
         .select("*")
@@ -757,6 +959,7 @@ def expense_new(group_id):
     )
     group = g[0] if g else None
 
+    # Leden ophalen
     gm_rows = (
         supabase.table("group_members")
         .select("*")
@@ -780,14 +983,17 @@ def expense_new(group_id):
                 {"user_id": u[0]["users_id"], "username": u[0]["username"]}
             )
 
+    # ---------------- POST: nieuwe uitgave ----------------
     if request.method == "POST":
         description = request.form.get("description", "").strip()
         amount_raw = request.form.get("amount", "").strip()
+        raw_category = request.form.get("category")  # kan leeg zijn
 
         if not description or not amount_raw:
             flash(_("Vul alle velden in."), "danger")
             return redirect(request.url)
 
+        # bedrag parsen
         try:
             total_amount = float(amount_raw.replace(",", "."))
         except ValueError:
@@ -798,6 +1004,7 @@ def expense_new(group_id):
             flash(_("Bedrag moet groter zijn dan 0."), "danger")
             return redirect(request.url)
 
+        # shares verzamelen
         shares = []
         for m in members:
             field_name = f"share_{m['user_id']}"
@@ -825,6 +1032,7 @@ def expense_new(group_id):
             if share_val > 0:
                 shares.append({"user_id": m["user_id"], "amount": share_val})
 
+        # check of som van shares klopt
         if shares:
             sum_shares = sum(s["amount"] for s in shares)
             if abs(sum_shares - total_amount) > 0.01:
@@ -838,6 +1046,10 @@ def expense_new(group_id):
                 )
                 return redirect(request.url)
 
+        # categorie laten bepalen door AI + fallback
+        guessed_cat = infer_category_ai(description, raw_category)
+
+        now_iso = datetime.utcnow().isoformat()
         exp_resp = (
             supabase.table("expenses")
             .insert(
@@ -846,8 +1058,9 @@ def expense_new(group_id):
                     "created_by_user_id": uid,
                     "description": description,
                     "total_amount": total_amount,
-                    "created_at": datetime.utcnow().isoformat(),
+                    "created_at": now_iso,
                     "is_active": True,
+                    "category": guessed_cat,
                 }
             )
             .execute()
@@ -860,6 +1073,7 @@ def expense_new(group_id):
         expense = exp_resp.data[0]
         expense_id = expense["expense_id"]
 
+        # shares wegschrijven
         if shares:
             rows = []
             for s in shares:
@@ -869,7 +1083,7 @@ def expense_new(group_id):
                         "group_id": group_id,
                         "user_id": s["user_id"],
                         "amount": s["amount"],
-                        "created_at": datetime.utcnow().isoformat(),
+                        "created_at": now_iso,
                     }
                 )
             supabase.table("expense_shares").insert(rows).execute()
@@ -877,11 +1091,14 @@ def expense_new(group_id):
         flash(_("Uitgave toegevoegd!"), "success")
         return redirect(url_for("main.group_detail", group_id=group_id))
 
+    # ---------------- GET: formulier tonen ----------------
     return render_template(
         "expense_new.html",
         group=group,
         group_id=group_id,
         members=members,
+        CATEGORY_IDS=CATEGORY_IDS,
+        CATEGORY_LABELS=CATEGORY_LABELS,
     )
 
 
@@ -942,18 +1159,17 @@ def ledger(group_id):
 
     username_map = {m["users_id"]: m["username"] for m in members}
 
-    # 3) Alle actieve uitgaven (meestal zonder app-fee in deze view)
-    # 3) Uitgaven ophalen (incl. app fee) – NIEUWSTE EERST
+    # 3) Alle actieve uitgaven – NIEUWSTE EERST
     expenses_rows = (
         supabase.table("expenses")
         .select("*")
         .eq("group_id", group_id)
         .eq("is_active", True)
-        .order("created_at", desc=True)  # <– zelfde als in group_expenses()
+        .order("created_at", desc=True)
         .execute()
         .data
         or []
-        )
+    )
 
     # 4) Shares ophalen
     shares_rows = (
@@ -990,13 +1206,18 @@ def ledger(group_id):
             if s["user_id"] == current_user_id:
                 my_share = float(s["amount"] or 0.0)
 
-        payer_is_me = (exp["created_by_user_id"] == current_user_id)
+        payer_is_me = exp["created_by_user_id"] == current_user_id
 
         # delta > 0 → jij leende uit; delta < 0 → jij leende
         if payer_is_me:
             delta = total_amount - my_share
         else:
             delta = -my_share
+
+        stored_cat = (exp.get("category") or "").lower()
+        if stored_cat not in CATEGORY_IDS:
+            stored_cat = "activities"
+        cat = stored_cat
 
         expense_list.append(
             {
@@ -1009,10 +1230,12 @@ def ledger(group_id):
                 ),
                 "shares": shares,
                 "delta": delta,
+                "category": cat,
+                "category_label": category_label(cat),
             }
         )
 
-    # Optioneel: sorteren op datum (nieuwste eerst)
+    # sorteren op datum (nieuwste eerst)
     expense_list.sort(key=lambda e: e["created_at"], reverse=True)
 
     return render_template(
@@ -1020,4 +1243,5 @@ def ledger(group_id):
         user=user,
         group=group,
         expenses=expense_list,
+        CATEGORY_LABELS=CATEGORY_LABELS,
     )

@@ -56,11 +56,33 @@
                  required>
         </label>
 
+        <!-- Category (AI first) -->
+        <label class="auth-field">
+          <span>{{ _('Category') }}</span>
+          <select name="category"
+                  id="category-select"
+                  style="width:100%; padding:8px 10px; border-radius:10px; border:1px solid #d4d4d8; font-size:14px;">
+            {# Lege value = AI beslist in infer_category_ai #}
+            <option value="" selected>
+              {{ _('Automatic (AI – choose best match)') }}
+            </option>
+
+            {% for cid in CATEGORY_IDS %}
+              <option value="{{ cid }}">
+                {{ CATEGORY_LABELS[cid] }}
+              </option>
+            {% endfor %}
+          </select>
+          <small style="font-size:13px; color:#64748b;">
+            {{ _('Leave on automatic to let AI pick the best category based on the description.') }}
+          </small>
+        </label>
+
         <!-- Split toggle -->
         <div class="auth-field">
           <span>{{ _('Split') }}</span>
 
-          <!-- waarde NIET vertalen, backend verwacht 'equal' of 'custom' -->
+          {# waarde NIET vertalen, backend verwacht 'equal' of 'custom' #}
           <input type="hidden" name="split_mode" id="split-mode" value="equal">
 
           <div class="split-mode-toggle" id="split-toggle">
@@ -202,7 +224,7 @@ document.addEventListener("DOMContentLoaded", () => {
       totalEl.style.color          = "#92400e";
       remainingEl.style.color      = "#92400e";
     } else {
-      // te veel verdeeld (blijft negatief over)
+      // te veel verdeeld (negatief remainder)
       summaryBox.style.background  = "#fef2f2";
       summaryBox.style.borderColor = "#ef444455";
       totalEl.style.color          = "#991b1b";
@@ -280,6 +302,3 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 </script>
 {% endblock %}
-
-
-

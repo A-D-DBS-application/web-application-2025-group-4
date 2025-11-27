@@ -19,7 +19,7 @@
       </p>
 
       <div class="group-cta-row">
-        <a href="{{ url_for('main.group_detail', group_id=group.group_id) if false else url_for('main.group_detail', group_id=group.group_id) }}"
+        <a href="{{ url_for('main.group_detail', group_id=group.group_id) }}"
            class="btn-secondary">
           ← {{ _('Terug naar groepsoverzicht') }}
         </a>
@@ -56,6 +56,10 @@
       {% if expenses %}
         <ul class="expense-list expense-list-wide">
           {% for exp in expenses %}
+
+            {% set cat = exp.category if exp.category in CATEGORY_IDS else 'activities' %}
+            {% set cat_label = CATEGORY_LABELS[cat] %}
+
             <li class="expense-item expense-item-wide">
               <div class="expense-main-wide">
 
@@ -63,6 +67,11 @@
                   <div class="expense-title">
                     {{ exp.description }}
                   </div>
+
+                  <span class="expense-category-pill cat-{{ cat }}">
+                    {{ cat_label }}
+                  </span>
+
                   <div class="expense-amount-right">
                     € {{ '%.2f'|format(exp.total_amount or 0) }}
                   </div>
@@ -133,3 +142,7 @@
   </section>
 </main>
 {% endblock %}
+
+
+
+
