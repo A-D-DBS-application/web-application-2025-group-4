@@ -1,32 +1,61 @@
-<!doctype html>
-<html lang="{{ session.get('lang','nl') }}">
-<head>
-  <meta charset="utf-8">
-  <title>{{ _('Join group') }} – FairSplit+</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link href="https://unpkg.com/@picocss/pico@2/css/pico.min.css" rel="stylesheet">
-  <style>
-    .wrap { max-width: 420px; margin: 3rem auto; }
-    h1 { font-weight: 700; }
-    button { width: 100%; background: hsl(142,76%,59%); border: none; border-radius: 8px; color: #fff; padding: .7rem; font-weight: 600; }
-    button:hover { background: hsl(142,76%,45%); }
-  </style>
-</head>
-<body> 
-  <main class="wrap">
-    <h1>{{ _('Join group') }}</h1>
-    <p>{{ _('Enter the unique code of the group below.') }}</p>
+{# templates/group_join.html #}
+{% extends "base.html" %}
+{% block title %}{{ _('Join group') }} – FairSplit+{% endblock %}
 
-    <form method="POST" action="{{ url_for('main.join_group_form') }}">
-      <label for="join_code">{{ _('Group code') }}</label>
-      <input type="text" id="join_code" name="join_code" placeholder="{{ _('e.g. A3F9C2') }}" required>
-      <button type="submit">{{ _('Join group') }}</button>
-    </form>
+{% block content %}
+<main class="auth-page">
+  <section class="auth-shell" style="max-width:640px;">
 
-    <p style="text-align:center; margin-top:1rem;">
-      <a href="{{ url_for('main.index') }}">{{ _('Back to dashboard') }}</a>
-    </p>
-  </main>
-</body>
-</html>
+    <div class="auth-left">
+      <span class="auth-pill">{{ _('Join group') }}</span>
+      <h1 class="auth-title" style="margin-top:14px;">
+        {{ _('Join an existing group') }}
+      </h1>
+      <p class="auth-lead">
+        {{ _('Enter the unique group code you received from your friends.') }}
+      </p>
+
+      <ul class="auth-benefits">
+        <li>✅ {{ _('Use the same account for all your trips and groups') }}</li>
+        <li>✅ {{ _('See all shared expenses in one overview') }}</li>
+        <li>✅ {{ _('No more confusion about who owes what') }}</li>
+      </ul>
+    </div>
+
+    <div class="auth-card">
+      <h2 class="auth-card-title">{{ _('Join group') }}</h2>
+      <p class="auth-card-sub">
+        {{ _('Enter the code of the group below.') }}
+      </p>
+
+      <form method="POST"
+            action="{{ url_for('main.join_group_form') }}"
+            class="auth-form">
+
+        <label class="auth-field">
+          <span>{{ _('Group code') }}</span>
+          <input
+            type="text"
+            name="join_code"
+            placeholder="{{ _('e.g. A3F9C2') }}"
+            required
+          >
+        </label>
+
+        <button type="submit" class="btn-primary btn-full" style="margin-top:6px;">
+          {{ _('Join group') }}
+        </button>
+      </form>
+
+      <p class="auth-switch" style="margin-top:10px;">
+        {{ _('Back to dashboard?') }}
+        <a href="{{ url_for('main.index') }}" class="btn-pill-ghost" style="margin-left:6px;">
+          ← {{ _('Back to dashboard') }}
+        </a>
+      </p>
+    </div>
+
+  </section>
+</main>
+{% endblock %}
 
