@@ -1,6 +1,6 @@
 {# templates/home.html #}
 {% extends "base.html" %}
-{% block title %}FairSplit+ – {{ _('Minder stress bij gedeelde uitgaven') }}{% endblock %}
+{% block title %}FairSplit+ – {{ _('Less stress with shared expenses') }}{% endblock %}
 
 {% block content %}
 
@@ -9,71 +9,71 @@
   <div class="hero-background"></div>
 
   <div class="hero-grid">
-    <!-- LINKERKANT: tekst + CTA -->
+    <!-- LEFT: text + CTA -->
     <div class="hero-left">
       <!-- Eyebrow / pill -->
       <div class="pill">
-        🧮 {{ _('Minder stress bij gedeelde uitgaven') }}
+        🧮 {{ _('Less stress with shared expenses') }}
       </div>
 
-      <!-- Grote titel -->
+      <!-- Big title -->
       <h1 class="hero-title">
-        {{ _('Deel uitgaven eerlijk') }}
+        {{ _('Split expenses fairly') }}
         <span class="accent-text">
-          {{ _('met vrienden, huisgenoten of op reis.') }}
+          {{ _('with friends, flatmates or on trips.') }}
         </span>
       </h1>
 
-      <!-- Subtekst -->
+      <!-- Subtext -->
       <p class="hero-sub">
-        {{ _('Hou saldo’s bij per groep, trip of kot. Eén duidelijk overzicht van wie wat betaalde – zonder Excel, discussies of vergeten terugbetalingen.') }}
+        {{ _("Track balances per group, trip or flat. One clear overview of who paid what – without Excel, arguments or forgotten repayments.") }}
       </p>
 
-      <!-- CTA knoppen -->
+      <!-- CTA buttons -->
       <div class="hero-cta">
         <a href="{{ url_for('main.register') }}" class="btn-primary btn-hero">
-          {{ _('Registreer gratis') }}
+          {{ _('Sign up for free') }}
         </a>
         <a href="{{ url_for('main.login') }}" class="btn-secondary btn-hero">
-          {{ _('Ik heb al een account') }}
+          {{ _('I already have an account') }}
         </a>
       </div>
 
-      <!-- Kleine bullets onder de CTA -->
+      <!-- Small bullets under the CTA -->
       <div class="kpis">
         <div class="kpi">
           <div class="kpi-n">⚡️</div>
           <div class="kpi-l">
-            {{ _('Uitgaven splitten in seconden') }}
+            {{ _('Split expenses in seconds') }}
           </div>
         </div>
         <div class="kpi">
           <div class="kpi-n">👥</div>
           <div class="kpi-l">
-            {{ _('Perfect voor trips, kot & ploegen') }}
+            {{ _('Perfect for trips, flats & teams') }}
           </div>
         </div>
         <div class="kpi">
           <div class="kpi-n">📱</div>
           <div class="kpi-l">
-            {{ _('Werkt op laptop, tablet en smartphone') }}
+            {{ _('Works on laptop, tablet and phone') }}
           </div>
         </div>
       </div>
     </div>
 
-    <!-- RECHTERKANT: “visual” met kaarten zoals in de app -->
+    <!-- RIGHT: “visual” with cards like in the app -->
     <div class="hero-right">
       <div class="hero-device">
-        <!-- bovenste kaart -->
+        <!-- main card -->
         <div class="hero-card hero-card-main">
           <div class="hero-card-header">
             <span class="hero-chip">Trip • Barcelona</span>
             <span class="hero-amount">+ € 184,50</span>
           </div>
-          <p class="hero-card-title">Weekend met vrienden</p>
+          <p class="hero-card-title">Weekend with friends</p>
           <p class="hero-card-sub">
-            5 {{ _('Groepsleden') if false else 'friends' }} · 18 uitgaven
+            5 friends · 18 expenses
           </p>
 
           <ul class="hero-card-list">
@@ -92,46 +92,46 @@
           </ul>
         </div>
 
-        <!-- zwevende kleinere kaart links onder -->
+        <!-- floating small card bottom-left -->
         <div class="hero-card hero-card-small hero-card-left">
-          <p class="hero-card-label">Kot Gent</p>
+          <p class="hero-card-label">Student flat Ghent</p>
           <p class="hero-card-number">€ 73,20</p>
-          <p class="hero-card-muted">nog te betalen deze maand</p>
+          <p class="hero-card-muted">still to be paid this month</p>
         </div>
 
-        <!-- zwevende kleinere kaart rechts boven -->
+        <!-- floating small card top-right -->
         <div class="hero-card hero-card-small hero-card-right">
-          <p class="hero-card-label">Ploegkas</p>
+          <p class="hero-card-label">Team fund</p>
           <p class="hero-card-number">€ 312,80</p>
-          <p class="hero-card-muted">staat nog open</p>
+          <p class="hero-card-muted">still open</p>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- HOE WERKT FAIR-SPLIT+ -->
+<!-- HOW DOES FAIR-SPLIT+ WORK -->
 <section class="section">
   <h2 class="section-title">
-    {{ _('Hoe werkt FairSplit+?') }}
+    {{ _('How does FairSplit+ work?') }}
   </h2>
 
   <ul class="feature-grid">
-    <!-- Reizen met vrienden -->
+    <!-- Trips with friends -->
     <li class="feature">
       <div class="feature-emoji">✈️</div>
-      <h3>{{ _('Reizen met vrienden') }}</h3>
+      <h3>{{ _('Trips with friends') }}</h3>
       <p>
-        {{ _('Maak een groep per reis en houd alle boekingen, boodschappen en activiteiten netjes bij.') }}
+        {{ _('Create a group for each trip and keep all bookings, groceries and activities nicely organised.') }}
       </p>
     </li>
 
-    <!-- Huis of kot-uitgaven -->
+    <!-- Home or flat expenses -->
     <li class="feature">
       <div class="feature-emoji">🏠</div>
-      <h3>{{ _('Huis of kot-uitgaven') }}</h3>
+      <h3>{{ _('Home or flat expenses') }}</h3>
       <p>
-        {{ _('Van huur en energie tot boodschappen: iedereen ziet meteen wie wat betaalde.') }}
+        {{ _('From rent and energy bills to groceries: everyone instantly sees who paid for what.') }}
       </p>
     </li>
 
@@ -140,19 +140,20 @@
       <div class="feature-emoji">🧑‍🤝‍🧑</div>
       <h3>{{ _('Teams & clubs') }}</h3>
       <p>
-        {{ _('Gebruik FairSplit+ voor ploegkassen, weekendjes weg of events met je vereniging.') }}
+        {{ _('Use FairSplit+ for team funds, weekends away or events with your club or society.') }}
       </p>
     </li>
 
-    <!-- Eerlijke afrekening -->
+    <!-- Fair settlement -->
     <li class="feature">
       <div class="feature-emoji">✅</div>
-      <h3>{{ _('Eerlijke afrekening') }}</h3>
+      <h3>{{ _('Fair settlement') }}</h3>
       <p>
-        {{ _('Automatische berekening van saldi per persoon – simpel, transparant en discussie-vrij.') }}
+        {{ _('Automatic calculation of balances per person – simple, transparent and argument-free.') }}
       </p>
     </li>
   </ul>
 </section>
 
 {% endblock %}
+

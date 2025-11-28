@@ -57,9 +57,6 @@
         <ul class="expense-list expense-list-wide">
           {% for exp in expenses %}
 
-            {% set cat = exp.category if exp.category in CATEGORY_IDS else 'activities' %}
-            {% set cat_label = CATEGORY_LABELS[cat] %}
-
             <li class="expense-item expense-item-wide">
               <div class="expense-main-wide">
 
@@ -68,8 +65,8 @@
                     {{ exp.description }}
                   </div>
 
-                  <span class="expense-category-pill cat-{{ cat }}">
-                    {{ cat_label }}
+                  <span class="expense-category-pill cat-{{ exp.category }}">
+                    {{ exp.category_label }}
                   </span>
 
                   <div class="expense-amount-right">

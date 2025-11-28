@@ -1676,11 +1676,6 @@ button:focus-visible,
   margin-bottom: 10px;
 }
 
-.cat-food { background: #fef3c7; color: #92400e; }
-.cat-entertainment { background: #f3e8ff; color: #6b21a8; }
-.cat-transport { background: #e0f2fe; color: #0369a1; }
-.cat-other { background: #f3f4f6; color: #374151; }
-
 /* Kleine info rij */
 .expense-info-row {
   display: flex;
@@ -1990,9 +1985,28 @@ button:focus-visible,
   margin-top: 24px;
 }
 
-/* in deze view geen 2 kolommen meer */
+/* Historiek: 1 kolom, full width */
 .group-body-full {
   display: block;
+  padding-inline: 0;        /* geen extra padding links/rechts */
+}
+
+/* Zorg dat de kaart-container geen max-width meer dwingt */
+.group-body-full .group-card.group-expenses-card {
+  max-width: none;
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+}
+
+
+/* Maak ledger-sectie echt volledige breedte */
+.group-body-full {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    display: block;
+    padding: 0 20px; /* optioneel: wat ruimte links/rechts */
 }
 
 /* kaart zelf mag wat breder/meer spacing hebben */
@@ -2048,10 +2062,14 @@ button:focus-visible,
   margin: 0 0 10px;
 }
 
-/* brede expenses zoals Splitwise */
 .expense-list-wide {
-  gap: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin: 0;
+  padding: 0;
 }
+
 
 .expense-item-wide {
   border-radius: 22px;
@@ -2705,31 +2723,7 @@ button:focus-visible,
   color: #333;
 }
 
-/* Kleuren per categorie */
-.cat-food {
-  background: #fff3e0;
-  color: #e67e22;
-}
 
-.cat-transport {
-  background: #e3f2fd;
-  color: #1976d2;
-}
-
-.cat-groceries {
-  background: #e8f5e9;
-  color: #2e7d32;
-}
-
-.cat-entertainment {
-  background: #f3e5f5;
-  color: #8e24aa;
-}
-
-.cat-other {
-  background: #eceff1;
-  color: #546e7a;
-}
 .expense-category-pill {
   display: inline-flex;
   align-items: center;
@@ -2740,32 +2734,464 @@ button:focus-visible,
   margin-left: 8px;
 }
 
-/* FOOD */
+
+/* Je-positie bij een uitgave */
+.expense-line-you {
+  margin-top: 6px;
+  font-size: 14px;
+}
+
+/* Je leende uit -> je krijgt geld terug (groen) */
+.you-lent {
+  color: #16a34a;          /* mooi groen */
+  font-weight: 600;
+}
+
+/* Je leende -> je bent geld verschuldigd (rood) */
+.you-borrowed {
+  color: #dc2626;          /* rood */
+  font-weight: 600;
+}
+
+/* Evenwicht -> neutraal grijs */
+.you-even {
+  color: #64748b;
+  font-weight: 500;
+}
+/* ===== Ledger: full-width expense cards ===== */
+
+/* Verwijder de bullets en maak er een nette kolom van */
+.expense-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* Iedere expense = brede card met shadow */
+.expense-item-wide {
+  display: flex;
+  gap: 16px;
+  padding: 16px 20px;
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: 0 22px 45px rgba(15, 23, 42, 0.06);
+}
+
+/* Gekleurde lijn links van de card */
+.expense-item-wide::before {
+  content: "";
+  width: 4px;
+  border-radius: 999px;
+  background: #e5e7eb;
+}
+
+/* Binnenkant van de card */
+.expense-main-wide {
+  flex: 1;
+}
+
+/* Bovenste rij: titel + categorie + totaalbedrag */
+.expense-line-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.expense-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+/* Bedrag rechts bovenaan */
+.expense-amount-right {
+  font-size: 20px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+/* Meta-rij (betaald door / aantal personen / datum) */
+.expense-line-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 8px;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.expense-meta-block {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.expense-meta-label {
+  font-size: 14px;
+}
+
+/* Shares chips */
+.expense-line-shares {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.share-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  background: #eef2ff;
+  color: #1d4ed8;
+  font-weight: 500;
+}
+
+.share-chip-soft {
+  background: #f9fafb;
+  color: #6b7280;
+}
+
+/* “Je leende uit / Je leende …” */
+.expense-line-you {
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+/* Groen als jij geld krijgt, rood als jij moet betalen */
+.you-lent {
+  color: #16a34a;
+  font-weight: 600;
+}
+
+.you-borrowed {
+  color: #b91c1c;
+  font-weight: 600;
+}
+
+.you-even {
+  color: #64748b;
+}
+
+/* Kleine responsive tweak voor mobiel */
+@media (max-width: 640px) {
+  .expense-item-wide {
+    padding: 14px 14px;
+  }
+
+  .expense-title {
+    font-size: 16px;
+  }
+
+  .expense-amount-right {
+    font-size: 18px;
+  }
+}
+.expense-item-wide.cat-food::before {
+  background: #fed7aa;   /* zelfde tint als je Eten & drinken-pill */
+}
+
+.expense-item-wide.cat-transport::before {
+  background: #bfdbfe;
+}
+
+.expense-item-wide.cat-accommodation::before {
+  background: #fde68a;
+}
+
+.expense-item-wide.cat-activities::before {
+  background: #ddd6fe;
+}
+
+.expense-item-wide.cat-shopping::before {
+  background: #fecaca;
+}
+.expense-item-wide {
+  list-style: none;
+  width: 100%;
+  border-radius: 26px;
+  border: 1px solid #e5e7eb;
+  padding: 20px 28px;
+  background: #ffffff;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.06);
+}
+/* Rand + soft background per category op de hele card */
+.expense-item-wide.cat-food {
+  border-color: #fed7aa;
+  background: #fff7ed;
+}
+
+.expense-item-wide.cat-transport {
+  border-color: #bfdbfe;
+  background: #eff6ff;
+}
+
+.expense-item-wide.cat-accommodation {
+  border-color: #fecaca;
+  background: #fef2f2;
+}
+
+.expense-item-wide.cat-activities {
+  border-color: #bbf7d0;
+  background: #f0fdf4;
+}
+
+.expense-item-wide.cat-shopping {
+  border-color: #e9d5ff;
+  background: #faf5ff;
+}
+/* ------------------------------ */
+/*  Kleuren per categorie (pills) */
+/* ------------------------------ */
+
+/* Food / Eten & drinken */
 .cat-food {
   background: #fff3e0;
   color: #e67e22;
 }
 
-/* TRANSPORT */
+/* Transport */
 .cat-transport {
-  background: #e3f2fd;
-  color: #1976d2;
+  background: #e0f2fe;
+  color: #0284c7;
 }
 
-/* GROCERIES */
-.cat-groceries {
-  background: #e8f5e9;
-  color: #2e7d32;
+/* Accommodation */
+.cat-accommodation {
+  background: #ffe4e6;
+  color: #e11d48;
 }
 
-/* ENTERTAINMENT */
-.cat-entertainment {
-  background: #f3e5f5;
-  color: #8e24aa;
+/* Activities */
+.cat-activities {
+  background: #dcfce7;
+  color: #16a34a;
 }
 
-/* OTHER */
-.cat-other {
-  background: #eceff1;
-  color: #546e7a;
+/* Shopping */
+.cat-shopping {
+  background: #f3e8ff;
+  color: #7c3aed;
+}
+/* Stripe-kleur per categorie */
+.expense-item-wide.cat-food::before {
+  background: #f97316;   /* oranje / Eten & drinken */
+}
+
+.expense-item-wide.cat-transport::before {
+  background: #0284c7;   /* blauw / Transport */
+}
+
+.expense-item-wide.cat-accommodation::before {
+  background: #e11d48;   /* roze / Accommodatie */
+}
+
+.expense-item-wide.cat-activities::before {
+  background: #16a34a;   /* groen / Activiteiten */
+}
+
+.expense-item-wide.cat-shopping::before {
+  background: #7c3aed;   /* paars / Winkelen */
+}
+.expense-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: 16px;
+}
+
+.expense-action-link {
+  border: none;
+  background: transparent;
+  padding: 0;
+  font-size: 13px;
+  color: #64748b;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.expense-action-link:hover {
+  color: #0f172a;
+}
+
+.expense-action-delete {
+  color: #b91c1c;
+}
+
+.expense-action-delete:hover {
+  color: #7f1d1d;
+}
+/* Basiskaart + linker balk (default) */
+.expense-item-wide {
+  position: relative;
+  border-radius: 24px;
+  padding: 24px 28px 22px 32px;
+  background: #f9fafb;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.06);
+}
+
+.expense-item-wide::before {
+  content: "";
+  position: absolute;
+  left: 22px;
+  top: 22px;
+  bottom: 22px;
+  width: 4px;
+  border-radius: 999px;
+  background: #22c55e; /* default */
+}
+
+/* pill */
+.expense-category-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  background: #e5f3ff;
+}
+
+/* ---------- Per categorie ---------- */
+
+/* ACTIVITIES (groen) */
+.expense-item-wide.cat-activities {
+  background: #ecfdf3;
+}
+.expense-item-wide.cat-activities::before {
+  background: #22c55e;
+}
+.cat-activities .expense-category-pill {
+  background: #dcfce7;
+  color: #166534;
+}
+
+/* FOOD (oranje) */
+.expense-item-wide.cat-food {
+  background: #fff7ed;
+}
+.expense-item-wide.cat-food::before {
+  background: #f97316;
+}
+.cat-food .expense-category-pill {
+  background: #ffedd5;
+  color: #9a3412;
+}
+
+/* ACCOMMODATION (roze) */
+.expense-item-wide.cat-accommodation {
+  background: #fef2f2;
+}
+.expense-item-wide.cat-accommodation::before {
+  background: #fb7185;
+}
+.cat-accommodation .expense-category-pill {
+  background: #ffe4e6;
+  color: #9f1239;
+}
+
+/* TRANSPORT (blauw) */
+.expense-item-wide.cat-transport {
+  background: #eff6ff;
+}
+.expense-item-wide.cat-transport::before {
+  background: #3b82f6;
+}
+.cat-transport .expense-category-pill {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+/* SHOPPING (paars) */
+.expense-item-wide.cat-shopping {
+  background: #f5f3ff;
+}
+.expense-item-wide.cat-shopping::before {
+  background: #8b5cf6;
+}
+.cat-shopping .expense-category-pill {
+  background: #ede9fe;
+  color: #5b21b6;
+}
+/* -------------------------------------------------
+   CATEGORY COLORS – cards + left bar + category pill
+   ------------------------------------------------- */
+
+/* FOOD (eten & drinken) */
+.expense-item-wide.cat-food {
+  background: #fff7ed;          /* zacht oranje */
+  border-color: #fed7aa;
+}
+.expense-item-wide.cat-food::before {
+  background: #fdba74;          /* sidebar */
+}
+
+.expense-category-pill.cat-food {
+  background: #fff3e0;
+  color: #e67e22;
+}
+
+/* TRANSPORT */
+.expense-item-wide.cat-transport {
+  background: #eff6ff;          /* zacht blauw */
+  border-color: #bfdbfe;
+}
+.expense-item-wide.cat-transport::before {
+  background: #60a5fa;
+}
+
+.expense-category-pill.cat-transport {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+/* ACCOMMODATION */
+.expense-item-wide.cat-accommodation {
+  background: #fef2f2;          /* zacht rood/roze */
+  border-color: #fecaca;
+}
+.expense-item-wide.cat-accommodation::before {
+  background: #f97373;
+}
+
+.expense-category-pill.cat-accommodation {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+/* ACTIVITIES */
+.expense-item-wide.cat-activities {
+  background: #ecfdf3;          /* zacht groen */
+  border-color: #bbf7d0;
+}
+.expense-item-wide.cat-activities::before {
+  background: #22c55e;
+}
+
+.expense-category-pill.cat-activities {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+/* SHOPPING */
+.expense-item-wide.cat-shopping {
+  background: #f5f3ff;          /* zacht paars */
+  border-color: #ddd6fe;
+}
+.expense-item-wide.cat-shopping::before {
+  background: #a855f7;
+}
+
+.expense-category-pill.cat-shopping {
+  background: #ede9fe;
+  color: #6d28d9;
 }

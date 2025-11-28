@@ -12,16 +12,19 @@ from flask import (
 from datetime import datetime
 from decimal import Decimal
 import secrets
+import re
+
 
 from flask_babel import gettext as _  # ✅ i18n
 
 from app.supabase_client import supabase
 
+import os
 from openai import OpenAI
 
-# ⚠️ Vul hier je echte key in OF lees ze uit een environment variable.
-# Deel deze key nooit publiek en commit ze niet naar Git.
-client = OpenAI(api_key="YOUR_OPENAI_API_KEY_HERE")
+client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+
+
 
 main = Blueprint("main", __name__)
 
@@ -55,7 +58,6 @@ def login_required(func):
 # -----------------------------
 # CATEGORIEËN
 # -----------------------------
-# We gebruiken GEEN "other" meer als categorie.
 CATEGORY_IDS = [
     "transport",
     "food",
@@ -76,125 +78,203 @@ CATEGORY_LABELS = {
 def category_label(cat: str) -> str:
     """
     Map een category-id naar een leesbaar label.
-    Als de category onbekend is (oude 'other', None, bug, …),
-    dan vallen we terug op 'activities'.
+    Onbekende dingen -> 'activiteiten' als veilige default.
     """
     if cat not in CATEGORY_IDS:
         cat = "activities"
     return CATEGORY_LABELS[cat]
 
+
+# -----------------------------
+# NORMALISATIE & KEYWORD-FALLBACK
+# -----------------------------
+STOPWORDS = {
+    "de", "het", "een", "en", "of", "voor", "met", "op",
+    "in", "the", "a", "an", "to", "for", "and"
+}
+
+
+def normalize_description(description: str) -> str:
+    """
+    Maakt beschrijvingen consistent zodat caching goed werkt.
+
+    - lowercasing
+    - trimmen
+    - speciale tekens/emoji eraf
+    - stopwoorden en ultra-korte woorden weg
+    """
+    if not description:
+        return ""
+
+    text = description.lower().strip()
+
+    # alles wat geen letter/cijfer/underscore/space is -> spatie
+    text = re.sub(r"[^\w\s]", " ", text)
+    # meerdere spaties -> één
+    text = re.sub(r"\s+", " ", text)
+
+    words = []
+    for w in text.split():
+        if w in STOPWORDS:
+            continue
+        if len(w) <= 2:
+            continue
+        words.append(w)
+
+    return " ".join(words)
+
+
 def fallback_category_keywords(description: str) -> str:
     """
-    Nood-oplossing als de AI faalt of onzin teruggeeft.
-    Probeert op basis van een paar typische woorden een categorie te kiezen.
+    Eenvoudige keyword-classifier (zonder AI) als backup.
+    description wordt best al genormaliseerd.
     """
-    desc = (description or "").lower()
+    if not description:
+        return "activities"
 
-    # Eten & drinken
-    if any(w in desc for w in [
-        "eten", "food", "restaurant", "pizza", "pasta", "burger",
-        "diner", "lunch", "ontbijt", "drank", "bier", "wijn", "cocktail", "bar"
-    ]):
-        return "food"
+    d = description.lower()
 
-    # Transport
-    if any(w in desc for w in [
-        "trein", "bus", "tram", "metro", "taxi", "uber", "rit",
-        "vlucht", "vliegtuig", "ticket", "benzine", "tanken", "fuel"
+    # transport
+    if any(k in d for k in [
+        "trein", "train", "bus", "tram", "metro",
+        "vliegtuig", "vlucht", "flight", "uber", "taxi", "rit", "fuel", "benzine"
     ]):
         return "transport"
 
-    # Accommodatie
-    if any(w in desc for w in [
-        "hotel", "airbnb", "hostel", "overnachting", "kamer", "camping"
+    # eten & drinken
+    if any(k in d for k in [
+        "restaurant", "eten", "food", "diner", "lunch", "ontbijt",
+        "drank", "drinks", "bier", "beer", "pizza", "burger", "meal", "snack"
+    ]):
+        return "food"
+
+    # accommodatie
+    if any(k in d for k in [
+        "hotel", "airbnb", "bnb", "hostel", "overnachting",
+        "kamer", "room", "apartment", "appartement"
     ]):
         return "accommodation"
 
-    # Shopping
-    if any(w in desc for w in [
-        "souvenir", "souvenirs", "shoppen", "shopping", "winkel", "kleding",
-        "t-shirt", "cadeau", "cadeautje"
+    # shoppen
+    if any(k in d for k in [
+        "shopping", "winkel", "boodschappen", "groceries",
+        "souvenir", "souvenirs", "cadeau", "cadeautje", "kopen"
     ]):
         return "shopping"
 
-    # Alles wat over activiteiten/sport/uitjes lijkt
-    if any(w in desc for w in [
-        "museum", "match", "wedstrijd", "wedstrijdje", "voetbal",
-        "basket", "basketbal", "pingpong", "zwemmen", "zwemwedstrijd",
-        "golf", "hockey", "volley", "concert", "tour", "excursie", "uitstap"
-    ]):
-        return "activities"
-
-    # Hele vage dingen → toch maar activities
+    # default: activiteiten
     return "activities"
 
 
-
+# -----------------------------
+# AI + LOKALE CACHE
+# -----------------------------
 def infer_category_ai(description: str, raw_category: str | None = None) -> str:
     """
-    Bepaalt de categorie met AI.
+    Bepaalt de categorie met AI + keyword fallback + lokale Supabase-cache.
 
-    Regels:
-    - Als de user expliciet een geldige categorie kiest -> gebruik die.
-    - Als description leeg is -> kies een redelijke default ("activities").
-    - AI MOET één van deze id's teruggeven:
-        transport, food, accommodation, activities, shopping
-    - We gebruiken GEEN 'other' meer.
-    - Als de AI faalt of iets anders teruggeeft -> fallback op keywords.
+    Logica:
+    1. Als de user expliciet een geldige categorie kiest -> gebruik die.
+    2. Description normaliseren (voor caching).
+    3. Eerst in lokale Supabase-tabel `category_cache` kijken.
+    4. Anders OpenAI aanroepen met vaste prompt-structuur.
+    5. Als AI iets anders dan 1 van CATEGORY_IDS teruggeeft -> keyword fallback.
+    6. Resultaat in lokale cache steken voor volgende keren.
     """
 
     # 1) User override
     if raw_category and raw_category in CATEGORY_IDS:
+        print(">>> infer_category_ai: USER OVERRIDE =", raw_category)
         return raw_category
 
-    # 2) Geen beschrijving? Dan kunnen we niets zinnigs doen: pak "activities"
-    if not description:
+    # 2) Normaliseren
+    norm_desc = normalize_description(description or "")
+    print(">>> infer_category_ai: START")
+    print("    raw description =", repr(description))
+    print("    normalized      =", repr(norm_desc))
+
+    if not norm_desc:
+        # geen zinnige tekst -> pak veilige default
+        print(">>> infer_category_ai: EMPTY DESCRIPTION -> 'activities'")
         return "activities"
 
-    # 3) AI-prompt
+    # 3) Lokale cache checken
+    try:
+        cache_rows = (
+            supabase.table("category_cache")
+            .select("category")
+            .eq("normalized_desc", norm_desc)
+            .execute()
+            .data
+            or []
+        )
+        if cache_rows:
+            cached_cat = cache_rows[0]["category"]
+            if cached_cat in CATEGORY_IDS:
+                print(">>> infer_category_ai: HIT LOCAL CACHE ->", cached_cat)
+                return cached_cat
+            else:
+                print(">>> infer_category_ai: CACHE INVALID CAT ->", cached_cat)
+    except Exception as e:
+        print(">>> infer_category_ai: cache lookup ERROR:", e)
+
+    # 4) AI-call met vaste prompt-structuur
     prompt = f"""
-Je bent een classifier voor uitgaven in een reis-/trip-app.
+CATEGORY_CLASSIFIER
+DESC="{norm_desc}"
+VALID_IDS: transport | food | accommodation | activities | shopping
 
-Je krijgt een korte beschrijving (meestal Nederlands of Engels) en je moet
-EXACT ÉÉN category-id kiezen uit deze lijst:
-
-- transport
-- food
-- accommodation
-- activities
-- shopping
-
-Kies NOOIT iets anders. Als je twijfelt, kies de categorie die het best past.
-Antwoord met enkel de category-id, dus één van:
-transport, food, accommodation, activities, shopping
-
-Beschrijving: {description!r}
+Geef EXACT één category-id terug uit VALID_IDS.
+Antwoord met enkel dat ene woord, zonder extra tekst.
 """
 
     try:
+        print(">>> infer_category_ai: CALLING OPENAI...")
         resp = client.responses.create(
             model="gpt-4.1-mini",
             input=prompt,
-            max_output_tokens=10,
+            max_output_tokens=32,
         )
 
-        raw = resp.output[0].content[0].text.strip().lower()
-        # als het model toch extra woorden stuurt, neem het eerste woord
-        cat = raw.split()[0] if raw else ""
+        print(">>> infer_category_ai: RAW RESPONSE =", resp)
 
-        if cat not in CATEGORY_IDS:
-            # debuglog in console om te zien wat het model deed
-            print(f"AI category raw output: {raw!r} -> parsed invalid: {cat!r}")
-            # fallback op keywords
-            cat = fallback_category_keywords(description)
+        text = resp.output[0].content[0].text.strip().lower()
+        print(">>> infer_category_ai: MODEL TEXT =", repr(text))
 
-        return cat
+        ai_cat = text.split()[0]
+        print(">>> infer_category_ai: ai_cat (parsed) =", ai_cat)
+
+        if ai_cat not in CATEGORY_IDS:
+            print(">>> infer_category_ai: ai_cat NOT IN CATEGORY_IDS -> use keyword fallback")
+            kw_cat = fallback_category_keywords(norm_desc)
+            final_cat = kw_cat
+        else:
+            final_cat = ai_cat
+
+        print(">>> infer_category_ai: FINAL =", final_cat)
 
     except Exception as e:
-        # Eventueel loggen voor debugging
-        print("AI category error:", e)
-        # Fail-safe: keywords (toch betere gok dan altijd activities)
-        return fallback_category_keywords(description)
+        print(">>> infer_category_ai: ERROR while calling OpenAI:", e)
+        # pure keyword fallback
+        final_cat = fallback_category_keywords(norm_desc)
+        print(">>> infer_category_ai: FALLBACK kw_cat =", final_cat)
+
+    # 5) in lokale cache steken (best effort)
+    try:
+        supabase.table("category_cache").insert(
+            {
+                "normalized_desc": norm_desc,
+                "category": final_cat,
+            }
+        ).execute()
+        print(">>> infer_category_ai: cached", norm_desc, "->", final_cat)
+    except Exception as e:
+        # als hij al bestaat (unique constraint), is dat niet erg
+        print(">>> infer_category_ai: cache insert ERROR:", e)
+
+    return final_cat
+
+
 
 
 # -----------------------------
@@ -989,6 +1069,10 @@ def expense_new(group_id):
         amount_raw = request.form.get("amount", "").strip()
         raw_category = request.form.get("category")  # kan leeg zijn
 
+        print(">>> expense_new POST: description =", repr(description))
+        print(">>> expense_new POST: amount_raw  =", repr(amount_raw))
+        print(">>> expense_new POST: raw_category (from form) =", repr(raw_category))
+
         if not description or not amount_raw:
             flash(_("Vul alle velden in."), "danger")
             return redirect(request.url)
@@ -1048,6 +1132,7 @@ def expense_new(group_id):
 
         # categorie laten bepalen door AI + fallback
         guessed_cat = infer_category_ai(description, raw_category)
+        print(">>> expense_new POST: guessed_cat =", guessed_cat)
 
         now_iso = datetime.utcnow().isoformat()
         exp_resp = (
@@ -1072,6 +1157,7 @@ def expense_new(group_id):
 
         expense = exp_resp.data[0]
         expense_id = expense["expense_id"]
+        print(">>> expense_new POST: saved expense, id =", expense_id)
 
         # shares wegschrijven
         if shares:
@@ -1099,7 +1185,223 @@ def expense_new(group_id):
         members=members,
         CATEGORY_IDS=CATEGORY_IDS,
         CATEGORY_LABELS=CATEGORY_LABELS,
+        expense=None,
+        share_map={},
+        is_edit=False,
+        form_action=url_for("main.expense_new", group_id=group_id),
     )
+
+# -----------------------------
+# EXPENSES – BEWERKEN
+# -----------------------------
+@main.route("/group/<int:group_id>/expense/<int:expense_id>/edit", methods=["GET", "POST"])
+@login_required
+def expense_edit(group_id, expense_id):
+    user = current_user()
+    if not user:
+        abort(403)
+
+    uid = user["users_id"]
+
+    # check: lid van groep?
+    membership = (
+        supabase.table("group_members")
+        .select("*")
+        .eq("group_id", group_id)
+        .eq("user_id", uid)
+        .execute()
+        .data
+        or []
+    )
+    if not membership:
+        flash(_("Je hebt geen toegang tot deze groep."), "danger")
+        return redirect(url_for("main.dashboard"))
+
+    # groep ophalen
+    g = (
+        supabase.table("groups")
+        .select("*")
+        .eq("group_id", group_id)
+        .execute()
+        .data
+    )
+    if not g:
+        abort(404)
+    group = g[0]
+
+    # bestaande expense ophalen
+    exp_rows = (
+        supabase.table("expenses")
+        .select("*")
+        .eq("group_id", group_id)
+        .eq("expense_id", expense_id)
+        .eq("is_active", True)
+        .execute()
+        .data
+        or []
+    )
+    if not exp_rows:
+        abort(404)
+    expense = exp_rows[0]
+
+    # geen edit/delete op app-fee
+    if expense.get("is_app_fee"):
+        flash(_("De app-fee kan je niet aanpassen."), "warning")
+        return redirect(url_for("main.ledger", group_id=group_id))
+
+    # alleen maker mag bewerken
+    if expense["created_by_user_id"] != uid:
+        flash(_("Je kan enkel je eigen uitgaven aanpassen."), "danger")
+        return redirect(url_for("main.ledger", group_id=group_id))
+
+    # leden ophalen
+    gm_rows = (
+        supabase.table("group_members")
+        .select("*")
+        .eq("group_id", group_id)
+        .execute()
+        .data
+        or []
+    )
+
+    members = []
+    for gm in gm_rows:
+        u = (
+            supabase.table("users")
+            .select("users_id, username")
+            .eq("users_id", gm["user_id"])
+            .execute()
+            .data
+        )
+        if u:
+            members.append(
+                {"user_id": u[0]["users_id"], "username": u[0]["username"]}
+            )
+
+    # bestaande shares ophalen
+    share_rows = (
+        supabase.table("expense_shares")
+        .select("*")
+        .eq("expense_id", expense_id)
+        .execute()
+        .data
+        or []
+    )
+    share_map = {s["user_id"]: s["amount"] for s in share_rows}
+
+    # ---------- POST: update ----------
+    if request.method == "POST":
+        description = request.form.get("description", "").strip()
+        amount_raw = request.form.get("amount", "").strip()
+        raw_category = request.form.get("category")  # kan leeg zijn
+
+        if not description or not amount_raw:
+            flash(_("Vul alle velden in."), "danger")
+            return redirect(request.url)
+
+        try:
+            total_amount = float(amount_raw.replace(",", "."))
+        except ValueError:
+            flash(_("Bedrag moet een getal zijn."), "danger")
+            return redirect(request.url)
+
+        if total_amount <= 0:
+            flash(_("Bedrag moet groter zijn dan 0."), "danger")
+            return redirect(request.url)
+
+        # shares verzamelen
+        shares = []
+        for m in members:
+            field_name = f"share_{m['user_id']}"
+            share_raw = request.form.get(field_name, "").strip()
+
+            if not share_raw:
+                continue
+
+            try:
+                share_val = float(share_raw.replace(",", "."))
+            except ValueError:
+                flash(
+                    _("Bedrag bij %(user)s is geen geldig getal.", user=m["username"]),
+                    "danger",
+                )
+                return redirect(request.url)
+
+            if share_val < 0:
+                flash(
+                    _("Bedrag bij %(user)s mag niet negatief zijn.", user=m["username"]),
+                    "danger",
+                )
+                return redirect(request.url)
+
+            if share_val > 0:
+                shares.append({"user_id": m["user_id"], "amount": share_val})
+
+        if shares:
+            sum_shares = sum(s["amount"] for s in shares)
+            if abs(sum_shares - total_amount) > 0.01:
+                flash(
+                    _(
+                        "De som van de individuele bedragen (%(sum).2f) komt niet overeen met het totaal (%(total).2f).",
+                        sum=sum_shares,
+                        total=total_amount,
+                    ),
+                    "danger",
+                )
+                return redirect(request.url)
+
+        # categorie via AI
+        guessed_cat = infer_category_ai(description, raw_category)
+
+        now_iso = datetime.utcnow().isoformat()
+
+        # expense updaten
+        supabase.table("expenses").update(
+            {
+                "description": description,
+                "total_amount": total_amount,
+                "category": guessed_cat,
+                "updated_at": now_iso,
+            }
+        ).eq("expense_id", expense_id).eq("group_id", group_id).execute()
+
+        # oude shares weg + nieuwe schrijven
+        supabase.table("expense_shares").delete().eq(
+            "expense_id", expense_id
+        ).execute()
+
+        if shares:
+            rows = []
+            for s in shares:
+                rows.append(
+                    {
+                        "expense_id": expense_id,
+                        "group_id": group_id,
+                        "user_id": s["user_id"],
+                        "amount": s["amount"],
+                        "created_at": now_iso,
+                    }
+                )
+            supabase.table("expense_shares").insert(rows).execute()
+
+        flash(_("Uitgave bijgewerkt!"), "success")
+        return redirect(url_for("main.ledger", group_id=group_id))
+
+    # ---------- GET: formulier tonen ----------
+    return render_template(
+        "expense_new.html",
+        group=group,
+        group_id=group_id,
+        members=members,
+        CATEGORY_IDS=CATEGORY_IDS,
+        CATEGORY_LABELS=CATEGORY_LABELS,
+        expense=expense,
+        share_map=share_map,
+        is_edit=True,
+        form_action=url_for("main.expense_edit", group_id=group_id, expense_id=expense_id),
+    )
+
+
 
 
 # -----------------------------
@@ -1232,6 +1534,7 @@ def ledger(group_id):
                 "delta": delta,
                 "category": cat,
                 "category_label": category_label(cat),
+                "is_mine": (exp["created_by_user_id"] == current_user_id),
             }
         )
 
@@ -1245,3 +1548,39 @@ def ledger(group_id):
         expenses=expense_list,
         CATEGORY_LABELS=CATEGORY_LABELS,
     )
+
+@main.route("/groups/<int:group_id>/expense/<int:expense_id>/delete", methods=["POST"])
+@login_required
+def expense_delete(group_id, expense_id):
+    user = current_user()
+
+    # expense ophalen
+    res = (
+        supabase.table("expenses")
+        .select("*")
+        .eq("group_id", group_id)
+        .eq("expense_id", expense_id)
+        .execute()
+    )
+    data = res.data or []
+    if not data:
+        abort(404)
+
+    expense = data[0]
+
+    # alleen maker mag verwijderen
+    if expense["created_by_user_id"] != user["users_id"]:
+        abort(403)
+
+    # shares verwijderen
+    supabase.table("expense_shares").delete().eq(
+        "expense_id", expense_id
+    ).execute()
+
+    # expense 'soft delete' (is_active = False) of echt weg
+    supabase.table("expenses").update(
+        {"is_active": False}
+    ).eq("expense_id", expense_id).execute()
+
+    flash(_("Uitgave verwijderd."), "success")
+    return redirect(url_for("main.ledger", group_id=group_id))

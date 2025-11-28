@@ -37,12 +37,10 @@
 
       {% if expenses %}
         <ul class="expense-list expense-list-wide">
+
           {% for exp in expenses %}
-
-            {% set cat = exp.category if exp.category in CATEGORY_IDS else 'activities' %}
-            {% set cat_label = CATEGORY_LABELS[cat] %}
-
-            <li class="expense-item expense-item-wide">
+            {# kleur + badge komen rechtstreeks uit de route #}
+            <li class="expense-item expense-item-wide cat-{{ exp.category }}">
               <div class="expense-main-wide">
 
                 <!-- Titel + categorie + totaalbedrag -->
@@ -51,14 +49,38 @@
                     {{ exp.description }}
                   </div>
 
-                  <span class="expense-category-pill cat-{{ cat }}">
-                    {{ cat_label }}
+                  <span class="expense-category-pill cat-{{ exp.category }}">
+                    {{ exp.category_label }}
                   </span>
 
                   <div class="expense-amount-right">
                     € {{ '%.2f'|format(exp.total_amount or 0) }}
                   </div>
                 </div>
+
+                <!-- Actieknoppen (alleen voor eigen uitgaven) -->
+                {% if exp.is_mine %}
+                  <div class="expense-actions" style="margin: 6px 0 4px;">
+                    <a href="{{ url_for('main.expense_edit',
+                                        group_id=group.group_id,
+                                        expense_id=exp.expense_id) }}"
+                       class="expense-action-link expense-action-edit">
+                      📝 {{ _('Bewerken') }}
+                    </a>
+
+                    <form method="post"
+                          action="{{ url_for('main.expense_delete',
+                                             group_id=group.group_id,
+                                             expense_id=exp.expense_id) }}"
+                          style="display:inline;">
+                      <button type="submit"
+                              class="expense-action-link expense-action-delete"
+                              onclick="return confirm('{{ _('Weet je zeker dat je deze uitgave wil verwijderen?') }}');">
+                        🗑 {{ _('Verwijderen') }}
+                      </button>
+                    </form>
+                  </div>
+                {% endif %}
 
                 <!-- Meta: betaald door / split / datum -->
                 <div class="expense-line-meta">
@@ -118,7 +140,7 @@
                     </span>
                   {% elif exp.delta < 0 %}
                     <span class="you-borrowed">
-                      {{ _('Je leende €%(amt).2f', amt=(-exp.delta)) }}
+                      {{ _('Je leende €%(amt).2f', amt=-exp.delta) }}
                     </span>
                   {% else %}
                     <span class="you-even">
@@ -131,6 +153,7 @@
             </li>
           {% endfor %}
         </ul>
+
       {% else %}
         <div class="empty-state">
           <h3>{{ _('Nog geen uitgaven') }}</h3>
@@ -145,3 +168,4 @@
   </section>
 </main>
 {% endblock %}
+

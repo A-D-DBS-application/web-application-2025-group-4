@@ -127,16 +127,12 @@
           {% set recent_expenses = (expenses | sort(attribute='created_at', reverse=True))[:3] %}
 
           {% for exp in recent_expenses %}
-            {# categorie: uit DB, fallback naar 'activities' #}
-            {% set cat = exp.category if exp.category in CATEGORY_IDS else 'activities' %}
-            {% set cat_label = CATEGORY_LABELS[cat] %}
-
             <article class="recent-exp-card">
               <header class="recent-exp-header">
                 <span class="recent-exp-title">{{ exp.description }}</span>
 
-                <span class="expense-category-pill cat-{{ cat }}">
-                  {{ cat_label }}
+                <span class="expense-category-pill cat-{{ exp.category }}">
+                  {{ exp.category_label }}
                 </span>
 
                 <span class="recent-exp-amount">
@@ -270,3 +266,4 @@
   </section>
 </main>
 {% endblock %}
+

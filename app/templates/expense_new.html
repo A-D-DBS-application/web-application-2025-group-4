@@ -1,14 +1,19 @@
 {% extends "base.html" %}
-{% block title %}{{ _('New expense') }} – FairSplit+{% endblock %}
+{% block title %}
+  {{ (is_edit|default(False)) and _('Edit expense') or _('New expense') }} – FairSplit+
+{% endblock %}
 
 {% block content %}
 <main class="auth-page">
   <section class="auth-shell" style="max-width:1120px;">
 
     <div class="auth-left">
-      <span class="auth-pill">{{ _('New expense 💸') }}</span>
+      <span class="auth-pill">
+        {{ (is_edit|default(False)) and _('Edit expense ✏️') or _('New expense 💸') }}
+      </span>
       <h1 class="auth-title" style="margin-top:14px;">
-        {{ _('New expense for') }} <span class="accent-text">{{ group.name }}</span>
+        {{ (is_edit|default(False)) and _('Edit expense for') or _('New expense for') }}
+        <span class="accent-text">{{ group.name }}</span>
       </h1>
       <p class="auth-lead">
         {{ _('Add an expense to this group. You can choose an') }}
@@ -25,15 +30,18 @@
     </div>
 
     <div class="auth-card">
-      <h2 class="auth-card-title">{{ _('New expense') }}</h2>
+      <h2 class="auth-card-title">
+        {{ (is_edit|default(False)) and _('Edit expense') or _('New expense') }}
+      </h2>
       <p class="auth-card-sub">
         {{ _('Fill in the details and choose how to split the cost.') }}
       </p>
 
       <form method="post"
-            action="{{ url_for('main.expense_new', group_id=group_id) }}"
+            action="{{ form_action }}"
             class="auth-form"
-            id="expense-form">
+            id="expense-form"
+            data-is-edit="{% if is_edit|default(False) %}1{% else %}0{% endif %}">
 
         <!-- Description -->
         <label class="auth-field">
@@ -41,6 +49,7 @@
           <input type="text"
                  name="description"
                  placeholder="{{ _('e.g. Train tickets') }}"
+                 value="{{ expense.description if expense is defined and expense }}"
                  required>
         </label>
 
@@ -52,7 +61,7 @@
                  min="0"
                  name="amount"
                  id="amount-input"
-                 value="0"
+                 value="{% if expense is defined and expense %}{{ '%.2f'|format(expense.total_amount or 0) }}{% else %}0{% endif %}"
                  required>
         </label>
 
@@ -63,12 +72,14 @@
                   id="category-select"
                   style="width:100%; padding:8px 10px; border-radius:10px; border:1px solid #d4d4d8; font-size:14px;">
             {# Lege value = AI beslist in infer_category_ai #}
-            <option value="" selected>
+            <option value=""
+                    {% if not (expense is defined and expense and expense.category) %}selected{% endif %}>
               {{ _('Automatic (AI – choose best match)') }}
             </option>
 
             {% for cid in CATEGORY_IDS %}
-              <option value="{{ cid }}">
+              <option value="{{ cid }}"
+                      {% if expense is defined and expense and expense.category == cid %}selected{% endif %}>
                 {{ CATEGORY_LABELS[cid] }}
               </option>
             {% endfor %}
@@ -114,6 +125,7 @@
 
           <div id="shares-container" style="display:grid; gap:6px; margin-top:6px;">
             {% for m in members %}
+              {% set existing_share = (share_map.get(m.user_id) if share_map is defined and share_map else None) %}
               <div style="display:flex; align-items:center; gap:8px;">
                 <div class="avatar-circle" style="flex-shrink:0;">
                   {{ m.username[0]|upper }}
@@ -131,13 +143,14 @@
                     class="share-input"
                     name="share_{{ m.user_id }}"
                     placeholder="0.00"
+                    value="{% if existing_share is not none %}{{ '%.2f'|format(existing_share) }}{% endif %}"
                     style="width:100%; padding:6px 8px; border-radius:10px; border:1px solid #d4d4d8; font-size:14px; text-align:right;">
                 </div>
               </div>
             {% endfor %}
           </div>
 
-          <!-- Samenvatting met id 'share-summary' zodat JS de kleuren kan zetten -->
+          <!-- Samenvatting -->
           <div id="share-summary"
                style="
                  margin-top:10px;
@@ -169,7 +182,7 @@
         </div>
 
         <button type="submit" class="btn-primary btn-full" style="margin-top:10px;">
-          {{ _('Save') }}
+          {{ (is_edit|default(False)) and _('Save changes') or _('Save') }}
         </button>
 
         <p class="auth-tiny">
@@ -185,6 +198,7 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
+  const formEl        = document.getElementById("expense-form");
   const amountInput   = document.getElementById("amount-input");
   const splitModeInput = document.getElementById("split-mode");
 
@@ -197,34 +211,32 @@ document.addEventListener("DOMContentLoaded", () => {
   const remainingEl  = document.getElementById("share-remaining");
   const summaryBox   = document.getElementById("share-summary");
 
+  const isEdit = formEl.dataset.isEdit === "1";
+
   function getAmount() {
     const v = parseFloat((amountInput.value || "0").replace(",", "."));
     return isNaN(v) ? 0 : v;
   }
 
   function setSummaryColors(remaining) {
-    // reset eerst
     summaryBox.style.background  = "#f8fafc";
     summaryBox.style.borderColor = "#e2e8f0";
     totalEl.style.color          = "#0f172a";
     remainingEl.style.color      = "#0f172a";
 
-    const eps = 0.005; // marge op afronding
+    const eps = 0.005;
 
     if (Math.abs(remaining) < eps) {
-      // ✅ mooi verdeeld
       summaryBox.style.background  = "#ecfdf3";
       summaryBox.style.borderColor = "#22c55e55";
       totalEl.style.color          = "#15803d";
       remainingEl.style.color      = "#15803d";
     } else if (remaining > 0) {
-      // nog te weinig verdeeld
       summaryBox.style.background  = "#fefce8";
       summaryBox.style.borderColor = "#eab30855";
       totalEl.style.color          = "#92400e";
       remainingEl.style.color      = "#92400e";
     } else {
-      // te veel verdeeld (negatief remainder)
       summaryBox.style.background  = "#fef2f2";
       summaryBox.style.borderColor = "#ef444455";
       totalEl.style.color          = "#991b1b";
@@ -274,7 +286,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // events
   buttons.forEach(btn => {
     btn.addEventListener("click", () => {
       setActive(btn.dataset.mode);
@@ -297,8 +308,16 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // init
-  setActive("equal");
+  // init: bij edit -> custom (bestaande shares behouden)
+  if (isEdit) {
+    setActive("custom");
+  } else {
+    setActive("equal");
+  }
+
+  // alvast één keer samenvatting updaten (voor edit)
+  updateSummary();
 });
 </script>
 {% endblock %}
+
