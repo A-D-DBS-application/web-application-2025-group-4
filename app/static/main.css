@@ -1985,19 +1985,19 @@ button:focus-visible,
   margin-top: 24px;
 }
 
-/* Historiek: 1 kolom, full width */
+/* Ledger: kaart over (bijna) volledige breedte in het midden */
 .group-body-full {
   display: block;
-  padding-inline: 0;        /* geen extra padding links/rechts */
 }
 
-/* Zorg dat de kaart-container geen max-width meer dwingt */
-.group-body-full .group-card.group-expenses-card {
-  max-width: none;
-  background: transparent;
-  box-shadow: none;
-  padding: 0;
+/* Ledger container: lekker breed maar met een kleine rand links/rechts */
+.group-body-full .group-expenses-card {
+  max-width: 1200px;          /* iets breder */
+  width: calc(100% - 48px);   /* laat 24px marge links en rechts */
+  margin: 0 auto;
 }
+
+
 
 
 /* Maak ledger-sectie echt volledige breedte */
@@ -2009,11 +2009,15 @@ button:focus-visible,
     padding: 0 20px; /* optioneel: wat ruimte links/rechts */
 }
 
-/* kaart zelf mag wat breder/meer spacing hebben */
-.group-expenses-card {
-  border-radius: 24px;
-  padding: 20px 22px 24px;
+/* Compacte, maar brede kaart */
+.group-expenses-card .expense-item-wide {
+  position: relative;
+  width: 100%;
+  margin: 0 0 14px 0;
+  padding: 12px 24px 12px 72px;  /* LET OP: 72px links = ruimte voor de lijn */
+  border-radius: 18px;
 }
+
 
 /* header bovenaan alle uitgaven */
 .group-expenses-header {
@@ -3032,12 +3036,14 @@ button:focus-visible,
 /* Basiskaart + linker balk (default) */
 .expense-item-wide {
   position: relative;
+  display: block;  /* <-- belangrijk: geen flex-container meer */
   border-radius: 24px;
-  padding: 24px 28px 22px 32px;
+  padding: 20px 28px 18px 32px;
   background: #f9fafb;
   border: 1px solid rgba(148, 163, 184, 0.35);
   box-shadow: 0 18px 40px rgba(15, 23, 42, 0.06);
 }
+
 
 .expense-item-wide::before {
   content: "";
@@ -3194,4 +3200,48 @@ button:focus-visible,
 .expense-category-pill.cat-shopping {
   background: #ede9fe;
   color: #6d28d9;
+}
+/* Compacter uitgavenkaart in ledger */
+.group-expenses-card .expense-item-wide {
+  width: 100%;
+  margin: 0 0 14px 0;
+  padding: 12px 20px 12px 40px;  /* extra ruimte links voor de balk */
+  border-radius: 18px;
+}
+
+/* Binnenkant van de kaart: minder verticale ruimte */
+.group-expenses-card .expense-main-wide {
+  padding: 4px 0;
+}
+
+/* Titel + categorie + totaalbedrag – dichter bij elkaar */
+.group-expenses-card .expense-line-top {
+  margin-bottom: 4px;
+}
+
+/* Meta (betaald door / gesplit / datum) compacter */
+.group-expenses-card .expense-line-meta {
+  margin: 2px 0 4px 0;
+}
+
+.group-expenses-card .expense-meta-block {
+  margin-right: 16px;
+  font-size: 13px;
+}
+
+/* Shares-chips iets kleiner */
+.group-expenses-card .expense-line-shares {
+  margin: 2px 0 4px 0;
+}
+
+.group-expenses-card .share-chip {
+  padding: 3px 8px;
+  font-size: 12px;
+  border-radius: 9px;
+}
+
+/* “Je leende uit / Je leende” dichter tegen de rest */
+.group-expenses-card .expense-line-you {
+  margin-top: 4px;
+  font-size: 13px;
 }

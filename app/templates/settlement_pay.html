@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="ledger-page">
+
+  <h1 class="ledger-title">Schuld vereffenen</h1>
+  <p class="ledger-sub">Je betaalt aan {{ receiver.username }}</p>
+
+  <div class="ledger-item" style="max-width: 600px; margin-top: 20px;">
+
+    <div class="ledger-meta-row">
+      <strong>Bedrag:</strong> € {{ '%.2f'|format(settlement.amount) }}
+    </div>
+
+    <div class="ledger-meta-row">
+      <strong>IBAN:</strong> {{ receiver.iban }}
+    </div>
+
+    <div class="ledger-meta-row">
+      <strong>Mededeling:</strong> FairSplit+ betaling {{ settlement.settlement_id }}
+    </div>
+
+    <div style="margin: 20px 0;">
+      <img src="{{ url_for('static', filename='qr/settlement_' ~ settlement.settlement_id ~ '.png') }}"
+           alt="QR-code" width="220">
+    </div>
+
+    {% if receiver.paylink %}
+      <a href="{{ receiver.paylink }}?amount={{ '%.2f'|format(settlement.amount) }}"
+         class="btn-secondary" target="_blank">
+         Open Payconiq link
+      </a>
+    {% endif %}
+
+    <form action="{{ url_for('main.settlement_mark_paid', group_id=group_id, settlement_id=settlement.settlement_id) }}"
+          method="POST" style="margin-top:20px;">
+      <button class="btn-primary">Ik heb betaald ✔</button>
+    </form>
+
+  </div>
+
+</div>
+
+{% endblock %}

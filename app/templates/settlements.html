@@ -1,0 +1,116 @@
+{# templates/settlements.html #}
+{% extends "base.html" %}
+{% block title %}{{ _('Schulden vereffenen – ') }}{{ group.name }} – FairSplit+{% endblock %}
+
+{% block content %}
+<main class="group-page ledger-page">
+
+  <!-- HEADER -->
+  <section class="group-hero">
+    <div class="group-hero-main">
+      <div class="group-pill">
+        💸 {{ _('Schulden vereffenen') }}
+      </div>
+      <h1 class="group-title">
+        {{ group.name }}
+      </h1>
+      <p class="group-sub">
+        {{ _('Op basis van alle uitgaven en betalingen stellen we een eenvoudige lijst betalingen voor om iedereen terug op nul te krijgen.') }}
+      </p>
+
+      <div class="group-cta-row">
+        <a href="{{ url_for('main.group_detail', group_id=group.group_id) }}"
+           class="btn-secondary">
+          ← {{ _('Terug naar groepsoverzicht') }}
+        </a>
+        <a href="{{ url_for('main.ledger', group_id=group.group_id) }}"
+           class="btn-ghost">
+          {{ _('Alle uitgaven bekijken') }}
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- BODY -->
+  <section class="group-body group-body-full">
+    <article class="group-card group-expenses-card">
+
+      {% if settlements %}
+        <ul class="ledger-list">
+          {% for s in settlements %}
+            <li class="ledger-item">
+              <div class="ledger-main-row">
+
+                <div class="ledger-left">
+                  <p class="ledger-exp-title">
+                    {{ s.from_username }}
+                    <span style="font-weight:400; color:#6b7280;">
+                      {{ _('betaalt') }}
+                    </span>
+                    {{ s.to_username }}
+                  </p>
+
+                  <div class="ledger-meta-row">
+                    <span class="ledger-meta">
+                      💶 {{ _('Aanbevolen betaling om saldo’s te vereffenen') }}
+                    </span>
+                  </div>
+
+                  <p class="expense-delta">
+                    {% if s.is_me_payer %}
+                      <span class="delta-neg">
+                        {{ _('Je moet deze betaling doen.') }}
+                      </span>
+                    {% elif s.is_me_receiver %}
+                      <span class="delta-pos">
+                        {{ _('Je ontvangt dit bedrag als deze betaling gebeurt.') }}
+                      </span>
+                    {% endif %}
+                  </p>
+                </div>
+
+                <div class="ledger-right" style="text-align:right; min-width: 160px;">
+                  <div class="ledger-amount">
+                    € {{ '%.2f'|format(s.amount) }}
+                  </div>
+
+                  {% if s.settlement_id and s.is_me_payer %}
+                    <div style="margin-top:8px;">
+                      <a href="{{ url_for('main.settlement_pay',
+                                          group_id=group.group_id,
+                                          settlement_id=s.settlement_id) }}"
+                         class="btn-primary">
+                        {{ _('Betalen met bank-app') }}
+                      </a>
+                    </div>
+                  {% elif s.is_me_payer %}
+                    {# fallback: geen settlement_id (bv. tabel bestaat niet) #}
+                    <div style="margin-top:8px; font-size:12px; color:#6b7280;">
+                      {{ _('Open je banking app en maak deze betaling handmatig over.') }}
+                    </div>
+                  {% endif %}
+                </div>
+
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+
+      {% else %}
+        <div class="ledger-empty">
+          <h2>{{ _('Iedereen is in balans 🎉') }}</h2>
+          <p>
+            {{ _('Op basis van de huidige uitgaven en betalingen zijn er geen extra transfers nodig.') }}
+          </p>
+          <a href="{{ url_for('main.group_detail', group_id=group.group_id) }}"
+             class="btn-primary">
+            {{ _('Terug naar groep') }}
+          </a>
+        </div>
+      {% endif %}
+
+    </article>
+  </section>
+</main>
+{% endblock %}
+

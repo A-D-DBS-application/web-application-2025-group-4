@@ -13,6 +13,8 @@ from datetime import datetime
 from decimal import Decimal
 import secrets
 import re
+import qrcode
+from flask import current_app
 
 
 from flask_babel import gettext as _  # ✅ i18n
@@ -601,6 +603,289 @@ def create_group():
 
     # GET
     return render_template("group_new.html")
+
+
+def compute_group_balances(group_id: int):
+    """
+    Bereken saldo per persoon voor een groep.
+    Positief = krijgt geld, negatief = moet nog betalen.
+    Geeft een lijst terug met dicts: { user_id, username, balance }.
+    """
+
+    # Leden ophalen
+    gm_rows = (
+        supabase.table("group_members")
+        .select("*")
+        .eq("group_id", group_id)
+        .execute()
+        .data
+        or []
+    )
+
+    if not gm_rows:
+        return []
+
+    user_ids = [gm["user_id"] for gm in gm_rows]
+
+    users_rows = (
+        supabase.table("users")
+        .select("users_id, username")
+        .in_("users_id", user_ids)
+        .execute()
+        .data
+        or []
+    )
+
+    users_by_id = {u["users_id"]: u for u in users_rows}
+
+    # Start alle saldi op 0
+    balances = {uid: 0.0 for uid in user_ids}
+
+    # -------------------------
+    # 1) Uitgaven + shares
+    # -------------------------
+    expenses_rows = (
+        supabase.table("expenses")
+        .select("*")
+        .eq("group_id", group_id)
+        .eq("is_active", True)
+        .execute()
+        .data
+        or []
+    )
+
+    shares_rows = (
+        supabase.table("expense_shares")
+        .select("*")
+        .eq("group_id", group_id)
+        .execute()
+        .data
+        or []
+    )
+
+    shares_by_expense = {}
+    for s in shares_rows:
+        eid = s["expense_id"]
+        shares_by_expense.setdefault(eid, []).append(s)
+
+    for exp in expenses_rows:
+        eid = exp["expense_id"]
+        total = float(exp.get("total_amount") or 0.0)
+        payer_id = exp["created_by_user_id"]
+
+        # Payer heeft het volledige bedrag voorgeschoten
+        if payer_id in balances:
+            balances[payer_id] += total
+
+        # Iedereen met een share moet zijn deel betalen
+        for s in shares_by_expense.get(eid, []):
+            uid = s["user_id"]
+            if uid in balances:
+                balances[uid] -= float(s.get("amount") or 0.0)
+
+    # -------------------------
+    # 2) Reeds geregistreerde betalingen
+    # -------------------------
+    payments_rows = (
+        supabase.table("payments")
+        .select("*")
+        .eq("group_id", group_id)
+        .execute()
+        .data
+        or []
+    )
+
+    for p in payments_rows:
+        amt = float(p.get("amount") or 0.0)
+        sender = p["sender_user_id"]
+        receiver = p["receiver_user_id"]
+
+        if sender in balances:
+            balances[sender] -= amt
+        if receiver in balances:
+            balances[receiver] += amt
+
+    # Resultaat naar lijst (met username)
+    result = []
+    for uid in user_ids:
+        u = users_by_id.get(uid)
+        if not u:
+            continue
+        result.append(
+            {
+                "user_id": uid,
+                "username": u["username"],
+                "balance": round(balances.get(uid, 0.0), 2),
+            }
+        )
+    return result
+
+
+# -----------------------------
+# SETTLEMENTS – SCHULDEN VEREFFENEN
+# -----------------------------
+@main.route("/groups/<int:group_id>/settlements")
+@login_required
+def settlements_overview(group_id):
+    user = current_user()
+    if not user:
+        abort(403)
+
+    # 1) Groep ophalen
+    g = (
+        supabase.table("groups")
+        .select("*")
+        .eq("group_id", group_id)
+        .execute()
+        .data
+    )
+    if not g:
+        abort(404)
+    group = g[0]
+
+    # 2) Saldi per persoon berekenen
+    balances = compute_group_balances(group_id)
+
+    # splitsen in schuldeisers (creditors) en schuldenaars (debtors)
+    creditors = []
+    debtors = []
+    eps = 0.005
+
+    for row in balances:
+        b = float(row["balance"])
+        if b > eps:
+            creditors.append(
+                {
+                    "user_id": row["user_id"],
+                    "username": row["username"],
+                    "amount": b,
+                }
+            )
+        elif b < -eps:
+            debtors.append(
+                {
+                    "user_id": row["user_id"],
+                    "username": row["username"],
+                    "amount": b,  # NEGATIEF
+                }
+            )
+
+    # 3) Greedy algoritme om wie-wie-moet-betalen te bepalen
+    settlements = []  # ruwe lijst
+
+    ci = 0
+    di = 0
+    while ci < len(creditors) and di < len(debtors):
+        c = creditors[ci]
+        d = debtors[di]
+
+        credit = c["amount"]
+        debt = -d["amount"]  # positief getal
+
+        pay_amount = min(credit, debt)
+        if pay_amount < eps:
+            break
+
+        settlements.append(
+            {
+                "from_user_id": d["user_id"],
+                "from_username": d["username"],
+                "to_user_id": c["user_id"],
+                "to_username": c["username"],
+                "amount": round(pay_amount, 2),
+            }
+        )
+
+        # update overschot
+        c["amount"] = credit - pay_amount
+        d["amount"] = -(debt - pay_amount)
+
+        if c["amount"] <= eps:
+            ci += 1
+        if -d["amount"] <= eps:
+            di += 1
+
+    # 4) Optioneel: sync met 'settlements' tabel zodat settlement_pay
+    #    een echte settlement_id heeft.
+    inserted_rows = []
+    if settlements:
+        try:
+            # Alle open suggestions voor deze groep eerst weggooien
+            supabase.table("settlements") \
+                .delete() \
+                .eq("group_id", group_id) \
+                .eq("status", "open") \
+                .execute()
+
+            to_insert = []
+            for s in settlements:
+                to_insert.append(
+                    {
+                        "group_id": group_id,
+                        "from_user_id": s["from_user_id"],
+                        "to_user_id": s["to_user_id"],
+                        "amount": s["amount"],
+                        "status": "open",
+                    }
+                )
+
+            resp = supabase.table("settlements").insert(to_insert).execute()
+            inserted_rows = resp.data or []
+        except Exception as e:
+            print(">>> settlements_overview: error syncing settlements table:", e)
+            # als de tabel nog niet bestaat, blijft inserted_rows leeg
+            inserted_rows = []
+    else:
+        inserted_rows = []
+
+    # 5) Data klaarzetten voor template (gebruik settlement_id als het er is)
+    current_uid = user["users_id"]
+    template_settlements = []
+
+    # Als we iets in DB hebben, gebruik die records (heeft settlement_id)
+    if inserted_rows:
+        for row in inserted_rows:
+            template_settlements.append(
+                {
+                    "settlement_id": row["settlement_id"],
+                    "from_user_id": row["from_user_id"],
+                    "from_username": next(
+                        (b["username"] for b in balances if b["user_id"] == row["from_user_id"]),
+                        _("Onbekend"),
+                    ),
+                    "to_user_id": row["to_user_id"],
+                    "to_username": next(
+                        (b["username"] for b in balances if b["user_id"] == row["to_user_id"]),
+                        _("Onbekend"),
+                    ),
+                    "amount": float(row["amount"]),
+                    "is_me_payer": (row["from_user_id"] == current_uid),
+                    "is_me_receiver": (row["to_user_id"] == current_uid),
+                }
+            )
+    else:
+        # fallback: gebruik de in-memory settlements
+        for s in settlements:
+            template_settlements.append(
+                {
+                    "settlement_id": None,
+                    "from_user_id": s["from_user_id"],
+                    "from_username": s["from_username"],
+                    "to_user_id": s["to_user_id"],
+                    "to_username": s["to_username"],
+                    "amount": s["amount"],
+                    "is_me_payer": (s["from_user_id"] == current_uid),
+                    "is_me_receiver": (s["to_user_id"] == current_uid),
+                }
+            )
+
+    return render_template(
+        "settlements.html",
+        user=user,
+        group=group,
+        balances=balances,
+        settlements=template_settlements,
+    )
 
 
 # -----------------------------
@@ -1584,3 +1869,176 @@ def expense_delete(group_id, expense_id):
 
     flash(_("Uitgave verwijderd."), "success")
     return redirect(url_for("main.ledger", group_id=group_id))
+
+@main.route("/groups/<int:group_id>/settlements")
+@login_required
+def settlements(group_id):
+    user = current_user()
+    if not user:
+        abort(403)
+
+    # settlements ophalen
+    rows = (
+        supabase.table("settlements")
+        .select("*")
+        .eq("group_id", group_id)
+        .order("created_at", desc=True)
+        .execute()
+        .data
+    )
+
+    # gebruikers ophalen (voor namen)
+    members = (
+        supabase.table("users")
+        .select("users_id, username, iban, paylink")
+        .execute()
+        .data
+    )
+
+    user_map = {u["users_id"]: u for u in members}
+
+    # verrijken
+    enriched = []
+    for s in rows:
+        enriched.append({
+            **s,
+            "from_username": user_map.get(s["from_user_id"], {}).get("username", "??"),
+            "to_username": user_map.get(s["to_user_id"], {}).get("username", "??"),
+            "to_iban": user_map.get(s["to_user_id"], {}).get("iban"),
+            "to_paylink": user_map.get(s["to_user_id"], {}).get("paylink"),
+        })
+
+    return render_template(
+        "settlements.html",
+        group_id=group_id,
+        settlements=enriched,
+        user=user
+    )
+
+
+
+@main.route("/groups/<int:group_id>/settlements/<int:settlement_id>/mark_paid", methods=["POST"])
+@login_required
+def settlement_mark_paid(group_id, settlement_id):
+    user = current_user()
+
+    s = (
+        supabase.table("settlements")
+        .select("*")
+        .eq("settlement_id", settlement_id)
+        .single()
+        .execute()
+        .data
+    )
+
+    if not s or s["from_user_id"] != user["users_id"]:
+        abort(403)
+
+    supabase.table("settlements").update({
+        "status": "paid",
+        "paid_at": datetime.utcnow().isoformat()
+    }).eq("settlement_id", settlement_id).execute()
+
+    flash("Schuld vereffend! 🎉", "success")
+    return redirect(url_for("main.settlements", group_id=group_id))
+
+# ---------------------------------------------
+# HELPER: EPC SEPA QR-code genereren (stap 4)
+# ---------------------------------------------
+def create_epc_qr(name: str, iban: str, amount: float, message: str, filename: str) -> str:
+    """
+    Maakt een EPC SEPA QR-code aan die door de meeste banking apps
+    (KBC, Belfius, ING, …) herkend wordt.
+
+    name:    naam van de ontvanger
+    iban:    IBAN van de ontvanger (zonder spaties)
+    amount:  bedrag in EUR
+    message: vrije mededeling
+    filename: bestandsnaam in static/qr/
+    """
+
+    # EPC-tekst volgens standaard
+    epc_payload = f"""BCD
+001
+1
+SCT
+{name}
+{iban}
+EUR{amount:.2f}
+{message}
+"""
+
+    # QR genereren
+    img = qrcode.make(epc_payload)
+
+    # pad in static/qr (zorg dat die map bestaat)
+    qr_dir = os.path.join(current_app.root_path, "static", "qr")
+    os.makedirs(qr_dir, exist_ok=True)
+
+    full_path = os.path.join(qr_dir, filename)
+    img.save(full_path)
+
+    # relatieve URL die je in <img src="..."> kan gebruiken
+    return f"qr/{filename}"
+
+
+# --------------------------------------------------
+# ROUTE: betaal-scherm voor één settlement (met QR)
+# --------------------------------------------------
+@main.route("/groups/<int:group_id>/settlements/<int:settlement_id>/pay")
+@login_required
+def settlement_pay(group_id, settlement_id):
+    user = current_user()
+    if not user:
+        abort(403)
+
+    # settlement ophalen
+    s = (
+        supabase.table("settlements")
+        .select("*")
+        .eq("settlement_id", settlement_id)
+        .eq("group_id", group_id)
+        .single()
+        .execute()
+        .data
+    )
+
+    # bestaat niet of niet voor deze user -> blokkeren
+    if not s or s["from_user_id"] != user["users_id"]:
+        abort(403)
+
+    # ontvanger ophalen (heeft idealiter IBAN + optioneel paylink)
+    receiver = (
+        supabase.table("users")
+        .select("users_id, username, iban, paylink")
+        .eq("users_id", s["to_user_id"])
+        .single()
+        .execute()
+        .data
+    )
+
+    qr_url = None
+    iban = (receiver or {}).get("iban")
+
+    # Alleen QR genereren als er een IBAN is
+    if iban:
+        # spaties uit IBAN verwijderen
+        clean_iban = iban.replace(" ", "")
+        filename = f"settlement_{settlement_id}.png"
+
+        qr_url = create_epc_qr(
+            name=receiver.get("username", "Ontvanger"),
+            iban=clean_iban,
+            amount=float(s["amount"]),
+            message=f"FairSplit+ {settlement_id}",
+            filename=filename,
+        )
+
+    return render_template(
+        "settlement_pay.html",
+        user=user,
+        group_id=group_id,
+        settlement=s,
+        receiver=receiver,
+        qr_url=qr_url,  # in template: <img src="{{ url_for('static', filename=qr_url) }}">
+    )

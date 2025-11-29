@@ -71,10 +71,19 @@
 
     <!-- RECHTS: SALDO-KAART -->
     <aside class="group-hero-card">
-      <h2>{{ _('Saldo per persoon') }}</h2>
-      <p class="card-sub">
-        {{ _('Positief = krijgt nog geld. Negatief = moet nog betalen.') }}
-      </p>
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
+        <div>
+          <h2>{{ _('Saldo per persoon') }}</h2>
+          <p class="card-sub">
+            {{ _('Positief = krijgt nog geld. Negatief = moet nog betalen.') }}
+          </p>
+        </div>
+        
+        <a href="{{ url_for('main.settlements_overview', group_id=group.group_id) }}"
+        class="btn-secondary">
+        💸 {{ _('Schulden vereffenen') }}
+      </a>
+    </div>
 
       {% if balances %}
         <ul class="balance-list">
