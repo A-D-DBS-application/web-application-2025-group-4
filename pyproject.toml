@@ -20,6 +20,7 @@ supabase = "^2.24.0"
 openai = "^1.0.0"
 qrcode = {extras = ["pil"], version = "^8.2"}
 reportlab = "^4.4.5"
+flask-sqlalchemy = "^3.1.1"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.0"
