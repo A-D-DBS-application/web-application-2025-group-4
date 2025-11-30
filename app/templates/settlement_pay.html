@@ -1,44 +1,98 @@
+{# templates/settlement_pay.html #}
 {% extends "base.html" %}
+{% block title %}{{ _('Schuld vereffenen') }} – FairSplit+{% endblock %}
+
 {% block content %}
+<main class="group-page settlement-page">
 
-<div class="ledger-page">
-
-  <h1 class="ledger-title">Schuld vereffenen</h1>
-  <p class="ledger-sub">Je betaalt aan {{ receiver.username }}</p>
-
-  <div class="ledger-item" style="max-width: 600px; margin-top: 20px;">
-
-    <div class="ledger-meta-row">
-      <strong>Bedrag:</strong> € {{ '%.2f'|format(settlement.amount) }}
+  <!-- HEADER -->
+  <section class="group-hero">
+    <div class="group-hero-main">
+      <div class="group-pill">
+        💸 {{ _('Schuld vereffenen') }}
+      </div>
+      <h1 class="group-title">
+        {{ sender.username }} → {{ receiver.username }}
+      </h1>
+      <p class="group-sub">
+        {{ _('Maak deze betaling in je banking app en registreer ze daarna in FairSplit+.') }}
+      </p>
     </div>
+  </section>
 
-    <div class="ledger-meta-row">
-      <strong>IBAN:</strong> {{ receiver.iban }}
-    </div>
+  <!-- BODY -->
+  <section class="group-body group-body-full">
+    <article class="group-card settlement-card">
 
-    <div class="ledger-meta-row">
-      <strong>Mededeling:</strong> FairSplit+ betaling {{ settlement.settlement_id }}
-    </div>
+      <div class="settle-layout">
+        <!-- LINKERKANT: uitleg -->
+        <div class="settle-left">
+          <p class="settle-text">
+            {{ _('Je vereffent een openstaande schuld in deze groep. Gebruik de betaaloptie hiernaast om te betalen.') }}
+          </p>
 
-    <div style="margin: 20px 0;">
-      <img src="{{ url_for('static', filename='qr/settlement_' ~ settlement.settlement_id ~ '.png') }}"
-           alt="QR-code" width="220">
-    </div>
+          <ul class="settle-list">
+            <li>{{ _('Controleer altijd bedrag en ontvanger in je banking app voordat je bevestigt.') }}</li>
+            <li>{{ _('Na de betaling keer je terug naar FairSplit+ en registreer je ze als betaling in deze groep.') }}</li>
+          </ul>
 
-    {% if receiver.paylink %}
-      <a href="{{ receiver.paylink }}?amount={{ '%.2f'|format(settlement.amount) }}"
-         class="btn-secondary" target="_blank">
-         Open Payconiq link
-      </a>
-    {% endif %}
+          <p class="settle-hint">
+            {{ _('Tip: gebruik dezelfde omschrijving in je banking app, zo blijft alles netjes herkenbaar.') }}
+          </p>
 
-    <form action="{{ url_for('main.settlement_mark_paid', group_id=group_id, settlement_id=settlement.settlement_id) }}"
-          method="POST" style="margin-top:20px;">
-      <button class="btn-primary">Ik heb betaald ✔</button>
-    </form>
+          <a href="{{ url_for('main.settlements', group_id=group.group_id) }}"
+             class="link-back">
+            ← {{ _('Terug naar schuldoverzicht') }}
+          </a>
+        </div>
 
-  </div>
+        <!-- RECHTS: bedrag + betaaloptie -->
+        <aside class="settle-right">
+          <div class="settle-card-amount">
+            <h2>{{ _('Te betalen bedrag') }}</h2>
+            <p class="settle-amount">€ {{ '%.2f'|format(amount) }}</p>
+            <p class="settle-line">
+              {{ _('Van') }}: <strong>{{ sender.username }}</strong><br>
+              {{ _('Aan') }}: <strong>{{ receiver.username }}</strong>
+            </p>
+            {% if group.name %}
+              <p class="settle-line">
+                {{ _('Groep') }}: {{ group.name }}
+              </p>
+            {% endif %}
+          </div>
 
-</div>
+          {% if paylink %}
+            <!-- OPTIE: Paylink / banking app -->
+            <div class="settle-block">
+              <h3>{{ _('Betaal via banking app / betaalverzoek') }}</h3>
+              <p class="settle-help">
+                {{ _('Klik hieronder om het betaalverzoek te openen in je banking app of betaalapp (bv. Payconiq, bunq, Revolut…).') }}
+              </p>
 
+              <a href="{{ paylink }}" target="_blank" rel="noopener"
+                 class="btn-primary btn-full">
+                📱 {{ _('Open in banking app / Payconiq') }}
+              </a>
+
+              <p class="settle-note">
+                {{ _('Niet elke bank vult alles automatisch in. Controleer bedrag en ontvanger voordat je bevestigt.') }}
+              </p>
+            </div>
+          {% else %}
+            <!-- Geen paylink ingevuld -->
+            <div class="settle-block">
+              <h3>{{ _('Geen betaalverzoek beschikbaar') }}</h3>
+              <p class="settle-help">
+                {{ _('De ontvanger heeft nog geen betaallink ingesteld. Voer de betaling handmatig uit in je banking app met het bedrag hierboven.') }}
+              </p>
+            </div>
+          {% endif %}
+        </aside>
+      </div>
+
+    </article>
+  </section>
+</main>
 {% endblock %}
+

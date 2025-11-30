@@ -39,26 +39,30 @@
           {% if groups %}
             <ul class="group-list">
               {% for g in groups %}
-              <li>
-                <a href="{{ url_for('main.group_detail', group_id=g['group_id']) }}"
-                   class="group-card">
-                  <div class="group-card-main">
-                    <div class="group-avatar">
-                      {{ g.name[0]|upper }}
+                <li>
+                  <a href="{{ url_for('main.group_detail', group_id=g['group_id']) }}"
+                     class="group-card{% if g.is_closed %} group-card-closed{% endif %}">
+                    <div class="group-card-main">
+                      <div class="group-avatar">
+                        {{ g.name[0]|upper }}
+                      </div>
+                      <div>
+                        <h3 class="group-name">{{ g.name }}</h3>
+                        <p class="group-meta">
+                          {{ g.currency or 'EUR' }} • {{ _('Code') }}: {{ g.join_code }}
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <h3 class="group-name">{{ g.name }}</h3>
-                      <p class="group-meta">
-                        {{ g.currency or 'EUR' }} • {{ _('Code') }}: {{ g.join_code }}
-                      </p>
-                    </div>
-                  </div>
 
-                  <span class="group-tag">
-                    {{ _('Open') }}
-                  </span>
-                </a>
-              </li>
+                    <span class="group-tag {% if g.is_closed %}group-tag-closed{% else %}group-tag-open{% endif %}">
+                      {% if g.is_closed %}
+                        🔒 {{ _('Closed') }}
+                      {% else %}
+                        🟢 {{ _('Open') }}
+                      {% endif %}
+                    </span>
+                  </a>
+                </li>
               {% endfor %}
             </ul>
           {% else %}

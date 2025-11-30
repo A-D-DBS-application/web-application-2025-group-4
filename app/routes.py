@@ -1,4 +1,5 @@
 # app/routes.py
+from tokenize import group
 from flask import (
     Blueprint,
     render_template,
@@ -8,13 +9,29 @@ from flask import (
     session,
     flash,
     abort,
+    jsonify
 )
-from datetime import datetime
+import json
+
 from decimal import Decimal
 import secrets
 import re
-import qrcode
 from flask import current_app
+from datetime import datetime, timezone, date
+import io
+import base64
+import qrcode
+from flask import render_template, make_response
+# PDF tools (ReportLab)
+from reportlab.lib.pagesizes import A4
+from reportlab.lib import colors
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.lib.styles import getSampleStyleSheet
+
+from .model import Group, Expense
+
+
+
 
 
 from flask_babel import gettext as _  # ✅ i18n
@@ -55,6 +72,33 @@ def login_required(func):
         return func(*args, **kwargs)
 
     return wrapper
+
+
+def is_group_closed(group_row: dict) -> bool:
+    """
+    Bepaalt of een groep gesloten is:
+    - Als kolom 'is_closed' bestaat en True is → gesloten
+    - Als end_date bestaat en end_date < vandaag → gesloten
+    """
+    # 1) Expliciete DB-vlag
+    if "is_closed" in group_row and group_row["is_closed"]:
+        return True
+
+    # 2) Automatische sluiting op basis van einddatum
+    end_date = group_row.get("end_date")
+    if not end_date:
+        return False
+
+    try:
+        today = datetime.now(timezone.utc).date()
+        end_date_obj = (
+            end_date if hasattr(end_date, "year") else datetime.fromisoformat(end_date).date()
+        )
+        return end_date_obj < today
+    except Exception:
+        return False
+
+
 
 
 # -----------------------------
@@ -378,21 +422,29 @@ def register():
         iban = request.form.get("iban", "").strip()
         password = request.form.get("password", "").strip()
 
+        # Check op leeg veld
         if not all([name, username, email, phone_number, iban, password]):
             flash(_("Vul alle velden in."), "danger")
             return redirect(url_for("main.register"))
 
+        # Check op bestaande email, username of telefoonnummer
         existing = (
             supabase.table("users")
             .select("users_id")
-            .or_(f"email.eq.{email},username.eq.{username}")
+            .or_(
+                f"email.eq.{email},"
+                f"username.eq.{username},"
+                f"phone_number.eq.{phone_number}"
+            )
             .execute()
             .data
         )
+
         if existing:
-            flash(_("Gebruikersnaam of e-mailadres bestaat al."), "danger")
+            flash(_("Gebruikersnaam, e-mailadres of telefoonnummer bestaat al."), "danger")
             return redirect(url_for("main.register"))
 
+        # Nieuwe user toevoegen
         new_user = (
             supabase.table("users")
             .insert(
@@ -421,6 +473,7 @@ def register():
         return redirect(url_for("main.dashboard"))
 
     return render_template("register.html")
+
 
 
 @main.route("/login", methods=["GET", "POST"])
@@ -512,7 +565,9 @@ def dashboard():
         .data
         or []
     )
+
     group_ids = [m["group_id"] for m in member_records]
+
     if group_ids:
         other_groups = (
             supabase.table("groups")
@@ -525,6 +580,10 @@ def dashboard():
         for g in other_groups:
             if g not in groups:
                 groups.append(g)
+
+    # 👉 Nieuw: bij elke groep bepalen of ze gesloten is
+    for g in groups:
+        g["is_closed"] = is_group_closed(g)
 
     return render_template("index.html", user=user, groups=groups)
 
@@ -887,7 +946,6 @@ def settlements_overview(group_id):
         settlements=template_settlements,
     )
 
-
 # -----------------------------
 # GROUP DETAIL (saldo + uitgaven + shares)
 # -----------------------------
@@ -907,6 +965,9 @@ def group_detail(group_id):
     if not g:
         abort(404)
     group = g[0]
+
+    group["is_closed"] = is_group_closed(group)
+
 
     # 2) Leden ophalen
     gm_rows = (
@@ -1086,6 +1147,7 @@ def group_detail(group_id):
         app_fee_expense=app_fee_expense,
         CATEGORY_LABELS=CATEGORY_LABELS,
     )
+
 
 
 # -----------------------------
@@ -1323,6 +1385,41 @@ def expense_new(group_id):
         .data
     )
     group = g[0] if g else None
+    if not group:
+        flash(_("Deze groep bestaat niet."), "danger")
+        return redirect(url_for("main.dashboard"))
+
+    # ---------- NIEUW: check of de groep gesloten is ----------
+    # We gaan er van uit dat end_date in de DB als string staat
+    # zoals "2025-11-29" (of None / lege string).
+    is_closed = False
+    end_str = group.get("end_date")
+
+    if end_str:
+        try:
+            # probeer ISO of simpel yyyy-mm-dd te parsen
+            if "T" in end_str:
+                end_dt = datetime.fromisoformat(end_str)
+                end_date = end_dt.date()
+            else:
+                end_date = datetime.strptime(end_str, "%Y-%m-%d").date()
+
+            if end_date < date.today():
+                is_closed = True
+        except Exception:
+            # Als parsen mislukt, sluiten we de groep niet automatisch
+            is_closed = False
+
+    if is_closed:
+        flash(
+            _(
+                "Deze groep is gesloten (einddatum verstreken). "
+                "Je kunt geen nieuwe uitgaven meer toevoegen."
+            ),
+            "warning",
+        )
+        return redirect(url_for("main.group_detail", group_id=group_id))
+    # ---------- EINDE nieuwe closed-check ----------
 
     # Leden ophalen
     gm_rows = (
@@ -1475,6 +1572,104 @@ def expense_new(group_id):
         is_edit=False,
         form_action=url_for("main.expense_new", group_id=group_id),
     )
+
+@main.route("/group/<int:group_id>/expense/parse_receipt", methods=["POST"])
+@login_required
+def expense_parse_receipt(group_id):
+    """
+    Ontvangt een foto van een bonnetje, stuurt die naar OpenAI
+    en geeft gestructureerde JSON terug met items.
+    """
+
+    uid = session.get("users_id")
+
+    # Check of de user lid is van de groep (zelfde check als in expense_new)
+    membership = (
+        supabase.table("group_members")
+        .select("*")
+        .eq("group_id", group_id)
+        .eq("user_id", uid)
+        .execute()
+        .data
+        or []
+    )
+    if not membership:
+        return jsonify({"success": False, "error": "no_access"}), 403
+
+    file = request.files.get("receipt")
+    if not file or file.filename == "":
+        return jsonify({"success": False, "error": "no_file"}), 400
+
+    try:
+        image_bytes = file.read()
+        image_b64 = base64.b64encode(image_bytes).decode("ascii")
+    except Exception as e:
+        print(">>> expense_parse_receipt: file read error:", e)
+        return jsonify({"success": False, "error": "read_failed"}), 400
+
+    # Prompt voor de AI
+    prompt = """
+Je bent een kassabon-parser. Je krijgt een foto of scan van een restaurant- of winkelbonnetje.
+Extra belangrijk:
+- Geef enkel geldige JSON terug, zonder extra tekst.
+- Gebruik een punt als decimaal scheidingsteken (bv. 12.50).
+- Als een gegeven ontbreekt, laat het veld weg of vul null in.
+
+Schema (voorbeeld):
+
+{
+  "merchant_name": "Pizzeria Roma",
+  "currency": "EUR",
+  "items": [
+    {
+      "description": "Pizza Margherita",
+      "quantity": 1,
+      "unit_price": 12.5,
+      "total_price": 12.5
+    }
+  ],
+  "subtotal": 30.0,
+  "tax": 0.0,
+  "tip": 0.0,
+  "total": 30.0
+}
+
+Zorg dat "items" een lijst is van alle relevante regels (geen btw-totaalregels).
+"""
+
+    try:
+        resp = client.responses.create(
+            model="gpt-4.1-mini",
+            input=[
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "input_text", "text": prompt},
+                        {
+                            "type": "input_image",
+                            "image_url": {
+                                "url": f"data:image/jpeg;base64,{image_b64}"
+                            },
+                        },
+                    ],
+                }
+            ],
+            max_output_tokens=600,
+        )
+
+        raw = resp.output[0].content[0].text
+        print(">>> expense_parse_receipt: RAW AI TEXT =", raw)
+
+        data = json.loads(raw)
+    except Exception as e:
+        print(">>> expense_parse_receipt: AI or JSON error:", e)
+        return jsonify({"success": False, "error": "ai_failed"}), 500
+
+    # Zorg dat er minstens een items-lijst is
+    if not isinstance(data, dict) or not data.get("items"):
+        return jsonify({"success": False, "error": "no_items"}), 200
+
+    return jsonify({"success": True, "receipt": data})
 
 # -----------------------------
 # EXPENSES – BEWERKEN
@@ -1722,6 +1917,7 @@ def ledger(group_id):
         abort(404)
     group = g[0]
 
+    group["is_closed"] = is_group_closed(group)
     # 2) Leden ophalen (voor namen)
     gm_rows = (
         supabase.table("group_members")
@@ -1833,6 +2029,7 @@ def ledger(group_id):
         expenses=expense_list,
         CATEGORY_LABELS=CATEGORY_LABELS,
     )
+
 
 @main.route("/groups/<int:group_id>/expense/<int:expense_id>/delete", methods=["POST"])
 @login_required
@@ -1981,10 +2178,32 @@ EUR{amount:.2f}
     # relatieve URL die je in <img src="..."> kan gebruiken
     return f"qr/{filename}"
 
+def generate_payment_qr(iban: str, amount: float, receiver_name: str, reference: str) -> str:
+    """
+    Maakt een simpele QR-code met IBAN, bedrag en mededeling.
+    Banken die het EPC-formaat verwachten zouden meer structuur willen,
+    maar voor je project is dit perfect als demo (scanner leest tekst).
+    """
+    # Spaties uit IBAN halen
+    iban_clean = (iban or "").replace(" ", "").upper()
 
-# --------------------------------------------------
-# ROUTE: betaal-scherm voor één settlement (met QR)
-# --------------------------------------------------
+    payload = (
+        f"IBAN:{iban_clean}\n"
+        f"NAME:{receiver_name}\n"
+        f"AMOUNT:EUR {amount:.2f}\n"
+        f"REF:{reference}"
+    )
+
+    img = qrcode.make(payload)
+    buf = io.BytesIO()
+    img.save(buf, format="PNG")
+    data = base64.b64encode(buf.getvalue()).decode("ascii")
+    return "data:image/png;base64," + data
+
+
+# -----------------------------
+# SCHULD VEREFFENEN – PAY VIEW
+# -----------------------------
 @main.route("/groups/<int:group_id>/settlements/<int:settlement_id>/pay")
 @login_required
 def settlement_pay(group_id, settlement_id):
@@ -1992,53 +2211,200 @@ def settlement_pay(group_id, settlement_id):
     if not user:
         abort(403)
 
-    # settlement ophalen
-    s = (
+    # 1) Groep ophalen
+    g_rows = (
+        supabase.table("groups")
+        .select("*")
+        .eq("group_id", group_id)
+        .execute()
+        .data
+    )
+    if not g_rows:
+        abort(404)
+    group = g_rows[0]
+
+    # 2) Settlement ophalen
+    s_rows = (
         supabase.table("settlements")
         .select("*")
-        .eq("settlement_id", settlement_id)
         .eq("group_id", group_id)
-        .single()
+        .eq("settlement_id", settlement_id)
         .execute()
         .data
+        or []
     )
+    if not s_rows:
+        abort(404)
+    settlement = s_rows[0]
 
-    # bestaat niet of niet voor deze user -> blokkeren
-    if not s or s["from_user_id"] != user["users_id"]:
+    # Alleen de schuldenaar (from_user) mag deze pay-view zien
+    current_id = user["users_id"]
+    if settlement["from_user_id"] != current_id:
         abort(403)
 
-    # ontvanger ophalen (heeft idealiter IBAN + optioneel paylink)
-    receiver = (
+    amount = float(settlement.get("amount") or 0.0)
+
+    # 3) Beide users ophalen (van → naar)
+    user_ids = [settlement["from_user_id"], settlement["to_user_id"]]
+    u_rows = (
         supabase.table("users")
-        .select("users_id, username, iban, paylink")
-        .eq("users_id", s["to_user_id"])
-        .single()
+        .select("users_id, username, email, iban, paylink")
+        .in_("users_id", user_ids)
         .execute()
         .data
+        or []
     )
+    by_id = {u["users_id"]: u for u in u_rows}
 
-    qr_url = None
-    iban = (receiver or {}).get("iban")
+    sender = by_id.get(settlement["from_user_id"])
+    receiver = by_id.get(settlement["to_user_id"])
+    if not sender or not receiver:
+        abort(404)
 
-    # Alleen QR genereren als er een IBAN is
-    if iban:
-        # spaties uit IBAN verwijderen
-        clean_iban = iban.replace(" ", "")
-        filename = f"settlement_{settlement_id}.png"
+    # 4) Paylink van ontvanger (optioneel)
+    raw_paylink = (receiver.get("paylink") or "").strip()
+    if raw_paylink and not raw_paylink.startswith(("http://", "https://")):
+        paylink = "https://" + raw_paylink
+    else:
+        paylink = raw_paylink or None
 
-        qr_url = create_epc_qr(
-            name=receiver.get("username", "Ontvanger"),
-            iban=clean_iban,
-            amount=float(s["amount"]),
-            message=f"FairSplit+ {settlement_id}",
-            filename=filename,
-        )
+ 
 
     return render_template(
         "settlement_pay.html",
         user=user,
-        group_id=group_id,
-        settlement=s,
+        group=group,
+        settlement=settlement,
+        amount=amount,
+        sender=sender,
         receiver=receiver,
-        qr_url=qr_url,  # in template: <img src="{{ url_for('static', filename=qr_url) }}">
+        paylink=paylink,
+        
     )
+
+
+# -----------------------------
+# HELPER: EPC QR (SEPA QR-code)
+# -----------------------------
+def build_epc_qr_string(name: str, iban: str, amount: float, remittance: str, bic: str = "") -> str:
+    """
+    Maakt de tekst voor een Europese EPC QR-code (SEPA).
+    Die tekst zetten we dan om naar een echte QR-code in de template.
+    """
+    if not iban:
+        return ""
+
+    iban_clean = iban.replace(" ", "").upper()
+    name_clean = (name or "").strip()[:70]
+    rem_clean = (remittance or "").strip()[:140]
+
+    # EPC QR standaard (SCT = SEPA Credit Transfer)
+    # Regels:
+    # 1: "BCD"
+    # 2: "001"      -> versie
+    # 3: "1"        -> codering
+    # 4: "SCT"      -> schema (SEPA Credit Transfer)
+    # 5: BIC        -> mag leeg zijn
+    # 6: Naam
+    # 7: IBAN
+    # 8: Bedrag in de vorm "EUR12.34"
+    # 9: lege regel
+    # 10: Omschrijving
+    lines = [
+        "BCD",
+        "001",
+        "1",
+        "SCT",
+        bic or "",
+        name_clean,
+        iban_clean,
+        f"EUR{amount:.2f}",
+        "",
+        rem_clean,
+    ]
+    return "\n".join(lines)
+
+
+
+@main.route("/groups/<int:group_id>/expenses/pdf")
+def group_expenses_pdf(group_id):
+    # Groep ophalen – zelfde pattern als in je andere routes
+    group = Group.query.get_or_404(group_id)
+
+    # Uitgaven van die groep ophalen
+    expenses = (
+        Expense.query
+        .filter_by(group_id=group_id)
+        .order_by(Expense.created_at.asc())
+        .all()
+    )
+
+    # PDF in geheugen opbouwen
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=A4,
+        leftMargin=40,
+        rightMargin=40,
+        topMargin=40,
+        bottomMargin=40,
+    )
+
+    styles = getSampleStyleSheet()
+    story = []
+
+    # Titel
+    title = f"Overzicht uitgaven – {group.name}"
+    story.append(Paragraph(title, styles["Title"]))
+    story.append(Spacer(1, 6))
+
+    meta = f"Valuta: {group.currency or 'EUR'} · Aantal uitgaven: {len(expenses)}"
+    story.append(Paragraph(meta, styles["Normal"]))
+    story.append(Spacer(1, 12))
+
+    # Tabeldata
+    data = [["Datum", "Omschrijving", "Betaler", "Bedrag"]]
+    for e in expenses:
+        date_str = str(e.created_at)[:10] if e.created_at else ""
+        desc = e.description or ""
+        payer = getattr(e, "payer_username", "") or ""
+        amount = f"€ {(e.total_amount or 0):.2f}"
+        data.append([date_str, desc, payer, amount])
+
+    # Tabel met styling
+    table = Table(
+        data,
+        colWidths=[70, 250, 120, 60],
+        repeatRows=1,
+    )
+    table.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#f3f4f6")),
+        ("TEXTCOLOR", (0, 0), (-1, 0), colors.HexColor("#111827")),
+        ("ALIGN", (3, 1), (3, -1), "RIGHT"),
+        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+        ("FONTSIZE", (0, 0), (-1, 0), 10),
+        ("FONTSIZE", (0, 1), (-1, -1), 9),
+        ("BOTTOMPADDING", (0, 0), (-1, 0), 6),
+        ("TOPPADDING", (0, 0), (-1, 0), 4),
+        ("GRID", (0, 0), (-1, -1), 0.25, colors.HexColor("#e5e7eb")),
+        ("ROWBACKGROUNDS", (0, 1), (-1, -1),
+         [colors.white, colors.HexColor("#f9fafb")]),
+    ]))
+
+    story.append(table)
+
+    # PDF genereren
+    doc.build(story)
+    pdf_bytes = buffer.getvalue()
+    buffer.close()
+
+    # HTTP response met PDF
+    response = make_response(pdf_bytes)
+    filename = f"fairsplit_{group_id}_overzicht.pdf"
+    response.headers["Content-Type"] = "application/pdf"
+    response.headers["Content-Disposition"] = f'inline; filename=\"{filename}\"'
+    return response
+
+
+
+

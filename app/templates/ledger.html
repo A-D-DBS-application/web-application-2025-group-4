@@ -3,13 +3,105 @@
 {% block title %}{{ _('Historiek – ') }}{{ group.name }} – FairSplit+{% endblock %}
 
 {% block content %}
-<main class="group-page">
+{% set is_print = request.args.get('print') %}
+
+<main class="group-page{% if is_print %} group-page-print{% endif %}">
+
+  <style>
+    @media print {
+      .site-header,
+      .site-footer,
+      .group-hero,
+      .btn-primary,
+      .btn-secondary,
+      .btn-round {
+        display: none !important;
+      }
+
+      body {
+        background: #ffffff !important;
+      }
+
+      .group-page {
+        margin: 0 !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+      }
+
+      .group-card {
+        border: none !important;
+        box-shadow: none !important;
+      }
+    }
+
+    .group-page-print .group-hero {
+      display: none;
+    }
+
+    .group-page-print .group-body {
+      margin-top: 0;
+    }
+
+    /* Compacte tabelstijl voor print */
+    .print-table-wrapper {
+      margin-top: 8px;
+    }
+
+    .print-table-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .print-table-meta {
+      font-size: 12px;
+      color: #6b7280;
+      margin-bottom: 10px;
+    }
+
+    table.print-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+    }
+
+    table.print-table th,
+    table.print-table td {
+      border: 1px solid #e5e7eb;
+      padding: 4px 6px;
+      vertical-align: top;
+    }
+
+    table.print-table th {
+      background: #f3f4f6;
+      font-weight: 600;
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    table.print-table td.num {
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    table.print-table td.shares {
+      font-size: 10px;
+    }
+
+    table.print-table tr:nth-child(even) td {
+      background: #f9fafb;
+    }
+  </style>
 
   <!-- HEADER -->
   <section class="group-hero">
     <div class="group-hero-main">
       <div class="group-pill">
-        📜 {{ _('Overzicht van alle kosten in') }}
+        {% if is_closed %}
+          🔒 {{ _('Gesloten groep') }}
+        {% else %}
+          📜 {{ _('Overzicht van alle kosten in') }}
+        {% endif %}
       </div>
       <h1 class="group-title">
         {{ group.name }}
@@ -23,10 +115,18 @@
            class="btn-secondary">
           ← {{ _('Terug naar groepsoverzicht') }}
         </a>
-        <a href="{{ url_for('main.expense_new', group_id=group.group_id) }}"
-           class="btn-primary">
-          ➕ {{ _('Nieuwe uitgave') }}
-        </a>
+
+        {% if not is_closed %}
+          <a href="{{ url_for('main.expense_new', group_id=group.group_id) }}"
+             class="btn-primary">
+            ➕ {{ _('Nieuwe uitgave') }}
+          </a>
+        {% else %}
+          <span class="btn-pill-ghost"
+                style="pointer-events:none; opacity:0.8; cursor:not-allowed;">
+            🔒 {{ _('Groep gesloten – geen nieuwe uitgaven meer') }}
+          </span>
+        {% endif %}
       </div>
     </div>
   </section>
@@ -36,136 +136,240 @@
     <article class="group-card group-expenses-card">
 
       {% if expenses %}
-        <ul class="expense-list expense-list-wide">
 
-          {% for exp in expenses %}
-            {# kleur + badge komen rechtstreeks uit de route #}
-            <li class="expense-item expense-item-wide cat-{{ exp.category }}">
-              <div class="expense-main-wide">
+        {% if is_print %}
+          {# ---------- COMPACTE PRINT-VERSIE (tabel) ---------- #}
+          <div class="print-table-wrapper">
+            <div class="print-table-title">
+              {{ _('Historiek uitgaven – ') }} {{ group.name }}
+            </div>
+            <div class="print-table-meta">
+              {{ _('Totaal aantal uitgaven') }}: {{ expenses|length }}
+            </div>
 
-                <!-- Titel + categorie + totaalbedrag -->
-                <div class="expense-line-top">
-                  <div class="expense-title">
-                    {{ exp.description }}
-                  </div>
-
-                  <span class="expense-category-pill cat-{{ exp.category }}">
-                    {{ exp.category_label }}
-                  </span>
-
-                  <div class="expense-amount-right">
-                    € {{ '%.2f'|format(exp.total_amount or 0) }}
-                  </div>
-                </div>
-
-                <!-- Actieknoppen (alleen voor eigen uitgaven) -->
-                {% if exp.is_mine %}
-                  <div class="expense-actions" style="margin: 6px 0 4px;">
-                    <a href="{{ url_for('main.expense_edit',
-                                        group_id=group.group_id,
-                                        expense_id=exp.expense_id) }}"
-                       class="expense-action-link expense-action-edit">
-                      📝 {{ _('Bewerken') }}
-                    </a>
-
-                    <form method="post"
-                          action="{{ url_for('main.expense_delete',
-                                             group_id=group.group_id,
-                                             expense_id=exp.expense_id) }}"
-                          style="display:inline;">
-                      <button type="submit"
-                              class="expense-action-link expense-action-delete"
-                              onclick="return confirm('{{ _('Weet je zeker dat je deze uitgave wil verwijderen?') }}');">
-                        🗑 {{ _('Verwijderen') }}
-                      </button>
-                    </form>
-                  </div>
-                {% endif %}
-
-                <!-- Meta: betaald door / split / datum -->
-                <div class="expense-line-meta">
-
-                  <div class="expense-meta-block">
-                    <span class="expense-meta-label">💳</span>
-                    <span class="expense-meta-text">
-                      {{ _('%(payer)s betaalde', payer=exp.payer_username) }}
-                    </span>
-                  </div>
-
-                  <div class="expense-meta-block">
-                    <span class="expense-meta-label">👥</span>
-                    <span class="expense-meta-text">
+            <table class="print-table">
+              <thead>
+                <tr>
+                  <th>{{ _('Datum') }}</th>
+                  <th>{{ _('Omschrijving') }}</th>
+                  <th>{{ _('Categorie') }}</th>
+                  <th>{{ _('Betaler') }}</th>
+                  <th class="num">{{ _('Bedrag') }}</th>
+                  <th>{{ _('Verdeeld over') }}</th>
+                  <th>{{ _('Jouw positie') }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for exp in expenses %}
+                  <tr>
+                    <td>{{ exp.created_at[:10] }}</td>
+                    <td>{{ exp.description }}</td>
+                    <td>{{ exp.category_label }}</td>
+                    <td>{{ exp.payer_username }}</td>
+                    <td class="num">€ {{ '%.2f'|format(exp.total_amount or 0) }}</td>
+                    <td class="shares">
                       {% if exp.shares and exp.shares|length > 0 %}
-                        {{ _('Gesplit tussen %(n)s personen', n=exp.shares|length) }}
+                        {% for s in exp.shares %}
+                          {{ s.username }} € {{ '%.2f'|format(s.amount) }}{% if not loop.last %} · {% endif %}
+                        {% endfor %}
                       {% else %}
                         {{ _('Gelijk verdeeld over alle leden') }}
                       {% endif %}
-                    </span>
-                  </div>
+                    </td>
+                    <td>
+                      {% if exp.delta > 0 %}
+                        {{ _('Je leende uit €%(amt).2f', amt=exp.delta) }}
+                      {% elif exp.delta < 0 %}
+                        {{ _('Je leende €%(amt).2f', amt=-exp.delta) }}
+                      {% else %}
+                        {{ _('In evenwicht') }}
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
 
-                  <div class="expense-meta-block">
-                    <span class="expense-meta-label">📅</span>
-                    <span class="expense-meta-text">
-                      {{ exp.created_at[:10] }}
-                    </span>
-                  </div>
+        {% else %}
+          {# ---------- NORMALE KAART-VERSIE MET KNOPPEN IN KOLom RECHTS ---------- #}
+          <ul class="expense-list expense-list-wide">
+            {% for exp in expenses %}
+              <li class="expense-item expense-item-wide cat-{{ exp.category }}">
+                <div class="expense-main-wide">
 
-                </div>
+                  <!-- Bovenste rij: content links, knoppen rechts -->
+                  <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px;">
 
-                <!-- Shares chips -->
-                {% if exp.shares and exp.shares|length > 0 %}
-                  <div class="expense-line-shares">
-                    {% for s in exp.shares %}
-                      <span class="share-chip">
-                        <span class="share-chip-name">{{ s.username }}</span>
-                        <span class="share-chip-amount">
-                          € {{ '%.2f'|format(s.amount) }}
-                        </span>
+                    <!-- Titel + categorie + totaalbedrag -->
+                    <div class="expense-line-top" style="flex:1;">
+                      <div class="expense-title">
+                        {{ exp.description }}
+                      </div>
+
+                      <span class="expense-category-pill cat-{{ exp.category }}">
+                        {{ exp.category_label }}
                       </span>
-                    {% endfor %}
-                  </div>
-                {% else %}
-                  <div class="expense-line-shares">
-                    <span class="share-chip share-chip-soft">
-                      {{ _('Gelijk verdeeld over alle leden') }}
-                    </span>
-                  </div>
-                {% endif %}
 
-                <!-- Jouw positie: je leende uit / je leende -->
-                <div class="expense-line-you">
-                  {% if exp.delta > 0 %}
-                    <span class="you-lent">
-                      {{ _('Je leende uit €%(amt).2f', amt=exp.delta) }}
-                    </span>
-                  {% elif exp.delta < 0 %}
-                    <span class="you-borrowed">
-                      {{ _('Je leende €%(amt).2f', amt=-exp.delta) }}
-                    </span>
+                      <div class="expense-amount-right">
+                        € {{ '%.2f'|format(exp.total_amount or 0) }}
+                      </div>
+                    </div>
+
+                    <!-- Rechter kolom: knoppen onder elkaar, zelfde breedte (altijd tonen) -->
+                    <div style="
+                          display:flex;
+                          flex-direction:column;
+                          gap:8px;
+                          flex-shrink:0;
+                          width:170px;
+                          align-items:stretch;
+                        ">
+                      <a href="{{ url_for('main.expense_edit',
+                                          group_id=group.group_id,
+                                          expense_id=exp.expense_id) }}"
+                         style="
+                           display:inline-flex;
+                           justify-content:center;
+                           align-items:center;
+                           gap:6px;
+                           padding:8px 14px;
+                           border-radius:999px;
+                           border:1px solid #e5e7eb;
+                           background:#f9fafb;
+                           font-size:13px;
+                           text-decoration:none;
+                           color:#111827;
+                           box-shadow:0 6px 14px rgba(15,23,42,0.10);
+                         ">
+                        📝 {{ _('Bewerken') }}
+                      </a>
+
+                      <form method="post"
+                            action="{{ url_for('main.expense_delete',
+                                               group_id=group.group_id,
+                                               expense_id=exp.expense_id) }}"
+                            style="width:100%; margin:0;">
+                        <button type="submit"
+                                onclick="return confirm('{{ _('Weet je zeker dat je deze uitgave wil verwijderen?') }}');"
+                                style="
+                                  width:100%;
+                                  display:inline-flex;
+                                  justify-content:center;
+                                  align-items:center;
+                                  gap:6px;
+                                  padding:8px 14px;
+                                  border-radius:999px;
+                                  border:1px solid #e5e7eb;
+                                  background:#f9fafb;
+                                  font-size:13px;
+                                  cursor:pointer;
+                                  box-shadow:0 6px 14px rgba(15,23,42,0.10);
+                                  color:#111827;
+                                ">
+                          🗑 {{ _('Verwijderen') }}
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+
+                  <!-- Meta: betaald door / split / datum -->
+                  <div class="expense-line-meta" style="margin-top:6px;">
+
+                    <div class="expense-meta-block">
+                      <span class="expense-meta-label">💳</span>
+                      <span class="expense-meta-text">
+                        {{ _('%(payer)s betaalde', payer=exp.payer_username) }}
+                      </span>
+                    </div>
+
+                    <div class="expense-meta-block">
+                      <span class="expense-meta-label">👥</span>
+                      <span class="expense-meta-text">
+                        {% if exp.shares and exp.shares|length > 0 %}
+                          {{ _('Gesplit tussen %(n)s personen', n=exp.shares|length) }}
+                        {% else %}
+                          {{ _('Gelijk verdeeld over alle leden') }}
+                        {% endif %}
+                      </span>
+                    </div>
+
+                    <div class="expense-meta-block">
+                      <span class="expense-meta-label">📅</span>
+                      <span class="expense-meta-text">
+                        {{ exp.created_at[:10] }}
+                      </span>
+                    </div>
+
+                  </div>
+
+                  <!-- Shares chips -->
+                  {% if exp.shares and exp.shares|length > 0 %}
+                    <div class="expense-line-shares">
+                      {% for s in exp.shares %}
+                        <span class="share-chip">
+                          <span class="share-chip-name">{{ s.username }}</span>
+                          <span class="share-chip-amount">
+                            € {{ '%.2f'|format(s.amount) }}
+                          </span>
+                        </span>
+                      {% endfor %}
+                    </div>
                   {% else %}
-                    <span class="you-even">
-                      {{ _('Voor jou is deze uitgave in evenwicht.') }}
-                    </span>
+                    <div class="expense-line-shares">
+                      <span class="share-chip share-chip-soft">
+                        {{ _('Gelijk verdeeld over alle leden') }}
+                      </span>
+                    </div>
                   {% endif %}
-                </div>
 
-              </div>
-            </li>
-          {% endfor %}
-        </ul>
+                  <!-- Jouw positie: je leende uit / je leende -->
+                  <div class="expense-line-you">
+                    {% if exp.delta > 0 %}
+                      <span class="you-lent">
+                        {{ _('Je leende uit €%(amt).2f', amt=exp.delta) }}
+                      </span>
+                    {% elif exp.delta < 0 %}
+                      <span class="you-borrowed">
+                        {{ _('Je leende €%(amt).2f', amt=-exp.delta) }}
+                      </span>
+                    {% else %}
+                      <span class="you-even">
+                        {{ _('Voor jou is deze uitgave in evenwicht.') }}
+                      </span>
+                    {% endif %}
+                  </div>
+
+                </div>
+              </li>
+            {% endfor %}
+          </ul>
+        {% endif %}
 
       {% else %}
         <div class="empty-state">
           <h3>{{ _('Nog geen uitgaven') }}</h3>
-          <p>{{ _('Zodra er kosten zijn, verschijnen ze hier.') }}</p>
-          <a href="{{ url_for('main.expense_new', group_id=group.group_id) }}"
-             class="btn-primary">
-            {{ _('Eerste uitgave toevoegen') }}
-          </a>
+          {% if is_closed %}
+            <p>{{ _('Deze groep is gesloten en er zijn nog geen uitgaven geregistreerd.') }}</p>
+          {% else %}
+            <p>{{ _('Zodra er kosten zijn, verschijnen ze hier.') }}</p>
+            <a href="{{ url_for('main.expense_new', group_id=group.group_id) }}"
+               class="btn-primary">
+              {{ _('Eerste uitgave toevoegen') }}
+            </a>
+          {% endif %}
         </div>
       {% endif %}
     </article>
   </section>
 </main>
-{% endblock %}
 
+{% if is_print %}
+<script>
+  window.addEventListener("load", function () {
+    window.print();
+  });
+</script>
+{% endif %}
+
+{% endblock %}

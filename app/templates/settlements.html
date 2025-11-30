@@ -24,8 +24,9 @@
           ← {{ _('Terug naar groepsoverzicht') }}
         </a>
         <a href="{{ url_for('main.ledger', group_id=group.group_id) }}"
-           class="btn-ghost">
-          {{ _('Alle uitgaven bekijken') }}
+           class="btn-secondary"
+           style="padding: 10px 20px; font-size: 16px; display:flex; gap:8px; align-items:center;">
+          📊 {{ _('Alle uitgaven bekijken') }}
         </a>
       </div>
     </div>
@@ -36,62 +37,53 @@
     <article class="group-card group-expenses-card">
 
       {% if settlements %}
-        <ul class="ledger-list">
+        <ul class="settlement-list">
           {% for s in settlements %}
-            <li class="ledger-item">
-              <div class="ledger-main-row">
+            <li class="settlement-row {% if s.is_me_payer %}settlement-row-outgoing{% else %}settlement-row-incoming{% endif %}">
 
-                <div class="ledger-left">
-                  <p class="ledger-exp-title">
-                    {{ s.from_username }}
-                    <span style="font-weight:400; color:#6b7280;">
-                      {{ _('betaalt') }}
-                    </span>
-                    {{ s.to_username }}
-                  </p>
+              <!-- LINKERKANT -->
+              <div class="settlement-main">
+                <p class="settlement-users">
+                  <strong>{{ s.from_username }}</strong>
+                  <span class="settlement-arrow">→</span>
+                  <strong>{{ s.to_username }}</strong>
+                </p>
 
-                  <div class="ledger-meta-row">
-                    <span class="ledger-meta">
-                      💶 {{ _('Aanbevolen betaling om saldo’s te vereffenen') }}
-                    </span>
-                  </div>
-
-                  <p class="expense-delta">
-                    {% if s.is_me_payer %}
-                      <span class="delta-neg">
-                        {{ _('Je moet deze betaling doen.') }}
-                      </span>
-                    {% elif s.is_me_receiver %}
-                      <span class="delta-pos">
-                        {{ _('Je ontvangt dit bedrag als deze betaling gebeurt.') }}
-                      </span>
-                    {% endif %}
-                  </p>
-                </div>
-
-                <div class="ledger-right" style="text-align:right; min-width: 160px;">
-                  <div class="ledger-amount">
-                    € {{ '%.2f'|format(s.amount) }}
-                  </div>
-
-                  {% if s.settlement_id and s.is_me_payer %}
-                    <div style="margin-top:8px;">
-                      <a href="{{ url_for('main.settlement_pay',
-                                          group_id=group.group_id,
-                                          settlement_id=s.settlement_id) }}"
-                         class="btn-primary">
-                        {{ _('Betalen met bank-app') }}
-                      </a>
-                    </div>
-                  {% elif s.is_me_payer %}
-                    {# fallback: geen settlement_id (bv. tabel bestaat niet) #}
-                    <div style="margin-top:8px; font-size:12px; color:#6b7280;">
-                      {{ _('Open je banking app en maak deze betaling handmatig over.') }}
-                    </div>
+                <p class="settlement-note">
+                  {% if s.is_me_payer %}
+                    💸 {{ _('Je moet deze betaling doen.') }}
+                  {% elif s.is_me_receiver %}
+                    💶 {{ _('Je ontvangt dit bedrag wanneer de betaling gebeurt.') }}
+                  {% else %}
+                    {{ _('Aanbevolen betaling om de groep in balans te brengen.') }}
                   {% endif %}
+                </p>
+
+                <p class="settlement-info">
+                  {{ _('Aanbevolen betaling om saldo’s te vereffenen op basis van alle uitgaven en betalingen in deze groep.') }}
+                </p>
+              </div>
+
+              <!-- RECHTERKANT -->
+              <div class="settlement-side">
+                <div class="settlement-amount-card">
+                  € {{ '%.2f'|format(s.amount) }}
                 </div>
 
+                {% if s.settlement_id and s.is_me_payer %}
+                  <a href="{{ url_for('main.settlement_pay',
+                                       group_id=group.group_id,
+                                       settlement_id=s.settlement_id) }}"
+                     class="btn-settle-pay">
+                    {{ _('Betalen met bank-app') }}
+                  </a>
+                {% elif s.is_me_payer %}
+                  <p class="settlement-manual">
+                    {{ _('Open je banking app en maak deze betaling handmatig over.') }}
+                  </p>
+                {% endif %}
               </div>
+
             </li>
           {% endfor %}
         </ul>
@@ -113,4 +105,5 @@
   </section>
 </main>
 {% endblock %}
+
 

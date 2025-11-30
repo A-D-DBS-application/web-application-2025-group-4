@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <title>Overzicht uitgaven – {{ group.name }}</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 12px;
+      color: #111827;
+      margin: 24px;
+    }
+    h1 {
+      font-size: 20px;
+      margin-bottom: 4px;
+    }
+    h2 {
+      font-size: 14px;
+      margin-top: 18px;
+      margin-bottom: 6px;
+    }
+    .meta {
+      font-size: 11px;
+      color: #6b7280;
+      margin-bottom: 16px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+    }
+    th, td {
+      border: 1px solid #e5e7eb;
+      padding: 6px 8px;
+      vertical-align: top;
+    }
+    th {
+      background: #f3f4f6;
+      text-align: left;
+      font-size: 11px;
+    }
+    .right {
+      text-align: right;
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Overzicht uitgaven</h1>
+  <div class="meta">
+    Groep: <strong>{{ group.name }}</strong><br>
+    Valuta: {{ group.currency or 'EUR' }}<br>
+    Aantal uitgaven: {{ expenses|length }}
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Datum</th>
+        <th>Omschrijving</th>
+        <th>Betaler</th>
+        <th>Bedrag</th>
+        <th>Gesplit tussen</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for exp in expenses %}
+        <tr>
+          <td>{{ exp.created_at[:10] }}</td>
+          <td>{{ exp.description }}</td>
+          <td>{{ exp.payer_username }}</td>
+          <td class="right">
+            € {{ '%.2f'|format(exp.total_amount or 0) }}
+          </td>
+          <td>
+            {% if exp.shares and exp.shares|length > 0 %}
+              {% for s in exp.shares %}
+                {{ s.username }} ({{ '%.2f'|format(s.amount) }}){% if not loop.last %}, {% endif %}
+              {% endfor %}
+            {% else %}
+              Gelijk verdeeld over alle leden
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h2>Totaal per betaler (optioneel)</h2>
+  <p style="font-size:11px; color:#6b7280;">
+    Als je wil, kunnen we hier later nog een samenvatting per persoon inbouwen.
+  </p>
+
+</body>
+</html>

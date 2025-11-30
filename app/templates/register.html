@@ -18,11 +18,12 @@
     </ul>
 
     <p class="auth-switch">
-  {{ _('Already have an account?') }}
-  <a href="{{ url_for('main.login') }}" class="btn-pill-ghost" style="margin-left:6px;">
-    {{ _('Log in here') }}
-  </a>
-</p>
+      {{ _('Already have an account?') }}
+      <a href="{{ url_for('main.login') }}" class="btn-pill-ghost" style="margin-left:6px;">
+        {{ _('Log in here') }}
+      </a>
+    </p>
+  </div>
 
   <div class="auth-card">
     <h2>{{ _('Register') }}</h2>
@@ -69,3 +70,4 @@
   </div>
 </section>
 {% endblock %}
+

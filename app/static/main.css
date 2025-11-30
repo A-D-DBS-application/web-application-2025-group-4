@@ -2714,11 +2714,22 @@ button:focus-visible,
 .expense-category-pill {
   display: inline-flex;
   align-items: center;
-  padding: 4px 10px;
+  justify-content: center;
+  padding: 4px 12px;
   border-radius: 999px;
-  font-size: 12px;
-  font-weight: 600;
-  margin-left: 8px;
+
+  font-size: 13px;
+  font-weight: 500;
+
+  /* BELANGRIJK: geen vaste breedte */
+  width: auto;
+  min-width: 0;
+  flex: 0 0 auto;
+
+  /* je bestaande kleuren mag je laten staan of hier opnieuw zetten */
+  /* voorbeeld: */
+  /* background: #e5edff; */
+  /* color: #1d4ed8; */
 }
 
 /* Basisstijl */
@@ -2728,15 +2739,6 @@ button:focus-visible,
 }
 
 
-.expense-category-pill {
-  display: inline-flex;
-  align-items: center;
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 600;
-  margin-left: 8px;
-}
 
 
 /* Je-positie bij een uitgave */
@@ -3056,16 +3058,6 @@ button:focus-visible,
   background: #22c55e; /* default */
 }
 
-/* pill */
-.expense-category-pill {
-  display: inline-flex;
-  align-items: center;
-  padding: 4px 14px;
-  border-radius: 999px;
-  font-size: 13px;
-  font-weight: 600;
-  background: #e5f3ff;
-}
 
 /* ---------- Per categorie ---------- */
 
@@ -3244,4 +3236,1785 @@ button:focus-visible,
 .group-expenses-card .expense-line-you {
   margin-top: 4px;
   font-size: 13px;
+}
+/* Settlement pay layout */
+.settlement-card .settle-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: 32px;
+  align-items: flex-start;
+}
+
+.settle-left {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.settle-text {
+  font-size: 14px;
+  color: #475569;
+}
+
+.settle-list {
+  margin: 0 0 6px;
+  padding-left: 18px;
+  font-size: 14px;
+  color: #4b5563;
+}
+
+.settle-hint {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.settle-right {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.settle-card-amount {
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #ecfdf3, #f9fafb);
+  border: 1px solid #bbf7d0;
+}
+
+.settle-amount {
+  font-size: 28px;
+  font-weight: 800;
+  margin: 4px 0 6px;
+}
+
+.settle-line {
+  margin: 0;
+  font-size: 14px;
+  color: #4b5563;
+}
+
+.settle-block {
+  padding: 10px 14px;
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+}
+
+.settle-help {
+  margin: 0 0 6px;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.settle-note {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.settle-qr {
+  margin-top: 6px;
+  width: 200px;
+  height: 200px;
+  border-radius: 18px;
+  border: 1px dashed #e5e7eb;
+  background: #f9fafb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.link-back {
+  font-size: 13px;
+  color: #0f766e;
+  text-decoration: none;
+  margin-top: 6px;
+}
+.link-back:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 900px) {
+  .settlement-card .settle-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.settle-qr-box {
+  width: 260px;
+  height: 260px;
+  border-radius: 24px;
+  background: #f9fafb;
+  border: 1px dashed rgba(148, 163, 184, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.settle-qr-img {
+  max-width: 90%;
+  max-height: 90%;
+  display: block;
+}
+
+.settle-qr-placeholder {
+  font-size: 13px;
+  color: #9ca3af;
+  text-align: center;
+  padding: 0 12px;
+}
+/* ===========================
+   SCHULD VEREFFENEN – PAY VIEW
+   =========================== */
+
+/* Hele pagina wat specialer maken */
+.settlement-page {
+  position: relative;
+  padding-bottom: 48px;
+  background: radial-gradient(circle at top left, #bbf7d0 0, transparent 45%),
+              radial-gradient(circle at bottom right, #bfdbfe 0, transparent 50%);
+}
+
+/* Hero bovenaan */
+.settlement-page .group-hero {
+  margin-bottom: 0;
+}
+
+.settlement-page .group-hero-main {
+  position: relative;
+  padding: 22px 24px;
+  border-radius: 22px;
+  background: linear-gradient(135deg, #ecfdf3, #e0f2fe);
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.15);
+  overflow: hidden;
+}
+
+.settlement-page .group-title {
+  font-size: 32px;
+  letter-spacing: -0.04em;
+}
+
+.settlement-page .group-sub {
+  max-width: 520px;
+}
+
+/* Klein “glow”-accent rechtsboven */
+.settlement-page .group-hero-main::after {
+  content: "";
+  position: absolute;
+  right: -60px;
+  top: -60px;
+  width: 180px;
+  height: 180px;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(34,197,94,.4), transparent 60%);
+  opacity: .6;
+}
+
+/* Kaart in de body */
+.settlement-card {
+  margin-top: 26px;
+  border-radius: 26px;
+  padding: 26px 26px 24px;
+  background: rgba(248, 250, 252, 0.96);
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  backdrop-filter: blur(8px);
+}
+
+/* Twee kolommen: uitleg links – acties rechts */
+.settle-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.95fr);
+  gap: 32px;
+}
+
+.settle-left {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.settle-text {
+  margin: 0;
+  font-size: 15px;
+  color: #111827;
+}
+
+.settle-list {
+  margin: 0;
+  padding-left: 20px;
+  color: #4b5563;
+  font-size: 14px;
+}
+
+.settle-list li + li {
+  margin-top: 4px;
+}
+
+.settle-hint {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.link-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 14px;
+  font-size: 14px;
+  color: #0f766e;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.link-back:hover {
+  text-decoration: underline;
+}
+
+/* Rechterkolom */
+.settle-right {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* Bedragskaart */
+.settle-card-amount {
+  border-radius: 20px;
+  padding: 18px 18px 16px;
+  background: linear-gradient(135deg, #ecfdf3, #dcfce7);
+  border: 1px solid rgba(34, 197, 94, 0.25);
+  box-shadow: 0 16px 40px rgba(22, 163, 74, 0.22);
+}
+
+.settle-card-amount h2 {
+  margin: 0 0 10px;
+  font-size: 20px;
+  color: #14532d;
+}
+
+.settle-amount {
+  margin: 0 0 8px;
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #166534;
+}
+
+.settle-line {
+  margin: 0;
+  font-size: 14px;
+  color: #064e3b;
+}
+
+/* Betaalblok (paylink) */
+.settle-block {
+  border-radius: 18px;
+  padding: 16px 16px 14px;
+  background: #ffffff;
+  border: 1px dashed rgba(148, 163, 184, 0.65);
+}
+
+.settle-block h3 {
+  margin: 0 0 4px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.settle-help {
+  margin: 0 0 10px;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+/* Grote groene knop nog wat extra flair geven */
+.settlement-page .btn-primary.btn-full {
+  justify-content: center;
+  font-size: 15px;
+  padding-block: 11px;
+  box-shadow: 0 18px 40px rgba(16, 185, 129, 0.45);
+  transform: translateY(0);
+  transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+}
+
+.settlement-page .btn-primary.btn-full:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 22px 50px rgba(16, 185, 129, 0.6);
+  filter: brightness(1.03);
+}
+
+.settle-note {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+/* Responsief */
+@media (max-width: 900px) {
+  .settle-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .settlement-card {
+    padding: 18px 16px;
+  }
+
+  .settle-card-amount {
+    order: -1;
+  }
+}
+/* ===========================
+   SCHULDENOVERZICHT – LAYOUT
+   =========================== */
+
+.settlements-page {
+  position: relative;
+}
+
+/* Hero iets opvallender */
+.settlements-page .group-hero-main {
+  padding: 22px 24px;
+  border-radius: 22px;
+  background: linear-gradient(135deg, #eef2ff, #f5f3ff);
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.12);
+}
+
+/* Container voor lijst met settlements */
+.settlements-page .group-body {
+  margin-top: 26px;
+}
+
+/* Als je lijst een <ul> heeft, geef die gewoon deze class in je template:
+   <ul class="settlement-list">… */
+.settlement-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Eén rij in het overzicht */
+.settlement-row {
+  border-radius: 22px;
+  padding: 16px 22px;
+  background: #ffffff;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.06);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 18px;
+}
+
+/* Linkerkant van de rij (namen + tekst) */
+.settlement-main {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.settlement-main-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.settlement-main-note {
+  margin: 0;
+  font-size: 13px;
+}
+
+/* Je moet betalen = rood accent; iemand anders moet betalen = groen */
+.settlement-row-outgoing .settlement-main-note {
+  color: #b91c1c;
+}
+
+.settlement-row-incoming .settlement-main-note {
+  color: #166534;
+}
+
+/* Rechterkant: bedrag + knop */
+.settlement-side {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.settlement-amount-badge {
+  min-width: 120px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #ecfdf3;
+  color: #15803d;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+/* Knop nog wat opvallender in dit overzicht */
+.settlements-page .settlement-row .btn-primary {
+  white-space: nowrap;
+  box-shadow: 0 14px 30px rgba(16, 185, 129, 0.45);
+  padding-inline: 18px;
+}
+
+.settlements-page .settlement-row .btn-primary:hover {
+  box-shadow: 0 18px 40px rgba(16, 185, 129, 0.6);
+}
+
+/* Responsief: op mobiel stapel je alles onder elkaar */
+@media (max-width: 768px) {
+  .settlement-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .settlement-side {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .settlement-amount-badge {
+    flex: 1;
+    text-align: left;
+  }
+
+  .settlements-page .settlement-row .btn-primary {
+    flex-shrink: 0;
+  }
+}
+/* -------- Settlement lijst ---------- */
+
+.settlement-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.settlement-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 24px;
+  border-radius: 20px;
+  border: 1px solid rgba(148, 163, 184, .35);
+  background: #ffffff;
+  box-shadow: 0 12px 30px rgba(15,23,42,.08);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.settlement-row:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 40px rgba(15,23,42,.12);
+}
+
+/* Kleuraccent links */
+.settlement-row-outgoing {
+  border-left: 6px solid #ef4444; /* rood -> jij moet betalen */
+}
+
+.settlement-row-incoming {
+  border-left: 6px solid #22c55e; /* groen -> jij ontvangt */
+}
+
+/* Tekst links */
+.settlement-main {
+  flex: 1;
+}
+
+.settlement-users {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 4px 0;
+  color: #0f172a;
+}
+
+.settlement-arrow {
+  margin: 0 8px;
+  color: #64748b;
+}
+
+.settlement-note {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.settlement-info {
+  margin: 4px 0 0 0;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+/* Bedrag rechts */
+
+.settlement-side {
+  text-align: right;
+  min-width: 180px;
+}
+
+.settlement-amount-card {
+  background: #f1f5f9;
+  padding: 8px 16px;
+  font-size: 18px;
+  font-weight: 800;
+  border-radius: 12px;
+  color: #0f172a;
+  display: inline-block;
+  margin-bottom: 8px;
+}
+
+/* Betaalknop */
+
+.btn-settle-pay {
+  background: #22c55e;
+  color: white;
+  padding: 10px 18px;
+  font-weight: 600;
+  border-radius: 12px;
+  text-decoration: none;
+  display: inline-block;
+  transition: background .2s ease, box-shadow .2s ease;
+}
+
+.btn-settle-pay:hover {
+  background: #16a34a;
+  box-shadow: 0 6px 20px rgba(22, 163, 74, .4);
+}
+
+.settlement-manual {
+  font-size: 12px;
+  color: #64748b;
+  margin: 0;
+}
+/* --- Expense page extra styling --- */
+
+.expense-left {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Kaartje met illustratie */
+.expense-hero-card {
+  margin-top: 18px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: radial-gradient(circle at top left, #e0f2fe 0, #f1f5f9 40%, #ffffff 100%);
+  border: 1px solid #e2e8f0;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.expense-hero-image img {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+}
+
+.expense-hero-copy h2 {
+  font-size: 15px;
+  font-weight: 700;
+  margin: 0 0 4px 0;
+  color: #0f172a;
+}
+
+.expense-hero-copy p {
+  font-size: 13px;
+  margin: 0;
+  color: #475569;
+}
+
+/* Rechts: kaartje iets meer "homepage" gevoel */
+.expense-card {
+  background: linear-gradient(135deg, #f8fafc 0, #ffffff 40%, #ecfdf3 100%);
+  border-radius: 24px;
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+  border: 1px solid #e2e8f0;
+}
+
+/* Select voor categorie */
+.expense-select {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid #d4d4d8;
+  font-size: 14px;
+  background-color: #fff;
+}
+
+/* Hulptekstjes */
+.field-help {
+  font-size: 13px;
+  color: #64748b;
+}
+
+/* Split-toggle als segment-control */
+.split-mode-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.split-pill {
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  background: #ffffff;
+  padding: 10px 12px;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.05s ease;
+}
+
+.split-pill-inner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.split-pill-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  flex-shrink: 0;
+}
+
+.split-pill-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.split-pill-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.split-pill-sub {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.split-pill:hover {
+  border-color: #cbd5f5;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+  transform: translateY(-1px);
+}
+
+.split-pill.active {
+  background: radial-gradient(circle at top left, #d1fae5 0, #ecfdf3 40%, #ffffff 100%);
+  border-color: #22c55e;
+}
+
+.split-pill.active .split-pill-icon {
+  background: #bbf7d0;
+  color: #16a34a;
+}
+
+/* Amount per person layout */
+.shares-grid {
+  display: grid;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.share-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 12px;
+  background: #f9fafb;
+}
+
+.share-meta {
+  flex: 1;
+}
+
+.share-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.share-input-wrap {
+  width: 120px;
+}
+
+.share-input {
+  width: 100%;
+  padding: 6px 8px;
+  border-radius: 10px;
+  border: 1px solid #d4d4d8;
+  font-size: 14px;
+  text-align: right;
+}
+
+/* Samenvatting-box */
+.share-summary-box {
+  margin-top: 10px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  color: #0f172a;
+}
+
+.share-summary-row {
+  display: flex;
+  justify-content: space-between;
+}
+
+.share-summary-value {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+/* Kleine tweak voor mobiel */
+@media (max-width: 768px) {
+  .split-mode-toggle {
+    grid-template-columns: 1fr;
+  }
+
+  .expense-hero-card {
+    flex-direction: row;
+  }
+}
+/* --------------------------------------------------------------------
+   EXPENSE PAGE – BACKGROUND & LAYOUT
+-------------------------------------------------------------------- */
+
+.expense-bg {
+  background:
+    radial-gradient(circle at top left, #bbf7d0 0%, #e0f2fe 40%, #f9fafb 80%, #ffffff 100%);
+  min-height: 100vh;
+  padding-bottom: 40px;
+}
+
+
+/* Linkerkant (titel/tekst) met zachte glow */
+.expense-left {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px;
+  border-radius: 20px;
+  background: linear-gradient(
+    135deg,
+    #f0f9ff66 0%,
+    #ffffff00 70%
+  );
+}
+
+/* Illustratie boven hero-card */
+.expense-hero-illustration {
+  width: 240px;
+  margin: 10px 0 25px 0;
+  display: block;
+  opacity: 0.95;
+}
+
+/* Klein info-cardje onder bullets */
+.expense-hero-card {
+  margin-top: 4px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: radial-gradient(
+    circle at top left,
+    #e0f2fe 0,
+    #f1f5f9 40%,
+    #ffffff 100%
+  );
+  border: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+}
+
+.expense-hero-copy h2 {
+  font-size: 15px;
+  font-weight: 700;
+  margin: 0 0 4px 0;
+  color: #0f172a;
+}
+
+.expense-hero-copy p {
+  font-size: 13px;
+  margin: 0;
+  color: #475569;
+}
+
+/* Rechts – form card met lichte waas / glassy look */
+.expense-card {
+  background: linear-gradient(
+    135deg,
+    #ffffffee 0%,
+    #f2fbffcc 40%,
+    #f1fdf5cc 100%
+  );
+  backdrop-filter: blur(12px);
+  border-radius: 26px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+}
+
+/* Category select */
+.expense-select {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid #d4d4d8;
+  font-size: 14px;
+  background-color: #ffffff;
+}
+
+.field-help {
+  font-size: 13px;
+  color: #64748b;
+}
+
+/* --------------------------------------------------------------------
+   SPLIT TOGGLE – Equal vs Custom
+-------------------------------------------------------------------- */
+
+.split-mode-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.split-pill {
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  background: #ffffff;
+  padding: 10px 12px;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.05s ease;
+}
+
+.split-pill-inner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.split-pill-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  flex-shrink: 0;
+}
+
+.split-pill-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.split-pill-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.split-pill-sub {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.split-pill:hover {
+  border-color: #cbd5f5;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+  transform: translateY(-1px);
+}
+
+.split-pill.active {
+  background: radial-gradient(
+    circle at top left,
+    #d1fae5 0,
+    #ecfdf3 40%,
+    #ffffff 100%
+  );
+  border-color: #22c55e;
+}
+
+.split-pill.active .split-pill-icon {
+  background: #bbf7d0;
+  color: #16a34a;
+}
+
+/* --------------------------------------------------------------------
+   PER-PERSON INPUTS & SUMMARY
+-------------------------------------------------------------------- */
+
+.shares-grid {
+  display: grid;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.share-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 12px;
+  background: #f9fafb;
+}
+
+.share-meta {
+  flex: 1;
+}
+
+.share-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.share-input-wrap {
+  width: 120px;
+}
+
+.share-input {
+  width: 100%;
+  padding: 6px 8px;
+  border-radius: 10px;
+  border: 1px solid #d4d4d8;
+  font-size: 14px;
+  text-align: right;
+}
+
+.share-summary-box {
+  margin-top: 10px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  color: #0f172a;
+}
+
+.share-summary-row {
+  display: flex;
+  justify-content: space-between;
+}
+
+.share-summary-value {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+/* --------------------------------------------------------------------
+   RESPONSIVE
+-------------------------------------------------------------------- */
+
+@media (max-width: 768px) {
+  .split-mode-toggle {
+    grid-template-columns: 1fr;
+  }
+
+  .expense-hero-illustration {
+    width: 180px;
+    margin-bottom: 18px;
+  }
+
+  .expense-left {
+    padding: 16px;
+  }
+}
+.expense-shell {
+  margin-top: 32px;
+  padding: 24px 26px;
+  border-radius: 28px;
+  background: radial-gradient(
+    circle at top left,
+    #ecfdf5 0%,
+    #f0f9ff 40%,
+    #ffffff 100%
+  );
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.16);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+}
+.expense-left {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px;
+  border-radius: 20px;
+  background: linear-gradient(
+    135deg,
+    #d1fae566 0%,
+    #f0f9ff55 40%,
+    #ffffff00 100%
+  );
+}
+
+/* ===========================
+   EXPENSE NEW – HERO LAYOUT
+   =========================== */
+
+/* VOLLEDIGE ACHTERGROND VAN DE PAGINA */
+.auth-page.expense-bg {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  padding: 48px 24px;
+  background: #e5f2ff; /* neutrale achtergrond buiten de kaart */
+  position: relative;
+}
+
+/* geen extra schijn meer buiten de kaart */
+.auth-page.expense-bg::before {
+  content: none;
+}
+
+
+/* illustratie links onderaan */
+.expense-hero-illustration {
+  width: 190px;
+  max-width: 100%;
+  border-radius: 24px;
+  margin-top: 26px;
+  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.25);
+}
+
+/* --------------------------------------------
+   UNIFIED GRADIENT CARD (LEFT + RIGHT PANEL)
+   -------------------------------------------- */
+.auth-shell.expense-shell {
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: 0;
+
+  padding: 48px 48px 40px;
+  border-radius: 32px;
+
+  background: linear-gradient(
+    135deg,
+    #ecfdf3 0%,
+    #e8f6ff 50%,
+    #eef7ff 100%
+  ); /* LICHTERE blend */
+  
+  box-shadow: 0 32px 80px rgba(15, 23, 42, 0.12);
+  overflow: hidden;
+}
+
+
+/* --------------------------------------------
+   LINKERPANEEL (nu transparant want gradient is GLOBAL)
+   -------------------------------------------- */
+.expense-left {
+  padding-right: 32px;
+}
+
+.expense-hero-illustration {
+  display: none; /* afbeelding verwijderd */
+}
+
+.expense-hero-card {
+  margin-top: 24px;
+  background: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 12px 40px rgba(15, 23, 42, 0.15);
+  border-radius: 24px;
+}
+
+
+/* --------------------------------------------
+   RECHTER FORM (ook transparant → hangt in gradient)
+   -------------------------------------------- */
+.auth-card.expense-card {
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 0;
+  padding-left: 32px;
+  padding-right: 8px;
+}
+
+
+
+
+
+/* pill bovenaan */
+.auth-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 18px;
+  border-radius: 999px;
+  background: #ecfdf3;
+  color: #16a34a;
+  font-weight: 600;
+  font-size: 0.95rem;
+  box-shadow: 0 10px 30px rgba(22, 163, 74, 0.15);
+}
+
+/* titel + accent */
+.auth-title {
+  font-size: 2.4rem;
+  line-height: 1.15;
+  font-weight: 800;
+  color: #020617;
+  margin: 14px 0 16px;
+}
+
+.auth-title .accent-text {
+  display: block;
+  color: #16a34a;
+}
+
+/* lead tekst */
+.auth-lead {
+  max-width: 460px;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #475569;
+  margin-bottom: 18px;
+}
+
+/* checklist */
+.auth-benefits {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.auth-benefits li {
+  font-size: 0.98rem;
+  color: #0f172a;
+}
+
+/* grote illustratie (de PNG) */
+.expense-hero-illustration {
+  width: 260px;
+  max-width: 100%;
+  border-radius: 24px;
+  margin-top: 10px;
+  box-shadow: 0 22px 60px rgba(15, 23, 42, 0.23);
+}
+
+/* kaart onderaan “Keep your trip fair & transparent” */
+.expense-hero-card {
+  margin-top: 22px;
+  display: flex;
+  align-items: center;
+  padding: 14px 18px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #f0f9ff, #ecfdf3);
+  box-shadow: 0 12px 40px rgba(15, 23, 42, 0.15);
+  max-width: 480px;
+}
+
+.expense-hero-copy h2 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 4px;
+}
+
+.expense-hero-copy p {
+  font-size: 0.9rem;
+  margin: 0;
+  color: #64748b;
+}
+
+/* ===========================
+   RECHTERKANT (FORM CARD)
+   =========================== */
+
+
+.auth-card-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #020617;
+  margin-bottom: 4px;
+}
+
+.auth-card-sub {
+  font-size: 0.95rem;
+  color: #6b7280;
+}
+
+/* velden in het formulier */
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.auth-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.95rem;
+  color: #0f172a;
+}
+
+.auth-field span {
+  font-weight: 600;
+}
+
+.auth-field input[type="text"],
+.auth-field input[type="number"],
+.auth-field select {
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  padding: 10px 12px;
+  font-size: 0.95rem;
+  outline: none;
+  background: #f8fafc;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.auth-field input:focus,
+.auth-field select:focus {
+  border-color: #22c55e;
+  box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.3);
+  background: #ffffff;
+}
+
+.field-help {
+  font-size: 0.8rem;
+  color: #9ca3af;
+}
+
+/* ===========================
+   SPLIT TOGGLE
+   =========================== */
+
+.split-mode-toggle {
+  display: flex;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.split-pill {
+  flex: 1;
+  border-radius: 999px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  padding: 7px 10px;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.split-pill-inner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.split-pill-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+}
+
+.split-pill-text {
+  text-align: left;
+}
+
+.split-pill-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.split-pill-sub {
+  font-size: 0.78rem;
+  color: #94a3b8;
+}
+
+/* actieve toestand */
+.split-pill.active {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  border-color: transparent;
+  box-shadow: 0 10px 25px rgba(34, 197, 94, 0.55);
+}
+
+.split-pill.active .split-pill-icon {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.split-pill.active .split-pill-title,
+.split-pill.active .split-pill-sub {
+  color: #f9fafb;
+}
+
+/* ===========================
+   PER-PERSON SHARES
+   =========================== */
+
+.shares-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.share-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) 110px;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 14px;
+  background: #f9fafb;
+}
+
+.avatar-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  background: #e0f2fe;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #0369a1;
+}
+
+.share-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.share-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.share-input-wrap {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.share-input {
+  width: 100%;
+  max-width: 110px;
+  border-radius: 12px;
+  border: 1px solid #dbe2eb;
+  padding: 6px 8px;
+  font-size: 0.9rem;
+  text-align: right;
+  background: #ffffff;
+}
+
+/* samenvatting onderaan */
+.share-summary-box {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.88rem;
+}
+
+.share-summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.share-summary-value {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+/* ===========================
+   BUTTONS & LINKS
+   =========================== */
+
+.btn-primary.btn-full {
+  width: 100%;
+  border-radius: 999px;
+  border: none;
+  padding: 11px 16px;
+  font-size: 0.98rem;
+  font-weight: 600;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: #f9fafb;
+  cursor: pointer;
+  box-shadow: 0 18px 40px rgba(22, 163, 74, 0.45);
+  transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.1s ease;
+}
+
+.btn-primary.btn-full:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.03);
+  box-shadow: 0 22px 50px rgba(22, 163, 74, 0.55);
+}
+
+.btn-primary.btn-full:active {
+  transform: translateY(0);
+  box-shadow: 0 12px 28px rgba(22, 163, 74, 0.4);
+}
+
+.auth-tiny {
+  margin-top: 8px;
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+/* ===========================
+   RESPONSIVE
+   =========================== */
+
+@media (max-width: 960px) {
+  .auth-shell.expense-shell {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .expense-left {
+    padding: 28px 24px 20px;
+  }
+
+  .auth-card.expense-card {
+    padding: 24px 20px 20px;
+  }
+}
+
+
+@media (max-width: 640px) {
+    .auth-page.expense-bg {
+    padding: 24px 16px;
+  }
+
+  .auth-title {
+    font-size: 2rem;
+  }
+
+  .expense-hero-illustration {
+    width: 220px;
+  }
+
+  .split-mode-toggle {
+    flex-direction: column;
+  }
+
+  .share-row {
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-rows: auto auto;
+  }
+
+  .share-input-wrap {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+  }
+
+}
+
+/* Settlement-pay: geen groene gradient-achtergrond */
+.group-page.settlement-page {
+  background: #f1f5f9;   /* of #ffffff, kies wat je wilt */
+}
+
+/* Eventuele glow-lagen uitschakelen */
+.group-page.settlement-page::before,
+.group-page.settlement-page::after {
+  display: none;
+  content: none;
+}
+
+/* EDIT BUTTON */
+.btn-edit {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #475569;
+  padding: 6px 10px;
+  border-radius: 10px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  transition: all 150ms ease;
+}
+
+.btn-edit:hover {
+  background: #e2e8f0;
+  color: #334155;
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
+}
+
+/* DELETE BUTTON */
+.btn-delete {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 50px;
+  color: #ffffff;
+  background: linear-gradient(135deg, #22c55e, #16a34a, #4ade80);
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 12px 22px rgba(22, 163, 74, 0.35);
+  transition: all 180ms ease;
+}
+
+.btn-delete:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 30px rgba(22, 163, 74, 0.45);
+}
+
+.btn-delete:active {
+  transform: translateY(1px);
+  box-shadow: 0 8px 18px rgba(22, 163, 74, 0.35);
+}
+
+.group-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.group-status-closed {
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+/* Basistag (bestaat waarschijnlijk al, maar kan zo blijven) */
+.group-tag {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid transparent;
+}
+
+/* Open groep */
+.group-tag-open {
+  background: rgba(34, 197, 94, 0.10);  /* licht groen */
+  color: #15803d;
+  border-color: rgba(34, 197, 94, 0.35);
+}
+
+/* Gesloten groep */
+.group-tag-closed {
+  background: rgba(148, 163, 184, 0.12); /* soft grijs */
+  color: #475569;
+  border-color: rgba(148, 163, 184, 0.5);
+}
+
+/* Hele kaart van een gesloten groep iets “archived” laten lijken */
+.group-card-closed {
+  opacity: 0.8;
+  background: #f9fafb;
+}
+
+.group-card-closed:hover {
+  opacity: 1;
+}
+/* --- Compactere recentste uitgaven --- */
+.recent-exp-card {
+    border-radius: 14px;
+    padding: 14px 18px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+/* --- Titel netjes --- */
+.recent-exp-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #111827;
+}
+
+
+
+/* Maak de container van de recente uitgaven breder */
+.group-recent-card {
+    width: 100%;
+}
+
+
+.recent-exp-card {
+  width: 100%;           /* vult volledige linkerkolom */
+  max-width: none;       /* geen beperking meer */
+  box-sizing: border-box;
+
+  border-radius: 16px;
+  padding: 14px 18px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.06);
+  margin-bottom: 14px;
+}
+
+.recent-exp-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+.recent-exp-amount {
+    font-weight: 700;
+    color: #111827 !important;  /* donker zwartgrijs */
+}
+/* =========================================
+   RECENTSTE UITGAVEN – FULL WIDTH RECTANGLES
+   ========================================= */
+
+/* 1) Zorg dat de linkse kaart alle ruimte van de kolom gebruikt */
+.group-body .group-recent-card {
+  width: 100% !important;
+  max-width: none !important;
+}
+
+.group-recent-card .recent-exp-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+
+.group-body .group-recent-card .recent-exp-card {
+  width: 100%;
+  box-sizing: border-box;
+
+  /* meer rechthoekig en strak */
+  border-radius: 12px;
+  padding: 14px 18px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.06);
+}
+
+/* 3) Titel – categorie – bedrag mooi op één lijn */
+.group-body .group-recent-card .recent-exp-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+/* 4) Bedrag in zwart, niet meer in groen */
+.group-body .group-recent-card .recent-exp-amount {
+  font-weight: 700;
+  color: #111827 !important;
+}
+/* =========================================
+   OVERRIDE: CATEGORY PILL BREEDTE
+   ========================================= */
+.expense-category-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 500;
+
+  /* BELANGRIJK: geen vaste breedtes meer */
+  width: auto !important;
+  min-width: 0 !important;
+  flex: 0 0 auto !important;
+}
+/* =========================================
+   OVERRIDE: RECENTSTE UITGAVEN KAARTJES
+   ========================================= */
+.group-body .group-recent-card {
+  width: 100% !important;
+  max-width: none !important;
+}
+
+/* kaartjes zelf: volle breedte van de linkerkolom */
+.group-body .group-recent-card .recent-exp-card {
+  display: block;
+  width: 100% !important;
+  max-width: none !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  box-sizing: border-box;
+
+  border-radius: 12px;
+  padding: 14px 18px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.06);
+}
+/* =========================================
+   OVERRIDE: GROUP CARDS IN DE BODY = FULL WIDTH
+   ========================================= */
+
+.group-body .group-card {
+  max-width: none !important;   /* geen vaste max-breedte meer */
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  width: 100% !important;
+  box-sizing: border-box;
 }

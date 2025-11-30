@@ -24,7 +24,10 @@
       <div class="container-fluid">
 
         <!-- Logo + naam -->
-        <a href="{{ url_for('main.home') }}" class="navbar-brand d-flex align-items-center brand-link">
+        <a
+          href="{% if session.get('users_id') %}{{ url_for('main.dashboard') }}{% else %}{{ url_for('main.home') }}{% endif %}"
+          class="navbar-brand d-flex align-items-center brand-link"
+        >
           <img
             src="{{ url_for('static', filename='fairsplitplus-logo.svg') }}"
             alt="FairSplit+ logo"

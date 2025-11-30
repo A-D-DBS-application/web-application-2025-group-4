@@ -1,6 +1,7 @@
 # app/model.py
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
+from datetime import date
 
 db = SQLAlchemy()
 
@@ -83,4 +84,18 @@ class Payment(db.Model):
     is_active = db.Column(db.Boolean, default=True)
 
  
- 
+class Group(db.Model):
+    __tablename__ = "groups"
+    # je bestaande kolommen:
+    # id, name, start_date, end_date, ...
+
+    @property
+    def is_closed(self) -> bool:
+        """
+        Groep is gesloten zodra er een einddatum is
+        én die einddatum in het verleden ligt.
+        """
+        if self.end_date is None:
+            return False
+        # als start_date / end_date al type date zijn is dit perfect
+        return self.end_date < date.today()
