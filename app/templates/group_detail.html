@@ -75,6 +75,16 @@
           📄 {{ _('Overzicht in PDF') }}
         </a>
 
+        {# NIEUW: WhatsApp invite knop #}
+        <a href="{{ whatsapp_link }}"
+           target="_blank"
+           rel="noopener"
+           class="btn-secondary"
+           style="display:inline-flex; align-items:center; gap:8px;">
+          <span>📲</span>
+          <span>{{ _('Invite via WhatsApp') }}</span>
+        </a>
+
         <button type="button"
                 class="btn-pill-ghost"
                 onclick="navigator.clipboard.writeText('{{ group.join_code }}');">
@@ -88,7 +98,7 @@
         </p>
       {% else %}
         <p class="hint-text">
-          {{ _('Deel de code met vrienden om hen snel toe te voegen aan deze groep.') }}
+          {{ _('Deel de code of WhatsApp-link met vrienden om hen snel toe te voegen aan deze groep.') }}
         </p>
       {% endif %}
     </div>

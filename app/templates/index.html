@@ -8,15 +8,26 @@
 
     <!-- BANNER -->
     <section class="dash-banner">
-      <p class="dash-pill">{{ _('Welcome back') }} 👋</p>
+      <div class="dash-banner-header" style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px;">
+        <div>
+          <p class="dash-pill">{{ _('Welcome back') }} 👋</p>
 
-      <h1 class="dash-title">
-        {{ user.name }}, <span class="accent-text">{{ _('good to see you again') }}</span>
-      </h1>
+          <h1 class="dash-title">
+            {{ user.name }}, <span class="accent-text">{{ _('good to see you again') }}</span>
+          </h1>
 
-      <p class="dash-sub">
-        {{ _('Overview of your groups, trips and friends you bankrupt 😅') }}
-      </p>
+          <p class="dash-sub">
+            {{ _('Overview of your groups, trips and friends you bankrupt 😅') }}
+          </p>
+        </div>
+
+        <button type="button"
+                id="btn-feedback-open"
+                class="btn-pill-ghost"
+                style="white-space:nowrap; margin-top:4px;">
+          💬 {{ _('Give feedback') }}
+        </button>
+      </div>
     </section>
 
     <!-- MAIN LAYOUT -->
@@ -112,4 +123,122 @@
 
   </section>
 </div>
+
+<!-- GLOBAL FEEDBACK OVERLAY -->
+<div id="feedback-overlay"
+     style="
+       display:none;
+       position:fixed;
+       inset:0;
+       background:rgba(15,23,42,0.45);
+       z-index:60;
+       display:none;
+       align-items:center;
+       justify-content:center;
+       padding:16px;
+     ">
+  <div style="
+        max-width:520px;
+        width:100%;
+        border-radius:20px;
+        background:#ffffff;
+        box-shadow:0 24px 80px rgba(15,23,42,0.35);
+        border:1px solid #e5e7eb;
+        padding:22px 22px 18px;
+      ">
+    <form method="post" action="{{ url_for('main.global_feedback') }}">
+      <h2 style="font-size:20px; font-weight:700; color:#0f172a; margin-bottom:6px;">
+        {{ _('Share your feedback') }}
+      </h2>
+      <p style="font-size:14px; color:#6b7280; margin-bottom:14px;">
+        {{ _('Tell us what went well and what could be better. Your feedback helps improve FairSplit+.') }}
+      </p>
+
+      <label class="feedback-label" style="display:block; margin-bottom:14px;">
+        <span style="display:block; font-size:13px; font-weight:600; color:#0f172a; margin-bottom:6px;">
+          {{ _('Your message') }}
+        </span>
+        <textarea name="feedback"
+                  rows="5"
+                  placeholder="{{ _('What went well? What could be better?') }}"
+                  required
+                  style="
+                    width:100%;
+                    resize:vertical;
+                    min-height:120px;
+                    border-radius:14px;
+                    border:1px solid #d4d4d8;
+                    padding:10px 12px;
+                    font-size:14px;
+                    font-family:inherit;
+                    outline:none;
+                    background:#f9fafb;
+                  "
+                  onfocus="this.style.background='#ffffff'; this.style.borderColor='#22c55e';"
+                  onblur="this.style.background='#f9fafb'; this.style.borderColor='#d4d4d8';"></textarea>
+      </label>
+
+      <div class="feedback-actions"
+           style="display:flex; justify-content:flex-end; gap:10px; margin-top:6px;">
+        <button type="button"
+                id="btn-feedback-cancel"
+                class="btn-tertiary"
+                style="min-width:90px;">
+          {{ _('Cancel') }}
+        </button>
+        <button type="submit"
+                class="btn-primary"
+                style="min-width:120px;">
+          {{ _('Send') }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const openBtn    = document.getElementById("btn-feedback-open");
+  const overlay    = document.getElementById("feedback-overlay");
+  const cancelBtn  = document.getElementById("btn-feedback-cancel");
+
+  function openFeedback() {
+    if (!overlay) return;
+    overlay.style.display = "flex";
+
+    const textarea = overlay.querySelector("textarea");
+    if (textarea) {
+      setTimeout(() => textarea.focus(), 50);
+    }
+  }
+
+  function closeFeedback() {
+    if (!overlay) return;
+    overlay.style.display = "none";
+
+    const textarea = overlay.querySelector("textarea");
+    if (textarea) textarea.value = "";
+  }
+
+  if (openBtn) {
+    openBtn.addEventListener("click", openFeedback);
+  }
+  if (cancelBtn) {
+    cancelBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      closeFeedback();
+    });
+  }
+
+  // Klikken naast de kaart sluit de overlay
+  if (overlay) {
+    overlay.addEventListener("click", (e) => {
+      if (e.target === overlay) {
+        closeFeedback();
+      }
+    });
+  }
+});
+</script>
+
 {% endblock %}

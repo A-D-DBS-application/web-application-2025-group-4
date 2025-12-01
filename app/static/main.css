@@ -5018,3 +5018,53 @@ button:focus-visible,
   width: 100% !important;
   box-sizing: border-box;
 }
+.feedback-popover {
+  margin-top: 8px;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  background: #f9fafb;
+  padding: 10px 12px;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
+}
+
+.feedback-label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  color: #0f172a;
+}
+
+.feedback-label textarea {
+  margin-top: 2px;
+  border-radius: 10px;
+  border: 1px solid #d4d4d8;
+  padding: 8px 10px;
+  font-size: 13px;
+  resize: vertical;
+}
+
+.feedback-label textarea:focus {
+  outline: none;
+  border-color: #22c55e;
+  box-shadow:
+    0 0 0 1px rgba(34, 197, 94, 0.25),
+    0 4px 12px rgba(22, 163, 74, 0.2);
+}
+
+.feedback-actions {
+  margin-top: 8px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* optioneel, als je geen btn-tertiary hebt */
+.btn-tertiary {
+  border-radius: 999px;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  font-size: 13px;
+  padding: 6px 12px;
+  color: #4b5563;
+}

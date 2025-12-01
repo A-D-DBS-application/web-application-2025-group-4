@@ -29,6 +29,8 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, Tabl
 from reportlab.lib.styles import getSampleStyleSheet
 
 from .model import Group, Expense
+from flask import Blueprint, request, redirect, url_for, flash
+from decimal import Decimal
 
 
 
@@ -40,6 +42,7 @@ from app.supabase_client import supabase
 
 import os
 from openai import OpenAI
+import urllib.parse
 
 client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
@@ -946,9 +949,6 @@ def settlements_overview(group_id):
         settlements=template_settlements,
     )
 
-# -----------------------------
-# GROUP DETAIL (saldo + uitgaven + shares)
-# -----------------------------
 @main.route("/groups/<int:group_id>")
 @login_required
 def group_detail(group_id):
@@ -966,8 +966,26 @@ def group_detail(group_id):
         abort(404)
     group = g[0]
 
-    group["is_closed"] = is_group_closed(group)
+    # is_closed berekenen + op group én als losse variabele
+    is_closed = is_group_closed(group)
+    group["is_closed"] = is_closed
 
+    # --- WhatsApp invite link bouwen ---
+    # Absolute join-URL voor deze groep
+    join_url = url_for("main.join_group", join_code=group["join_code"], _external=True)
+
+    # Tekst die in WhatsApp vooraf ingevuld wordt
+    invite_message = _(
+        "Join our FairSplit+ group '%(name)s' 💸: %(link)s",
+        name=group["name"],
+        link=join_url,
+    )
+
+    # URL-encode zodat het in een querystring past
+    encoded_message = urllib.parse.quote(invite_message)
+
+    # Definitieve WhatsApp-link
+    whatsapp_link = f"https://wa.me/?text={encoded_message}"
 
     # 2) Leden ophalen
     gm_rows = (
@@ -1146,6 +1164,8 @@ def group_detail(group_id):
         payments=payments,
         app_fee_expense=app_fee_expense,
         CATEGORY_LABELS=CATEGORY_LABELS,
+        is_closed=is_closed,
+        whatsapp_link=whatsapp_link,
     )
 
 
@@ -1572,69 +1592,71 @@ def expense_new(group_id):
         is_edit=False,
         form_action=url_for("main.expense_new", group_id=group_id),
     )
-
 @main.route("/group/<int:group_id>/expense/parse_receipt", methods=["POST"])
 @login_required
 def expense_parse_receipt(group_id):
     """
-    Ontvangt een foto van een bonnetje, stuurt die naar OpenAI
-    en geeft gestructureerde JSON terug met items.
+    Ontvangt een foto van een bonnetje, stuurt die naar OpenAI Vision
+    en geeft gestructureerde items + totaal terug in JSON.
+
+    Response JSON:
+    {
+      "success": true/false,
+      "receipt": {
+         "items": [
+            {
+              "description": "...",
+              "quantity": 2,
+              "unit_price": 4.5,
+              "total_price": 9.0
+            },
+            ...
+         ],
+         "total": 37.5  # optioneel
+      }
+    }
     """
-
-    uid = session.get("users_id")
-
-    # Check of de user lid is van de groep (zelfde check als in expense_new)
-    membership = (
-        supabase.table("group_members")
-        .select("*")
-        .eq("group_id", group_id)
-        .eq("user_id", uid)
-        .execute()
-        .data
-        or []
-    )
-    if not membership:
-        return jsonify({"success": False, "error": "no_access"}), 403
 
     file = request.files.get("receipt")
     if not file or file.filename == "":
-        return jsonify({"success": False, "error": "no_file"}), 400
+        return jsonify(success=False, error="no_file"), 400
 
-    try:
-        image_bytes = file.read()
-        image_b64 = base64.b64encode(image_bytes).decode("ascii")
-    except Exception as e:
-        print(">>> expense_parse_receipt: file read error:", e)
-        return jsonify({"success": False, "error": "read_failed"}), 400
+    mimetype = (file.mimetype or "").lower()
+    if not mimetype.startswith("image/"):
+        # Voorlopig alleen echte afbeeldingen
+        return jsonify(success=False, error="not_image"), 400
 
-    # Prompt voor de AI
-    prompt = """
-Je bent een kassabon-parser. Je krijgt een foto of scan van een restaurant- of winkelbonnetje.
-Extra belangrijk:
-- Geef enkel geldige JSON terug, zonder extra tekst.
-- Gebruik een punt als decimaal scheidingsteken (bv. 12.50).
-- Als een gegeven ontbreekt, laat het veld weg of vul null in.
+    # Bytes lezen & naar base64
+    img_bytes = file.read()
+    img_b64 = base64.b64encode(img_bytes).decode("ascii")
+    data_url = f"data:{mimetype};base64,{img_b64}"
 
-Schema (voorbeeld):
+    # Prompt
+    system_prompt = """
+Je bent een zeer nauwkeurige parser van kassabonnetjes.
+
+Kijk naar de BON en geef enkel gestructureerde data terug in JSON
+met exact deze structuur:
 
 {
-  "merchant_name": "Pizzeria Roma",
-  "currency": "EUR",
   "items": [
     {
-      "description": "Pizza Margherita",
-      "quantity": 1,
-      "unit_price": 12.5,
-      "total_price": 12.5
-    }
+      "description": "tekst van het item (bv. PIZZA MARGHERITA)",
+      "quantity": getal (mag 1 zijn als het niet op de bon staat),
+      "unit_price": bedrag_per_stuk,
+      "total_price": bedrag_voor_dit_item
+    },
+    ...
   ],
-  "subtotal": 30.0,
-  "tax": 0.0,
-  "tip": 0.0,
-  "total": 30.0
+  "total": totaal_bedrag_op_de_bon_of_null
 }
 
-Zorg dat "items" een lijst is van alle relevante regels (geen btw-totaalregels).
+Regels:
+- Antwoord met ALLEEN één JSON-object, geen extra tekst.
+- Gebruik een punt als decimaal (12.5, niet 12,5).
+- Als quantity niet duidelijk is, neem 1.
+- Als unit_price niet apart vermeld is, neem total_price / quantity.
+- Negeer fooitjes, korting, BTW-lijnen en andere meta-informatie zoveel mogelijk.
 """
 
     try:
@@ -1644,32 +1666,97 @@ Zorg dat "items" een lijst is van alle relevante regels (geen btw-totaalregels).
                 {
                     "role": "user",
                     "content": [
-                        {"type": "input_text", "text": prompt},
+                        {
+                            "type": "input_text",
+                            "text": system_prompt.strip(),
+                        },
                         {
                             "type": "input_image",
-                            "image_url": {
-                                "url": f"data:image/jpeg;base64,{image_b64}"
-                            },
+                            "image_url": data_url
+                            
                         },
                     ],
                 }
             ],
-            max_output_tokens=600,
+            max_output_tokens=1000,
         )
 
-        raw = resp.output[0].content[0].text
-        print(">>> expense_parse_receipt: RAW AI TEXT =", raw)
+        print(">>> expense_parse_receipt RAW RESPONSE:", resp)
 
-        data = json.loads(raw)
+        raw_text = resp.output[0].content[0].text
+        print(">>> expense_parse_receipt TEXT:", repr(raw_text))
+
+        # Probeer direct JSON te parsen
+        try:
+            parsed = json.loads(raw_text)
+        except Exception:
+            # Fallback: probeer het JSON-gedeelte tussen eerste '{' en laatste '}'
+            m = re.search(r"\{.*\}", raw_text, re.DOTALL)
+            if not m:
+                print(">>> expense_parse_receipt: kon geen JSON-braces vinden")
+                return jsonify(success=False, error="bad_json"), 200
+            json_str = m.group(0)
+            print(">>> expense_parse_receipt JSON_SUBSTRING:", repr(json_str))
+            parsed = json.loads(json_str)
+
     except Exception as e:
-        print(">>> expense_parse_receipt: AI or JSON error:", e)
-        return jsonify({"success": False, "error": "ai_failed"}), 500
+        print(">>> expense_parse_receipt ERROR calling OpenAI:", e)
+        return jsonify(success=False, error="openai_error"), 500
 
-    # Zorg dat er minstens een items-lijst is
-    if not isinstance(data, dict) or not data.get("items"):
-        return jsonify({"success": False, "error": "no_items"}), 200
+    # Normaliseer items
+    items_out = []
+    for item in parsed.get("items", []):
+        desc = (item.get("description") or "").strip()
+        if not desc:
+            continue
 
-    return jsonify({"success": True, "receipt": data})
+        def safe_float(val, default=0.0):
+            try:
+                if val is None:
+                    return default
+                return float(str(val).replace(",", "."))
+            except Exception:
+                return default
+
+        qty = safe_float(item.get("quantity"), 1.0)
+        if qty <= 0:
+            qty = 1.0
+
+        unit_price = safe_float(
+            item.get("unit_price", item.get("price"))
+        )
+        total_price = safe_float(
+            item.get("total_price"),
+            qty * unit_price if unit_price > 0 else 0.0,
+        )
+
+        items_out.append(
+            {
+                "description": desc,
+                "quantity": qty,
+                "unit_price": unit_price,
+                "total_price": total_price,
+            }
+        )
+
+    # Totaalbedrag (optioneel)
+    total_val = parsed.get("total")
+    try:
+        total_float = float(str(total_val).replace(",", ".")) if total_val is not None else None
+    except Exception:
+        total_float = None
+
+    if not items_out:
+        return jsonify(success=False, error="no_items"), 200
+
+    return jsonify(
+        success=True,
+        receipt={
+            "items": items_out,
+            "total": total_float,
+        },
+    )
+
 
 # -----------------------------
 # EXPENSES – BEWERKEN
@@ -2405,6 +2492,23 @@ def group_expenses_pdf(group_id):
     response.headers["Content-Disposition"] = f'inline; filename=\"{filename}\"'
     return response
 
+@main.route("/feedback", methods=["POST"])
+@login_required
+def global_feedback():
+    user = current_user()
+    if not user:
+        abort(403)
 
+    feedback = (request.form.get("feedback") or "").strip()
 
+    if not feedback:
+        flash(_("Feedback not sent – please enter something."), "warning")
+        return redirect(url_for("main.dashboard"))
 
+    supabase.table("feedback").insert({
+        "user_id": user["users_id"],
+        "feedback": feedback,
+    }).execute()
+
+    flash(_("Thank you! Your feedback has been received 🙏"), "success")
+    return redirect(url_for("main.dashboard"))

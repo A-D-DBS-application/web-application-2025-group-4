@@ -93,7 +93,7 @@
       100% { box-shadow: 0 16px 30px rgba(22, 163, 74, 0.55); }
     }
 
-    /* MOBILE: knoppen onder elkaar, full width */
+    /* MOBILE */
     @media (max-width: 640px) {
       .split-mode-toggle {
         flex-direction: column;
@@ -278,13 +278,16 @@
       to { transform: rotate(360deg); }
     }
 
+    /* -------- Items-kaart -------- */
     .receipt-items-card {
       margin-top: 6px;
-      border-radius: 12px;
-      background: white;
+      border-radius: 14px;
+      background: radial-gradient(circle at top left, #ecfdf3, #ffffff 55%, #f9fafb);
       border: 1px solid #e2e8f0;
-      padding: 8px 10px;
-      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+      padding: 10px 12px;
+      box-shadow:
+        0 16px 30px rgba(15, 23, 42, 0.08),
+        0 0 0 1px rgba(148, 163, 184, 0.12);
       font-size: 13px;
     }
 
@@ -292,33 +295,38 @@
       display: flex;
       justify-content: space-between;
       align-items: baseline;
-      margin-bottom: 4px;
+      margin-bottom: 8px;
+      gap: 10px;
     }
 
     .receipt-items-header-title {
       font-weight: 600;
       color: #0f172a;
+      font-size: 14px;
     }
 
     .receipt-items-header-meta {
-      font-size: 11px;
+      font-size: 12px;
       color: #6b7280;
+      text-align: right;
     }
 
     .receipt-items-table {
       width: 100%;
-      border-collapse: collapse;
+      border-collapse: separate;
+      border-spacing: 0;
+      table-layout: fixed;
     }
 
     .receipt-items-table th,
     .receipt-items-table td {
-      padding: 4px 2px;
+      padding: 6px 6px;
     }
 
     .receipt-items-table th {
       font-size: 11px;
       text-transform: uppercase;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.05em;
       color: #6b7280;
       border-bottom: 1px solid #e5e7eb;
     }
@@ -332,19 +340,71 @@
       border-bottom: none;
     }
 
+    .receipt-items-table tbody tr:hover {
+      background: #ecfdf3;
+    }
+
+    /* kolombreedtes */
+    .receipt-items-table th:nth-child(1),
+    .receipt-items-table td:nth-child(1) {
+      width: 40%;
+    }
+
+    .receipt-items-table th:nth-child(2),
+    .receipt-items-table td:nth-child(2) {
+      width: 30%;
+    }
+
+    .receipt-items-table th:nth-child(3),
+    .receipt-items-table td:nth-child(3) {
+      width: 30%;
+    }
+
+    .receipt-item-name {
+      font-weight: 500;
+      color: #111827;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .receipt-item-sub {
+      font-size: 11px;
+      color: #6b7280;
+    }
+
+    /* ---------- ASSIGN SELECT: clean pill ---------- */
     .receipt-assign-select {
       width: 100%;
-      padding: 4px 6px;
+      padding: 6px 12px;
       border-radius: 999px;
-      border: 1px solid #cbd5e1;
-      font-size: 12px;
-      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      background: #ffffff;
+      font-size: 13px;
+      color: #0f172a;
+      outline: none;
+      box-shadow: 0 4px 10px rgba(15, 23, 42, 0.06);
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      cursor: pointer;
+    }
+
+    .receipt-assign-select:focus {
+      border-color: #22c55e;
+      box-shadow:
+        0 0 0 1px rgba(34, 197, 94, 0.35),
+        0 6px 14px rgba(22, 163, 74, 0.25);
     }
 
     .receipt-amount-cell {
       text-align: right;
-      white-space: nowrap;
       font-variant-numeric: tabular-nums;
+      /* GEEN nowrap meer, dan kruipt de (1/2) niet onder de select */
+      white-space: normal;
     }
   </style>
 
@@ -714,9 +774,41 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // ---------------------------
+  // Split items met quantity > 1 op in losse units
+  function expandReceiptItems(items) {
+    const expanded = [];
+
+    items.forEach((item) => {
+      const qtyRaw = item.quantity ?? 1;
+      const qty = Math.max(1, Math.round(qtyRaw));
+      const desc = item.description || "";
+      const unitPrice = item.unit_price ?? (item.total_price || item.price || 0);
+
+      if (qty <= 1) {
+        expanded.push({
+          ...item,
+          quantity: 1,
+          unit_price: unitPrice,
+          total_price: item.total_price ?? unitPrice,
+        });
+      } else {
+        for (let i = 0; i < qty; i++) {
+          expanded.push({
+            description: desc,
+            quantity: 1,
+            unit_price: unitPrice,
+            total_price: unitPrice,
+            unit_index: i + 1,
+            unit_of: qty,
+          });
+        }
+      }
+    });
+
+    return expanded;
+  }
+
   // RECOMPUTE SHARES FROM RECEIPT
-  // ---------------------------
   function recomputeSharesFromReceipt() {
     if (!lastReceiptItems || lastReceiptItems.length === 0) return;
 
@@ -746,9 +838,7 @@ document.addEventListener("DOMContentLoaded", () => {
     updateSummary();
   }
 
-  // ---------------------------
   // RECEIPT FILE SELECT PREVIEW
-  // ---------------------------
   if (receiptInput) {
     receiptInput.addEventListener("change", () => {
       const file = receiptInput.files && receiptInput.files[0];
@@ -792,9 +882,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // ---------------------------
   // HANDLE RECEIPT SCAN
-  // ---------------------------
   async function handleReceiptScan() {
     if (!receiptInput || !receiptInput.files || receiptInput.files.length === 0) {
       receiptHelper.textContent = "{{ _('Choose a photo of the receipt first.') }}";
@@ -830,7 +918,8 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       const receipt = data.receipt || {};
-      const items = receipt.items || [];
+      let items = receipt.items || [];
+      items = expandReceiptItems(items);
       lastReceiptItems = items;
 
       if (!items.length) {
@@ -846,13 +935,19 @@ document.addEventListener("DOMContentLoaded", () => {
         const unit  = item.unit_price || item.price || item.total_price || 0;
         const total = item.total_price || (qty * unit) || 0;
 
+        const unitInfo = item.unit_of
+          ? ` <span class="receipt-item-sub">(${item.unit_index}/${item.unit_of})</span>`
+          : "";
+
         const tr = document.createElement("tr");
         tr.dataset.total = String(total);
 
         tr.innerHTML = `
-          <td>${desc}</td>
+          <td>
+            <div class="receipt-item-name">${desc}</div>
+          </td>
           <td class="receipt-amount-cell">
-            ${qty} × ${Number(unit).toFixed(2)}<br>
+            ${qty} × ${Number(unit).toFixed(2)}${unitInfo}<br>
             <strong>€ ${Number(total).toFixed(2)}</strong>
           </td>
           <td>
@@ -887,9 +982,7 @@ document.addEventListener("DOMContentLoaded", () => {
     receiptBtn.addEventListener("click", handleReceiptScan);
   }
 
-  // ---------------------------
   // INIT BUTTONS / SUMMARY
-  // ---------------------------
   buttons.forEach(btn => {
     btn.addEventListener("click", () => {
       setActive(btn.dataset.mode);
