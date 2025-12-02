@@ -56,6 +56,14 @@
         </div>
       </div>
 
+      {# NIEUW: optioneel veld voor betaallink / Payconiq-link #}
+      <label for="paylink">{{ _('Payment link (optional)') }}</label>
+      <input
+        id="paylink"
+        name="paylink"
+        type="url"
+        placeholder="https://payconiq.com/..... ({{ _('optional') }})">
+
       <label for="password">{{ _('Password') }}</label>
       <input id="password" name="password" type="password" placeholder="{{ _('Choose a strong password') }}" required>
 
@@ -70,4 +78,3 @@
   </div>
 </section>
 {% endblock %}
-

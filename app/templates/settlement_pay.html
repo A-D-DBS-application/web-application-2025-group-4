@@ -15,7 +15,7 @@
         {{ sender.username }} → {{ receiver.username }}
       </h1>
       <p class="group-sub">
-        {{ _('Maak deze betaling in je banking app en registreer ze daarna in FairSplit+.') }}
+        {{ _('Voer de betaling uit in je banking app en registreer ze daarna in FairSplit+.') }}
       </p>
     </div>
   </section>
@@ -28,26 +28,28 @@
         <!-- LINKERKANT: uitleg -->
         <div class="settle-left">
           <p class="settle-text">
-            {{ _('Je vereffent een openstaande schuld in deze groep. Gebruik de betaaloptie hiernaast om te betalen.') }}
+            {{ _('Je vereffent een openstaande schuld in deze groep. Gebruik de betaalgegevens hiernaast in je banking app.') }}
           </p>
 
           <ul class="settle-list">
-            <li>{{ _('Controleer altijd bedrag en ontvanger in je banking app voordat je bevestigt.') }}</li>
+            <li>{{ _('Controleer altijd bedrag, IBAN en naam ontvanger in je banking app voordat je bevestigt.') }}</li>
             <li>{{ _('Na de betaling keer je terug naar FairSplit+ en registreer je ze als betaling in deze groep.') }}</li>
           </ul>
 
           <p class="settle-hint">
-            {{ _('Tip: gebruik dezelfde omschrijving in je banking app, zo blijft alles netjes herkenbaar.') }}
+            {{ _('Tip: gebruik dezelfde mededeling als hieronder, zo blijft alles netjes herkenbaar.') }}
           </p>
 
-          <a href="{{ url_for('main.settlements', group_id=group.group_id) }}"
+          <a href="{{ url_for('main.settlements_overview', group_id=group.group_id) }}"
              class="link-back">
             ← {{ _('Terug naar schuldoverzicht') }}
           </a>
         </div>
 
-        <!-- RECHTS: bedrag + betaaloptie -->
+        <!-- RECHTS: bedrag + betaalgegevens + registratieknop -->
         <aside class="settle-right">
+
+          <!-- Bedrag + basisinfo -->
           <div class="settle-card-amount">
             <h2>{{ _('Te betalen bedrag') }}</h2>
             <p class="settle-amount">€ {{ '%.2f'|format(amount) }}</p>
@@ -62,37 +64,72 @@
             {% endif %}
           </div>
 
-          {% if paylink %}
-            <!-- OPTIE: Paylink / banking app -->
-            <div class="settle-block">
-              <h3>{{ _('Betaal via banking app / betaalverzoek') }}</h3>
-              <p class="settle-help">
-                {{ _('Klik hieronder om het betaalverzoek te openen in je banking app of betaalapp (bv. Payconiq, bunq, Revolut…).') }}
+          <!-- Betaalgegevens (IBAN + mededeling) -->
+          <div class="settle-block">
+            <h3>{{ _('Gebruik deze gegevens in je banking app') }}</h3>
+
+            {% if receiver.iban %}
+              <p class="settle-line">
+                <strong>{{ _('IBAN ontvanger') }}:</strong>
+                <code id="iban-text">{{ receiver.iban }}</code>
               </p>
 
-              <a href="{{ paylink }}" target="_blank" rel="noopener"
-                 class="btn-primary btn-full">
-                📱 {{ _('Open in banking app / Payconiq') }}
-              </a>
+              <button type="button"
+                      class="btn-secondary"
+                      onclick="copyIban('{{ receiver.iban }}')">
+                📋 {{ _('Kopieer IBAN') }}
+              </button>
+            {% else %}
+              <p class="settle-line">
+                {{ _('Er is nog geen IBAN ingesteld voor deze gebruiker. Voer de betaling handmatig uit.') }}
+              </p>
+            {% endif %}
 
-              <p class="settle-note">
-                {{ _('Niet elke bank vult alles automatisch in. Controleer bedrag en ontvanger voordat je bevestigt.') }}
-              </p>
-            </div>
-          {% else %}
-            <!-- Geen paylink ingevuld -->
-            <div class="settle-block">
-              <h3>{{ _('Geen betaalverzoek beschikbaar') }}</h3>
-              <p class="settle-help">
-                {{ _('De ontvanger heeft nog geen betaallink ingesteld. Voer de betaling handmatig uit in je banking app met het bedrag hierboven.') }}
-              </p>
-            </div>
-          {% endif %}
+            <p class="settle-line" style="margin-top:10px;">
+              <strong>{{ _('Aanbevolen mededeling') }}:</strong><br>
+              <code>
+                FairSplit+ {{ group.name }} – {{ sender.username }} → {{ receiver.username }}
+              </code>
+            </p>
+          </div>
+
+          <!-- Betaling registreren in FairSplit+ -->
+          <form method="post"
+                action="{{ url_for('main.settlement_mark_paid',
+                                   group_id=group.group_id,
+                                   settlement_id=settlement_id) }}"
+                class="settle-block">
+            <h3>{{ _('Betaling registreren in FairSplit+') }}</h3>
+            <p class="settle-help">
+              {{ _('Heb je de betaling uitgevoerd in je banking app? Klik hieronder om ze als betaling in deze groep op te slaan.') }}
+            </p>
+
+            <button type="submit" class="btn-primary btn-full">
+              ✅ {{ _('Betaling registreren') }}
+            </button>
+          </form>
+
         </aside>
       </div>
 
     </article>
   </section>
 </main>
+
+<script>
+  function copyIban(iban) {
+    if (!navigator.clipboard) {
+      alert("{{ _('IBAN kan niet gekopieerd worden door deze browser.') }}");
+      return;
+    }
+    navigator.clipboard.writeText(iban)
+      .then(function () {
+        alert("{{ _('IBAN gekopieerd naar het klembord.') }}");
+      })
+      .catch(function () {
+        alert("{{ _('Kopiëren is mislukt, kopieer de IBAN manueel.') }}");
+      });
+  }
+</script>
 {% endblock %}
 

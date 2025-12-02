@@ -27,6 +27,7 @@ from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 from reportlab.lib.styles import getSampleStyleSheet
+from urllib.parse import quote
 
 from .model import Group, Expense
 from flask import Blueprint, request, redirect, url_for, flash
@@ -101,6 +102,34 @@ def is_group_closed(group_row: dict) -> bool:
     except Exception:
         return False
 
+def build_sepa_paylink(receiver_user: dict, amount: float, group: dict | None = None) -> str | None:
+    """
+    Maakt een 'deep link'-achtige URL voor een SEPA-overschrijving.
+    Niet elke bank zal het schema herkennen, maar je hebt dan 1 plek
+    om het gedrag aan te passen.
+
+    Als er geen IBAN is → return None.
+    """
+    iban = (receiver_user.get("iban") or "").replace(" ", "")
+    if not iban:
+        return None
+
+    # Beschrijving: FairSplit+ + groepsnaam
+    if group and group.get("name"):
+        desc_raw = f"FairSplit+ {group['name']}"
+    else:
+        desc_raw = "FairSplit+ betaling"
+
+    desc = quote(desc_raw)
+
+    # Bedrag altijd met 2 decimalen
+    amt_str = f"{amount:.2f}"
+
+    # Hier kies je zelf het schema. Je kan later experimenteren:
+    # - "bank://payment?..." 
+    # - "sepa://payment?..."
+    # - of een eigen HTTPS-pagina van FairSplit+
+    return f"bank://payment?iban={iban}&amount={amt_str}&message={desc}"
 
 
 
@@ -667,14 +696,19 @@ def create_group():
     return render_template("group_new.html")
 
 
+from decimal import Decimal
+from datetime import datetime, date
+
 def compute_group_balances(group_id: int):
     """
-    Bereken saldo per persoon voor een groep.
+    Bereken saldo per persoon voor een groep op basis van:
+    - alle actieve uitgaven (incl. app-fee)
+    - alle actieve betalingen
     Positief = krijgt geld, negatief = moet nog betalen.
     Geeft een lijst terug met dicts: { user_id, username, balance }.
     """
 
-    # Leden ophalen
+    # 1) Leden ophalen
     gm_rows = (
         supabase.table("group_members")
         .select("*")
@@ -683,7 +717,6 @@ def compute_group_balances(group_id: int):
         .data
         or []
     )
-
     if not gm_rows:
         return []
 
@@ -697,14 +730,13 @@ def compute_group_balances(group_id: int):
         .data
         or []
     )
-
     users_by_id = {u["users_id"]: u for u in users_rows}
 
-    # Start alle saldi op 0
-    balances = {uid: 0.0 for uid in user_ids}
+    # Start alle saldi op 0 (Decimal)
+    balances = {uid: Decimal("0.00") for uid in user_ids}
 
     # -------------------------
-    # 1) Uitgaven + shares
+    # 2) Uitgaven + shares
     # -------------------------
     expenses_rows = (
         supabase.table("expenses")
@@ -728,46 +760,72 @@ def compute_group_balances(group_id: int):
     shares_by_expense = {}
     for s in shares_rows:
         eid = s["expense_id"]
-        shares_by_expense.setdefault(eid, []).append(s)
+        shares_by_expense.setdefault(eid, []).append(
+            {
+                "user_id": s["user_id"],
+                "amount": Decimal(str(s.get("amount") or 0)),
+            }
+        )
 
     for exp in expenses_rows:
         eid = exp["expense_id"]
-        total = float(exp.get("total_amount") or 0.0)
+        total = Decimal(str(exp.get("total_amount") or 0))
         payer_id = exp["created_by_user_id"]
 
-        # Payer heeft het volledige bedrag voorgeschoten
+        # App-fee: altijd equal split over alle leden
+        if exp.get("is_app_fee"):
+            count = max(1, len(user_ids))
+            equal_share = total / count
+            for uid in user_ids:
+                balances[uid] -= equal_share
+            if payer_id in balances:
+                balances[payer_id] += total
+            continue
+
+        # Gewone expense
         if payer_id in balances:
             balances[payer_id] += total
 
-        # Iedereen met een share moet zijn deel betalen
-        for s in shares_by_expense.get(eid, []):
-            uid = s["user_id"]
-            if uid in balances:
-                balances[uid] -= float(s.get("amount") or 0.0)
+        exp_shares = shares_by_expense.get(eid, [])
+        if exp_shares:
+            for s in exp_shares:
+                uid = s["user_id"]
+                if uid in balances:
+                    balances[uid] -= s["amount"]
+        else:
+            # fallback: gelijk verdelen als er geen expliciete shares zijn
+            count = max(1, len(user_ids))
+            equal_share = total / count
+            for uid in user_ids:
+                balances[uid] -= equal_share
 
     # -------------------------
-    # 2) Reeds geregistreerde betalingen
+    # 3) Reeds geregistreerde betalingen
     # -------------------------
     payments_rows = (
         supabase.table("payments")
         .select("*")
         .eq("group_id", group_id)
+        .eq("is_active", True)
         .execute()
         .data
         or []
     )
 
     for p in payments_rows:
-        amt = float(p.get("amount") or 0.0)
-        sender = p["sender_user_id"]
-        receiver = p["receiver_user_id"]
+        amt = Decimal(str(p.get("amount") or 0))
+        sender_id = p.get("sender_id")
+        receiver_id = p.get("receiver_id")
 
-        if sender in balances:
-            balances[sender] -= amt
-        if receiver in balances:
-            balances[receiver] += amt
+        # 🔄 Betaling verlaagt de schuld van sender en verlaagt de vordering van receiver
+        if sender_id in balances:
+            balances[sender_id] += amt
+        if receiver_id in balances:
+            balances[receiver_id] -= amt
 
-    # Resultaat naar lijst (met username)
+    # -------------------------
+    # 4) Resultaat naar lijst (met username)
+    # -------------------------
     result = []
     for uid in user_ids:
         u = users_by_id.get(uid)
@@ -777,10 +835,13 @@ def compute_group_balances(group_id: int):
             {
                 "user_id": uid,
                 "username": u["username"],
-                "balance": round(balances.get(uid, 0.0), 2),
+                "balance": float(balances.get(uid, Decimal("0.00"))),
             }
         )
+
     return result
+
+
 
 
 # -----------------------------
@@ -971,20 +1032,15 @@ def group_detail(group_id):
     group["is_closed"] = is_closed
 
     # --- WhatsApp invite link bouwen ---
-    # Absolute join-URL voor deze groep
     join_url = url_for("main.join_group", join_code=group["join_code"], _external=True)
 
-    # Tekst die in WhatsApp vooraf ingevuld wordt
     invite_message = _(
         "Join our FairSplit+ group '%(name)s' 💸: %(link)s",
         name=group["name"],
         link=join_url,
     )
 
-    # URL-encode zodat het in een querystring past
     encoded_message = urllib.parse.quote(invite_message)
-
-    # Definitieve WhatsApp-link
     whatsapp_link = f"https://wa.me/?text={encoded_message}"
 
     # 2) Leden ophalen
@@ -1057,7 +1113,7 @@ def group_detail(group_id):
             }
         )
 
-    # 5) Saldi berekenen  (incl. app fee)
+    # 5) Saldi berekenen op basis van expenses (incl. app fee)
     balances = {m["users_id"]: Decimal("0.00") for m in members}
 
     for exp in expenses_rows:
@@ -1071,7 +1127,8 @@ def group_detail(group_id):
             equal_share = total / count
             for m in members:
                 balances[m["users_id"]] -= equal_share
-            balances[creator_id] += total
+            if creator_id in balances:
+                balances[creator_id] += total
             continue
 
         # 5b) Gewone expenses
@@ -1081,14 +1138,39 @@ def group_detail(group_id):
             for sh in exp_shares:
                 uid = sh["user_id"]
                 val = Decimal(str(sh["amount"]))
-                balances[uid] -= val
-            balances[creator_id] += total
+                if uid in balances:
+                    balances[uid] -= val
+            if creator_id in balances:
+                balances[creator_id] += total
         else:  # equal split fallback
             count = max(1, len(members))
             equal_share = total / count
             for m in members:
                 balances[m["users_id"]] -= equal_share
-            balances[creator_id] += total
+            if creator_id in balances:
+                balances[creator_id] += total
+
+    # 6) Betalingen ophalen en toepassen op saldi
+    payments_rows = (
+        supabase.table("payments")
+        .select("*")
+        .eq("group_id", group_id)
+        .eq("is_active", True)
+        .execute()
+        .data
+        or []
+    )
+
+    for p in payments_rows:
+        amt = Decimal(str(p.get("amount") or 0))
+        sender_id = p.get("sender_id")
+        receiver_id = p.get("receiver_id")
+
+        # 🔄 Betaling verlaagt de schuld van sender en verlaagt de vordering van receiver
+        if sender_id in balances:
+            balances[sender_id] += amt
+        if receiver_id in balances:
+            balances[receiver_id] -= amt
 
     balance_rows = []
     for uid, amount in balances.items():
@@ -1100,12 +1182,11 @@ def group_detail(group_id):
             }
         )
 
-    # 6) Uitgavenlijst voor de hero/laatste uitgaven (zonder app fee)
+    # 7) Uitgavenlijst voor de hero/laatste uitgaven (zonder app fee)
     expense_list = []
     for exp in normal_expenses:
         eid = exp["expense_id"]
 
-        # categorie uit DB (voor oude records kan dit None of 'other' zijn)
         stored_cat = (exp.get("category") or "").lower()
         if stored_cat not in CATEGORY_IDS:
             stored_cat = "activities"
@@ -1126,30 +1207,20 @@ def group_detail(group_id):
             }
         )
 
-    # sorteer op datum (nieuwste eerst) zodat template gewoon expenses[:3] kan nemen
     expense_list.sort(key=lambda e: e["created_at"], reverse=True)
 
-    # 7) Betalingen ophalen
-    payments_rows = (
-        supabase.table("payments")
-        .select("*")
-        .eq("group_id", group_id)
-        .execute()
-        .data
-        or []
-    )
-
+    # 8) Betalingen voor weergave in de rechterkaart
     payments = []
     for p in payments_rows:
         payments.append(
             {
-                "created_at": p["created_at"],
-                "amount": p["amount"],
+                "created_at": p.get("created_at"),
+                "amount": p.get("amount"),
                 "sender_username": username_map.get(
-                    p["sender_user_id"], _("Onbekend")
+                    p.get("sender_id"), _("Onbekend")
                 ),
                 "receiver_username": username_map.get(
-                    p["receiver_user_id"], _("Onbekend")
+                    p.get("receiver_id"), _("Onbekend")
                 ),
             }
         )
@@ -2202,12 +2273,12 @@ def settlements(group_id):
     )
 
 
-
 @main.route("/groups/<int:group_id>/settlements/<int:settlement_id>/mark_paid", methods=["POST"])
 @login_required
 def settlement_mark_paid(group_id, settlement_id):
     user = current_user()
 
+    # Settlement ophalen
     s = (
         supabase.table("settlements")
         .select("*")
@@ -2217,16 +2288,40 @@ def settlement_mark_paid(group_id, settlement_id):
         .data
     )
 
-    if not s or s["from_user_id"] != user["users_id"]:
+    if not s:
+        abort(404)
+
+    # Alleen de persoon die moet betalen mag registreren
+    if s["from_user_id"] != user["users_id"]:
         abort(403)
 
+    now_iso = datetime.utcnow().isoformat()
+
+    # 1) Betaling maken in de payments tabel (jouw kolomnamen!)
+    try:
+        supabase.table("payments").insert({
+            "group_id": group_id,
+            "sender_id": s["from_user_id"],
+            "receiver_id": s["to_user_id"],
+            "amount": s["amount"],
+            "created_at": now_iso,
+            "is_active": True,
+            "currency": "EUR"
+        }).execute()
+    except Exception as e:
+        print(">>> ERROR inserting payment:", e)
+        flash("Kon betaling niet registreren. Probeer later opnieuw.", "danger")
+        return redirect(url_for("main.settlement_pay", group_id=group_id, settlement_id=settlement_id))
+
+    # 2) Settlement status op 'paid' zetten
     supabase.table("settlements").update({
         "status": "paid",
-        "paid_at": datetime.utcnow().isoformat()
+        "paid_at": now_iso
     }).eq("settlement_id", settlement_id).execute()
 
-    flash("Schuld vereffend! 🎉", "success")
+    flash("Betaling geregistreerd! 🎉", "success")
     return redirect(url_for("main.settlements", group_id=group_id))
+
 
 # ---------------------------------------------
 # HELPER: EPC SEPA QR-code genereren (stap 4)
@@ -2291,33 +2386,33 @@ def generate_payment_qr(iban: str, amount: float, receiver_name: str, reference:
 
 
 # -----------------------------
-# SCHULD VEREFFENEN – PAY VIEW
+# SCHULD VEREFFENEN – DETAIL
 # -----------------------------
-@main.route("/groups/<int:group_id>/settlements/<int:settlement_id>/pay")
+@main.route("/groups/<int:group_id>/settlements/<int:settlement_id>/pay", methods=["GET"])
 @login_required
 def settlement_pay(group_id, settlement_id):
     user = current_user()
     if not user:
         abort(403)
 
-    # 1) Groep ophalen
-    g_rows = (
+    # Groep ophalen
+    g = (
         supabase.table("groups")
         .select("*")
         .eq("group_id", group_id)
         .execute()
         .data
     )
-    if not g_rows:
+    if not g:
         abort(404)
-    group = g_rows[0]
+    group = g[0]
 
-    # 2) Settlement ophalen
+    # Settlement ophalen
     s_rows = (
         supabase.table("settlements")
         .select("*")
-        .eq("group_id", group_id)
         .eq("settlement_id", settlement_id)
+        .eq("group_id", group_id)
         .execute()
         .data
         or []
@@ -2326,49 +2421,41 @@ def settlement_pay(group_id, settlement_id):
         abort(404)
     settlement = s_rows[0]
 
-    # Alleen de schuldenaar (from_user) mag deze pay-view zien
-    current_id = user["users_id"]
-    if settlement["from_user_id"] != current_id:
-        abort(403)
+    amount = float(settlement["amount"])
 
-    amount = float(settlement.get("amount") or 0.0)
+    # Sender / receiver ophalen uit users-table
+    sender_id = settlement["from_user_id"]
+    receiver_id = settlement["to_user_id"]
 
-    # 3) Beide users ophalen (van → naar)
-    user_ids = [settlement["from_user_id"], settlement["to_user_id"]]
-    u_rows = (
+    sender_rows = (
         supabase.table("users")
-        .select("users_id, username, email, iban, paylink")
-        .in_("users_id", user_ids)
+        .select("*")
+        .eq("users_id", sender_id)
         .execute()
         .data
         or []
     )
-    by_id = {u["users_id"]: u for u in u_rows}
-
-    sender = by_id.get(settlement["from_user_id"])
-    receiver = by_id.get(settlement["to_user_id"])
-    if not sender or not receiver:
+    receiver_rows = (
+        supabase.table("users")
+        .select("*")
+        .eq("users_id", receiver_id)
+        .execute()
+        .data
+        or []
+    )
+    if not sender_rows or not receiver_rows:
         abort(404)
 
-    # 4) Paylink van ontvanger (optioneel)
-    raw_paylink = (receiver.get("paylink") or "").strip()
-    if raw_paylink and not raw_paylink.startswith(("http://", "https://")):
-        paylink = "https://" + raw_paylink
-    else:
-        paylink = raw_paylink or None
-
- 
+    sender = sender_rows[0]
+    receiver = receiver_rows[0]
 
     return render_template(
         "settlement_pay.html",
-        user=user,
         group=group,
-        settlement=settlement,
-        amount=amount,
         sender=sender,
         receiver=receiver,
-        paylink=paylink,
-        
+        amount=amount,
+        settlement_id=settlement_id,
     )
 
 
