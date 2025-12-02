@@ -8,35 +8,34 @@ from .routes import main
 babel = Babel()
 
 
-def get_locale():
-    """
-    Bepaal de actieve taal.
-
-    1. Eerst: expliciete keuze in session['lang'] (via NL | EN links)
-    2. Anders: best-match met de browser
-    3. Fallback: 'nl'
-    """
+def select_locale():
     lang = session.get("lang")
+    print(">>> select_locale – session['lang'] =", lang)
+
     if lang in ("nl", "en"):
+        print(">>> select_locale – using session lang:", lang)
         return lang
 
-    return request.accept_languages.best_match(["nl", "en"]) or "nl"
+    auto = request.accept_languages.best_match(["nl", "en"]) or "nl"
+    print(">>> select_locale – using auto-detected lang:", auto)
+    return auto
+
 
 
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
 
-    # ✅ Default taal en ondersteunde talen
-    app.config["BABEL_DEFAULT_LOCALE"] = "nl"
-    app.config["BABEL_SUPPORTED_LOCALES"] = ["nl", "en"]
+    # Default taal en welke talen je ondersteunt
+    app.config.setdefault("BABEL_DEFAULT_LOCALE", "nl")
+    app.config.setdefault("BABEL_SUPPORTED_LOCALES", ["nl", "en"])
 
-    # ❌ NIET "app/translations" gebruiken!
-    # Laat de default staan: "translations" onder app.root_path
-    # app.config["BABEL_TRANSLATION_DIRECTORIES"] = "translations"
+    # HEEL BELANGRIJK:
+    # Vertalingen staan in app/translations → voor Flask-Babel is dat gewoon "translations"
+    app.config.setdefault("BABEL_TRANSLATION_DIRECTORIES", "translations")
 
-    # ✅ Nieuwe API van Flask-Babel (3.x/4.x)
-    babel.init_app(app, locale_selector=get_locale)
+    # Babel initialiseren met onze locale-selector
+    babel.init_app(app, locale_selector=select_locale)
 
     # Blueprints
     app.register_blueprint(main)

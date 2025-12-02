@@ -1976,12 +1976,14 @@ def expense_edit(group_id, expense_id):
 # -----------------------------
 @main.route("/set-lang/<lang>")
 def set_language(lang):
-    if lang not in ["nl", "en"]:
+    # Enkel talen toestaan die je ook effectief hebt
+    if lang not in ("nl", "en"):
         lang = "nl"
+
     session["lang"] = lang
+
+    # Terug naar de pagina waar je vandaan kwam, of naar home
     return redirect(request.referrer or url_for("main.home"))
-
-
 # -----------------------------
 # LEDGER – VOLLEDIGE HISTORIEK
 # -----------------------------

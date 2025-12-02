@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="{{ session.get('lang','nl') }}">
+<html lang="{{ session.get('lang', 'nl') }}">
 <head>
   <meta charset="utf-8" />
   <title>{% block title %}FairSplit+{% endblock %}</title>
@@ -53,15 +53,17 @@
         <div class="collapse navbar-collapse justify-content-end" id="mainNavbar">
           <div class="d-flex flex-column flex-lg-row align-items-lg-center gap-2 gap-lg-3 mt-3 mt-lg-0">
 
+            {% set current_lang = session.get('lang', 'nl') %}
+
             <!-- Taal-switch -->
             <div class="lang-switch">
               <a href="{{ url_for('main.set_language', lang='nl') }}"
-                 class="lang-link {% if session.get('lang','nl') == 'nl' %}active{% endif %}">
+                 class="lang-link {% if current_lang == 'nl' %}active{% endif %}">
                 NL
               </a>
               <span class="lang-sep">|</span>
               <a href="{{ url_for('main.set_language', lang='en') }}"
-                 class="lang-link {% if session.get('lang') == 'en' %}active{% endif %}">
+                 class="lang-link {% if current_lang == 'en' %}active{% endif %}">
                 EN
               </a>
             </div>
@@ -117,4 +119,3 @@
   </script>
 </body>
 </html>
-
