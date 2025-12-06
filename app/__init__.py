@@ -1,6 +1,6 @@
 # app/__init__.py
 from flask import Flask, session, request
-from flask_babel import Babel
+from flask_babel import Babel, get_locale  # ⬅ get_locale importeren
 
 from .config import Config
 from .routes import main
@@ -21,7 +21,6 @@ def select_locale():
     return auto
 
 
-
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
@@ -30,12 +29,18 @@ def create_app():
     app.config.setdefault("BABEL_DEFAULT_LOCALE", "nl")
     app.config.setdefault("BABEL_SUPPORTED_LOCALES", ["nl", "en"])
 
-    # HEEL BELANGRIJK:
-    # Vertalingen staan in app/translations → voor Flask-Babel is dat gewoon "translations"
+    # Vertalingen staan in app/translations
     app.config.setdefault("BABEL_TRANSLATION_DIRECTORIES", "translations")
 
     # Babel initialiseren met onze locale-selector
     babel.init_app(app, locale_selector=select_locale)
+
+    # ⬇⬇⬇ HIER: get_locale beschikbaar maken in Jinja-templates
+    @app.context_processor
+    def inject_babel_helpers():
+        return {
+            "get_locale": get_locale,
+        }
 
     # Blueprints
     app.register_blueprint(main)

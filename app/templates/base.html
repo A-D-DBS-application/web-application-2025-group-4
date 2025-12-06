@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="{{ session.get('lang', 'nl') }}">
+<html lang="{{ get_locale() }}">
 <head>
   <meta charset="utf-8" />
   <title>{% block title %}FairSplit+{% endblock %}</title>
@@ -53,7 +53,8 @@
         <div class="collapse navbar-collapse justify-content-end" id="mainNavbar">
           <div class="d-flex flex-column flex-lg-row align-items-lg-center gap-2 gap-lg-3 mt-3 mt-lg-0">
 
-            {% set current_lang = session.get('lang', 'nl') %}
+            {# Gebruik de actuele locale i.p.v. rechtstreeks uit session #}
+            {% set current_lang = (get_locale() | string) %}
 
             <!-- Taal-switch -->
             <div class="lang-switch">
@@ -70,16 +71,16 @@
 
             <!-- Login / Logout knoppen -->
             {% if session.get('users_id') %}
-              <span class="nav-muted">{{ _('Ingelogd') }}</span>
+              <span class="nav-muted">{{ _('Logged in') }}</span>
               <a href="{{ url_for('main.logout') }}" class="btn-chip btn-chip-outline">
-                {{ _('Log uit') }}
+                {{ _('Log out') }}
               </a>
             {% else %}
-              <a href="{{ url_for('main.login') }}" class="btn-chip btn-chip-outline">
-                {{ _('Login') }}
+              <a href="{{ url_for('main.login') }}" class="btn-chip btn-chip btn-chip-outline">
+                {{ _('Log in') }}
               </a>
               <a href="{{ url_for('main.register') }}" class="btn-chip btn-chip-primary">
-                {{ _('Registreer') }}
+                {{ _('Register') }}
               </a>
             {% endif %}
 
@@ -110,7 +111,7 @@
 
   <!-- FOOTER -->
   <footer class="container py-3" style="font-size:.85rem; color:#94a3b8;">
-    FairSplit+ © 2025 – {{ _('Alle rechten voorbehouden') }}
+    FairSplit+ © 2025 – {{ _('All rights reserved') }}
   </footer>
 
   <!-- Bootstrap JS bundle (voor de hamburger, dropdowns, enz.) -->
@@ -119,3 +120,4 @@
   </script>
 </body>
 </html>
+

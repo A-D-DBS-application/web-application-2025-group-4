@@ -1,11 +1,10 @@
-{# templates/home.html #}
+{# app/templates/home.html #}
 {% extends "base.html" %}
 {% block title %}FairSplit+ – {{ _('Less stress with shared expenses') }}{% endblock %}
 
 {% block content %}
 
 <div class="hero">
-  <!-- animated gradient / shapes via CSS -->
   <div class="hero-background"></div>
 
   <div class="hero-grid">
@@ -26,7 +25,7 @@
 
       <!-- Subtext -->
       <p class="hero-sub">
-        {{ _("Track balances per group, trip or flat. One clear overview of who paid what – without Excel, arguments or forgotten repayments.") }}
+        {{ _('Track balances per group, trip or flat. One clear overview of who paid what – without Excel, arguments or forgotten repayments.') }}
       </p>
 
       <!-- CTA buttons -->
@@ -62,31 +61,31 @@
       </div>
     </div>
 
-    <!-- RIGHT: “visual” with cards like in the app -->
+    <!-- RIGHT: “device” kaart -->
     <div class="hero-right">
       <div class="hero-device">
         <!-- main card -->
         <div class="hero-card hero-card-main">
           <div class="hero-card-header">
-            <span class="hero-chip">Trip • Barcelona</span>
+            <span class="hero-chip">{{ _('Trip') }} • Barcelona</span>
             <span class="hero-amount">+ € 184,50</span>
           </div>
-          <p class="hero-card-title">Weekend with friends</p>
+          <p class="hero-card-title">{{ _('Weekend with friends') }}</p>
           <p class="hero-card-sub">
-            5 friends · 18 expenses
+            {{ _('5 friends · 18 expenses') }}
           </p>
 
           <ul class="hero-card-list">
             <li>
-              <span>✈️ Flights</span>
+              <span>✈️ {{ _('Flights') }}</span>
               <span>€ 420,00</span>
             </li>
             <li>
-              <span>🏠 Apartment</span>
+              <span>🏠 {{ _('Apartment') }}</span>
               <span>€ 560,00</span>
             </li>
             <li>
-              <span>🍕 Food & drinks</span>
+              <span>🍕 {{ _('Food & drinks') }}</span>
               <span>€ 245,30</span>
             </li>
           </ul>
@@ -94,16 +93,16 @@
 
         <!-- floating small card bottom-left -->
         <div class="hero-card hero-card-small hero-card-left">
-          <p class="hero-card-label">Student flat Ghent</p>
+          <p class="hero-card-label">{{ _('Student flat Ghent') }}</p>
           <p class="hero-card-number">€ 73,20</p>
-          <p class="hero-card-muted">still to be paid this month</p>
+          <p class="hero-card-muted">{{ _('still to be paid this month') }}</p>
         </div>
 
         <!-- floating small card top-right -->
         <div class="hero-card hero-card-small hero-card-right">
-          <p class="hero-card-label">Team fund</p>
+          <p class="hero-card-label">{{ _('Team fund') }}</p>
           <p class="hero-card-number">€ 312,80</p>
-          <p class="hero-card-muted">still open</p>
+          <p class="hero-card-muted">{{ _('still open') }}</p>
         </div>
       </div>
     </div>
@@ -156,4 +155,3 @@
 </section>
 
 {% endblock %}
-

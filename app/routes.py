@@ -33,10 +33,6 @@ from .model import Group, Expense
 from flask import Blueprint, request, redirect, url_for, flash
 from decimal import Decimal
 
-
-
-
-
 from flask_babel import gettext as _  # ✅ i18n
 
 from app.supabase_client import supabase
@@ -46,8 +42,6 @@ from openai import OpenAI
 import urllib.parse
 
 client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
-
-
 
 main = Blueprint("main", __name__)
 
@@ -71,7 +65,7 @@ def login_required(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         if not current_user():
-            flash(_("Log eerst in om deze pagina te bekijken."), "warning")
+            flash(_("Please log in to view this page."), "warning")
             return redirect(url_for("main.login"))
         return func(*args, **kwargs)
 
@@ -102,6 +96,7 @@ def is_group_closed(group_row: dict) -> bool:
     except Exception:
         return False
 
+
 def build_sepa_paylink(receiver_user: dict, amount: float, group: dict | None = None) -> str | None:
     """
     Maakt een 'deep link'-achtige URL voor een SEPA-overschrijving.
@@ -118,19 +113,14 @@ def build_sepa_paylink(receiver_user: dict, amount: float, group: dict | None = 
     if group and group.get("name"):
         desc_raw = f"FairSplit+ {group['name']}"
     else:
-        desc_raw = "FairSplit+ betaling"
+        desc_raw = "FairSplit+ payment"
 
     desc = quote(desc_raw)
 
     # Bedrag altijd met 2 decimalen
     amt_str = f"{amount:.2f}"
 
-    # Hier kies je zelf het schema. Je kan later experimenteren:
-    # - "bank://payment?..." 
-    # - "sepa://payment?..."
-    # - of een eigen HTTPS-pagina van FairSplit+
     return f"bank://payment?iban={iban}&amount={amt_str}&message={desc}"
-
 
 
 # -----------------------------
@@ -146,17 +136,17 @@ CATEGORY_IDS = [
 
 CATEGORY_LABELS = {
     "transport": _("Transport"),
-    "food": _("Eten & drinken"),
-    "accommodation": _("Accommodatie"),
-    "activities": _("Activiteiten"),
-    "shopping": _("Winkelen"),
+    "food": _("Food & drinks"),
+    "accommodation": _("Accommodation"),
+    "activities": _("Activities"),
+    "shopping": _("Shopping"),
 }
 
 
 def category_label(cat: str) -> str:
     """
     Map een category-id naar een leesbaar label.
-    Onbekende dingen -> 'activiteiten' als veilige default.
+    Onbekende dingen -> 'activities' als veilige default.
     """
     if cat not in CATEGORY_IDS:
         cat = "activities"
@@ -175,11 +165,6 @@ STOPWORDS = {
 def normalize_description(description: str) -> str:
     """
     Maakt beschrijvingen consistent zodat caching goed werkt.
-
-    - lowercasing
-    - trimmen
-    - speciale tekens/emoji eraf
-    - stopwoorden en ultra-korte woorden weg
     """
     if not description:
         return ""
@@ -250,14 +235,6 @@ def fallback_category_keywords(description: str) -> str:
 def infer_category_ai(description: str, raw_category: str | None = None) -> str:
     """
     Bepaalt de categorie met AI + keyword fallback + lokale Supabase-cache.
-
-    Logica:
-    1. Als de user expliciet een geldige categorie kiest -> gebruik die.
-    2. Description normaliseren (voor caching).
-    3. Eerst in lokale Supabase-tabel `category_cache` kijken.
-    4. Anders OpenAI aanroepen met vaste prompt-structuur.
-    5. Als AI iets anders dan 1 van CATEGORY_IDS teruggeeft -> keyword fallback.
-    6. Resultaat in lokale cache steken voor volgende keren.
     """
 
     # 1) User override
@@ -347,12 +324,9 @@ Antwoord met enkel dat ene woord, zonder extra tekst.
         ).execute()
         print(">>> infer_category_ai: cached", norm_desc, "->", final_cat)
     except Exception as e:
-        # als hij al bestaat (unique constraint), is dat niet erg
         print(">>> infer_category_ai: cache insert ERROR:", e)
 
     return final_cat
-
-
 
 
 # -----------------------------
@@ -456,7 +430,7 @@ def register():
 
         # Check op leeg veld
         if not all([name, username, email, phone_number, iban, password]):
-            flash(_("Vul alle velden in."), "danger")
+            flash(_("Please fill in all fields."), "danger")
             return redirect(url_for("main.register"))
 
         # Check op bestaande email, username of telefoonnummer
@@ -473,7 +447,7 @@ def register():
         )
 
         if existing:
-            flash(_("Gebruikersnaam, e-mailadres of telefoonnummer bestaat al."), "danger")
+            flash(_("Username, email address or phone number already exists."), "danger")
             return redirect(url_for("main.register"))
 
         # Nieuwe user toevoegen
@@ -501,11 +475,10 @@ def register():
         if join_code:
             return redirect(url_for("main.join_group", join_code=join_code))
 
-        flash(_("Registratie succesvol!"), "success")
+        flash(_("Registration successful!"), "success")
         return redirect(url_for("main.dashboard"))
 
     return render_template("register.html")
-
 
 
 @main.route("/login", methods=["GET", "POST"])
@@ -515,7 +488,7 @@ def login():
         password = request.form.get("password", "").strip()
 
         if not identifier or not password:
-            flash(_("Vul alle velden in."), "danger")
+            flash(_("Please fill in all fields."), "danger")
             return redirect(url_for("main.login"))
 
         res = (
@@ -526,7 +499,7 @@ def login():
         )
         data = res.data or []
         if not data or data[0].get("password") != password:
-            flash(_("Ongeldige inloggegevens."), "danger")
+            flash(_("Invalid login details."), "danger")
             return redirect(url_for("main.login"))
 
         session["users_id"] = data[0]["users_id"]
@@ -536,7 +509,7 @@ def login():
         if join_code:
             return redirect(url_for("main.join_group", join_code=join_code))
 
-        flash(_("Welkom terug, %(username)s!", username=data[0]["username"]), "success")
+        flash(_("Welcome back, %(username)s!", username=data[0]["username"]), "success")
         return redirect(url_for("main.dashboard"))
 
     return render_template("login.html")
@@ -552,7 +525,7 @@ def logout():
     # zet taal terug
     session["lang"] = lang
 
-    flash(_("Je bent uitgelogd."), "info")
+    flash(_("You have been logged out."), "info")
     return redirect(url_for("main.login"))
 
 
@@ -634,7 +607,7 @@ def create_group():
         max_members_raw = request.form.get("max_members", "").strip()
 
         if not name:
-            flash(_("Geef een groepsnaam in."), "danger")
+            flash(_("Please enter a group name."), "danger")
             return redirect(url_for("main.create_group"))
 
         # optioneel: max members
@@ -689,7 +662,7 @@ def create_group():
             }
         ).execute()
 
-        flash(_("Groep aangemaakt!"), "success")
+        flash(_("Group created!"), "success")
         return redirect(url_for("main.group_detail", group_id=group["group_id"]))
 
     # GET
@@ -698,6 +671,7 @@ def create_group():
 
 from decimal import Decimal
 from datetime import datetime, date
+
 
 def compute_group_balances(group_id: int):
     """
@@ -842,8 +816,6 @@ def compute_group_balances(group_id: int):
     return result
 
 
-
-
 # -----------------------------
 # SETTLEMENTS – SCHULDEN VEREFFENEN
 # -----------------------------
@@ -974,12 +946,12 @@ def settlements_overview(group_id):
                     "from_user_id": row["from_user_id"],
                     "from_username": next(
                         (b["username"] for b in balances if b["user_id"] == row["from_user_id"]),
-                        _("Onbekend"),
+                        _("Unknown"),
                     ),
                     "to_user_id": row["to_user_id"],
                     "to_username": next(
                         (b["username"] for b in balances if b["user_id"] == row["to_user_id"]),
-                        _("Onbekend"),
+                        _("Unknown"),
                     ),
                     "amount": float(row["amount"]),
                     "is_me_payer": (row["from_user_id"] == current_uid),
@@ -1009,6 +981,7 @@ def settlements_overview(group_id):
         balances=balances,
         settlements=template_settlements,
     )
+
 
 @main.route("/groups/<int:group_id>")
 @login_required
@@ -1108,7 +1081,7 @@ def group_detail(group_id):
         shares_by_expense.setdefault(eid, []).append(
             {
                 "user_id": s["user_id"],
-                "username": username_map.get(s["user_id"], _("Onbekend")),
+                "username": username_map.get(s["user_id"], _("Unknown")),
                 "amount": s["amount"],
             }
         )
@@ -1199,7 +1172,7 @@ def group_detail(group_id):
                 "total_amount": exp["total_amount"],
                 "created_at": exp["created_at"],
                 "payer_username": username_map.get(
-                    exp["created_by_user_id"], _("Onbekend")
+                    exp["created_by_user_id"], _("Unknown")
                 ),
                 "shares": shares_by_expense.get(eid, []),
                 "category": cat,
@@ -1217,10 +1190,10 @@ def group_detail(group_id):
                 "created_at": p.get("created_at"),
                 "amount": p.get("amount"),
                 "sender_username": username_map.get(
-                    p.get("sender_id"), _("Onbekend")
+                    p.get("sender_id"), _("Unknown")
                 ),
                 "receiver_username": username_map.get(
-                    p.get("receiver_id"), _("Onbekend")
+                    p.get("receiver_id"), _("Unknown")
                 ),
             }
         )
@@ -1238,7 +1211,6 @@ def group_detail(group_id):
         is_closed=is_closed,
         whatsapp_link=whatsapp_link,
     )
-
 
 
 # -----------------------------
@@ -1327,7 +1299,7 @@ def group_expenses(group_id):
         shares_by_expense.setdefault(eid, []).append(
             {
                 "user_id": s["user_id"],
-                "username": username_map.get(s["user_id"], _("Onbekend")),
+                "username": username_map.get(s["user_id"], _("Unknown")),
                 "amount": s["amount"],
             }
         )
@@ -1349,7 +1321,7 @@ def group_expenses(group_id):
                 "total_amount": exp["total_amount"],
                 "created_at": exp["created_at"],
                 "payer_username": username_map.get(
-                    exp["created_by_user_id"], _("Onbekend")
+                    exp["created_by_user_id"], _("Unknown")
                 ),
                 "shares": shares_by_expense.get(eid, []),
                 "category": cat,
@@ -1380,7 +1352,7 @@ def join_group_form():
     code = request.form.get("join_code", "").strip().upper()
 
     if not code:
-        flash(_("Vul een groepscode in om te joinen."), "warning")
+        flash(_("Please enter a group code to join."), "warning")
         return redirect(url_for("main.dashboard"))
 
     return redirect(url_for("main.join_group", join_code=code))
@@ -1395,7 +1367,7 @@ def join_group(join_code):
 
     if "users_id" not in session:
         session["pending_join_code"] = join_code
-        flash(_("Log in of registreer om aan de groep toegevoegd te worden."), "info")
+        flash(_("Log in or register to join this group."), "info")
         return redirect(url_for("main.login"))
 
     user = current_user()
@@ -1410,7 +1382,7 @@ def join_group(join_code):
     if not g:
         flash(
             _(
-                "Geen groep gevonden met deze code. Controleer de code en probeer opnieuw."
+                "No group found with this code. Double-check the code and try again."
             ),
             "danger",
         )
@@ -1427,7 +1399,7 @@ def join_group(join_code):
         .data
     )
     if existing:
-        flash(_("Je bent al lid van '%(name)s'.", name=group["name"]), "info")
+        flash(_("You are already a member of '%(name)s'.", name=group["name"]), "info")
         return redirect(url_for("main.group_detail", group_id=group["group_id"]))
 
     supabase.table("group_members").insert(
@@ -1441,7 +1413,7 @@ def join_group(join_code):
     # App fee opnieuw verdelen over alle leden
     ensure_app_fee(group["group_id"], creator_id=group["created_by_user_id"])
 
-    flash(_("Je bent toegevoegd aan de groep '%(name)s' 🎉", name=group["name"]), "success")
+    flash(_("You have joined the group '%(name)s' 🎉", name=group["name"]), "success")
     return redirect(url_for("main.group_detail", group_id=group["group_id"]))
 
 
@@ -1464,7 +1436,7 @@ def expense_new(group_id):
         or []
     )
     if not membership:
-        flash(_("Je hebt geen toegang tot deze groep."), "danger")
+        flash(_("You do not have access to this group."), "danger")
         return redirect(url_for("main.dashboard"))
 
     # Groep ophalen
@@ -1477,18 +1449,15 @@ def expense_new(group_id):
     )
     group = g[0] if g else None
     if not group:
-        flash(_("Deze groep bestaat niet."), "danger")
+        flash(_("This group does not exist."), "danger")
         return redirect(url_for("main.dashboard"))
 
-    # ---------- NIEUW: check of de groep gesloten is ----------
-    # We gaan er van uit dat end_date in de DB als string staat
-    # zoals "2025-11-29" (of None / lege string).
+    # ---------- check of de groep gesloten is ----------
     is_closed = False
     end_str = group.get("end_date")
 
     if end_str:
         try:
-            # probeer ISO of simpel yyyy-mm-dd te parsen
             if "T" in end_str:
                 end_dt = datetime.fromisoformat(end_str)
                 end_date = end_dt.date()
@@ -1498,19 +1467,17 @@ def expense_new(group_id):
             if end_date < date.today():
                 is_closed = True
         except Exception:
-            # Als parsen mislukt, sluiten we de groep niet automatisch
             is_closed = False
 
     if is_closed:
         flash(
             _(
-                "Deze groep is gesloten (einddatum verstreken). "
-                "Je kunt geen nieuwe uitgaven meer toevoegen."
+                "This group is closed (end date passed). "
+                "You can no longer add new expenses."
             ),
             "warning",
         )
         return redirect(url_for("main.group_detail", group_id=group_id))
-    # ---------- EINDE nieuwe closed-check ----------
 
     # Leden ophalen
     gm_rows = (
@@ -1547,18 +1514,18 @@ def expense_new(group_id):
         print(">>> expense_new POST: raw_category (from form) =", repr(raw_category))
 
         if not description or not amount_raw:
-            flash(_("Vul alle velden in."), "danger")
+            flash(_("Please fill in all fields."), "danger")
             return redirect(request.url)
 
         # bedrag parsen
         try:
             total_amount = float(amount_raw.replace(",", "."))
         except ValueError:
-            flash(_("Bedrag moet een getal zijn."), "danger")
+            flash(_("Amount must be a number."), "danger")
             return redirect(request.url)
 
         if total_amount <= 0:
-            flash(_("Bedrag moet groter zijn dan 0."), "danger")
+            flash(_("Amount must be greater than 0."), "danger")
             return redirect(request.url)
 
         # shares verzamelen
@@ -1574,14 +1541,14 @@ def expense_new(group_id):
                 share_val = float(share_raw.replace(",", "."))
             except ValueError:
                 flash(
-                    _("Bedrag bij %(user)s is geen geldig getal.", user=m["username"]),
+                    _("Amount for %(user)s is not a valid number.", user=m["username"]),
                     "danger",
                 )
                 return redirect(request.url)
 
             if share_val < 0:
                 flash(
-                    _("Bedrag bij %(user)s mag niet negatief zijn.", user=m["username"]),
+                    _("Amount for %(user)s cannot be negative.", user=m["username"]),
                     "danger",
                 )
                 return redirect(request.url)
@@ -1595,7 +1562,7 @@ def expense_new(group_id):
             if abs(sum_shares - total_amount) > 0.01:
                 flash(
                     _(
-                        "De som van de individuele bedragen (%(sum).2f) komt niet overeen met het totaal (%(total).2f).",
+                        "The sum of individual amounts (%(sum).2f) does not match the total (%(total).2f).",
                         sum=sum_shares,
                         total=total_amount,
                     ),
@@ -1625,7 +1592,7 @@ def expense_new(group_id):
         )
 
         if not exp_resp.data:
-            flash(_("Kon uitgave niet opslaan."), "danger")
+            flash(_("Could not save expense."), "danger")
             return redirect(request.url)
 
         expense = exp_resp.data[0]
@@ -1647,7 +1614,7 @@ def expense_new(group_id):
                 )
             supabase.table("expense_shares").insert(rows).execute()
 
-        flash(_("Uitgave toegevoegd!"), "success")
+        flash(_("Expense added!"), "success")
         return redirect(url_for("main.group_detail", group_id=group_id))
 
     # ---------------- GET: formulier tonen ----------------
@@ -1663,31 +1630,15 @@ def expense_new(group_id):
         is_edit=False,
         form_action=url_for("main.expense_new", group_id=group_id),
     )
+
+
 @main.route("/group/<int:group_id>/expense/parse_receipt", methods=["POST"])
 @login_required
 def expense_parse_receipt(group_id):
     """
     Ontvangt een foto van een bonnetje, stuurt die naar OpenAI Vision
     en geeft gestructureerde items + totaal terug in JSON.
-
-    Response JSON:
-    {
-      "success": true/false,
-      "receipt": {
-         "items": [
-            {
-              "description": "...",
-              "quantity": 2,
-              "unit_price": 4.5,
-              "total_price": 9.0
-            },
-            ...
-         ],
-         "total": 37.5  # optioneel
-      }
-    }
     """
-
     file = request.files.get("receipt")
     if not file or file.filename == "":
         return jsonify(success=False, error="no_file"), 400
@@ -1702,7 +1653,7 @@ def expense_parse_receipt(group_id):
     img_b64 = base64.b64encode(img_bytes).decode("ascii")
     data_url = f"data:{mimetype};base64,{img_b64}"
 
-    # Prompt
+    # Prompt (mag gerust NL blijven, is enkel voor de AI)
     system_prompt = """
 Je bent een zeer nauwkeurige parser van kassabonnetjes.
 
@@ -1744,7 +1695,7 @@ Regels:
                         {
                             "type": "input_image",
                             "image_url": data_url
-                            
+
                         },
                     ],
                 }
@@ -1852,7 +1803,7 @@ def expense_edit(group_id, expense_id):
         or []
     )
     if not membership:
-        flash(_("Je hebt geen toegang tot deze groep."), "danger")
+        flash(_("You do not have access to this group."), "danger")
         return redirect(url_for("main.dashboard"))
 
     # groep ophalen
@@ -1884,12 +1835,12 @@ def expense_edit(group_id, expense_id):
 
     # geen edit/delete op app-fee
     if expense.get("is_app_fee"):
-        flash(_("De app-fee kan je niet aanpassen."), "warning")
+        flash(_("You cannot edit the app fee."), "warning")
         return redirect(url_for("main.ledger", group_id=group_id))
 
     # alleen maker mag bewerken
     if expense["created_by_user_id"] != uid:
-        flash(_("Je kan enkel je eigen uitgaven aanpassen."), "danger")
+        flash(_("You can only edit your own expenses."), "danger")
         return redirect(url_for("main.ledger", group_id=group_id))
 
     # leden ophalen
@@ -1934,17 +1885,17 @@ def expense_edit(group_id, expense_id):
         raw_category = request.form.get("category")  # kan leeg zijn
 
         if not description or not amount_raw:
-            flash(_("Vul alle velden in."), "danger")
+            flash(_("Please fill in all fields."), "danger")
             return redirect(request.url)
 
         try:
             total_amount = float(amount_raw.replace(",", "."))
         except ValueError:
-            flash(_("Bedrag moet een getal zijn."), "danger")
+            flash(_("Amount must be a number."), "danger")
             return redirect(request.url)
 
         if total_amount <= 0:
-            flash(_("Bedrag moet groter zijn dan 0."), "danger")
+            flash(_("Amount must be greater than 0."), "danger")
             return redirect(request.url)
 
         # shares verzamelen
@@ -1960,14 +1911,14 @@ def expense_edit(group_id, expense_id):
                 share_val = float(share_raw.replace(",", "."))
             except ValueError:
                 flash(
-                    _("Bedrag bij %(user)s is geen geldig getal.", user=m["username"]),
+                    _("Amount for %(user)s is not a valid number.", user=m["username"]),
                     "danger",
                 )
                 return redirect(request.url)
 
             if share_val < 0:
                 flash(
-                    _("Bedrag bij %(user)s mag niet negatief zijn.", user=m["username"]),
+                    _("Amount for %(user)s cannot be negative.", user=m["username"]),
                     "danger",
                 )
                 return redirect(request.url)
@@ -1980,7 +1931,7 @@ def expense_edit(group_id, expense_id):
             if abs(sum_shares - total_amount) > 0.01:
                 flash(
                     _(
-                        "De som van de individuele bedragen (%(sum).2f) komt niet overeen met het totaal (%(total).2f).",
+                        "The sum of individual amounts (%(sum).2f) does not match the total (%(total).2f).",
                         sum=sum_shares,
                         total=total_amount,
                     ),
@@ -2022,7 +1973,7 @@ def expense_edit(group_id, expense_id):
                 )
             supabase.table("expense_shares").insert(rows).execute()
 
-        flash(_("Uitgave bijgewerkt!"), "success")
+        flash(_("Expense updated!"), "success")
         return redirect(url_for("main.ledger", group_id=group_id))
 
     # ---------- GET: formulier tonen ----------
@@ -2040,8 +1991,6 @@ def expense_edit(group_id, expense_id):
     )
 
 
-
-
 # -----------------------------
 # TAAL SWITCH
 # -----------------------------
@@ -2055,6 +2004,8 @@ def set_language(lang):
 
     # Terug naar de pagina waar je vandaan kwam, of naar home
     return redirect(request.referrer or url_for("main.home"))
+
+
 # -----------------------------
 # LEDGER – VOLLEDIGE HISTORIEK
 # -----------------------------
@@ -2130,7 +2081,7 @@ def ledger(group_id):
         shares_by_expense.setdefault(eid, []).append(
             {
                 "user_id": s["user_id"],
-                "username": username_map.get(s["user_id"], _("Onbekend")),
+                "username": username_map.get(s["user_id"], _("Unknown")),
                 "amount": s["amount"],
             }
         )
@@ -2169,7 +2120,7 @@ def ledger(group_id):
                 "total_amount": total_amount,
                 "created_at": exp["created_at"],
                 "payer_username": username_map.get(
-                    exp["created_by_user_id"], _("Onbekend")
+                    exp["created_by_user_id"], _("Unknown")
                 ),
                 "shares": shares,
                 "delta": delta,
@@ -2224,8 +2175,9 @@ def expense_delete(group_id, expense_id):
         {"is_active": False}
     ).eq("expense_id", expense_id).execute()
 
-    flash(_("Uitgave verwijderd."), "success")
+    flash(_("Expense deleted."), "success")
     return redirect(url_for("main.ledger", group_id=group_id))
+
 
 @main.route("/groups/<int:group_id>/settlements")
 @login_required
@@ -2259,8 +2211,8 @@ def settlements(group_id):
     for s in rows:
         enriched.append({
             **s,
-            "from_username": user_map.get(s["from_user_id"], {}).get("username", "??"),
-            "to_username": user_map.get(s["to_user_id"], {}).get("username", "??"),
+            "from_username": user_map.get(s["from_user_id"], {}).get("username", _("Unknown")),
+            "to_username": user_map.get(s["to_user_id"], {}).get("username", _("Unknown")),
             "to_iban": user_map.get(s["to_user_id"], {}).get("iban"),
             "to_paylink": user_map.get(s["to_user_id"], {}).get("paylink"),
         })
@@ -2297,7 +2249,7 @@ def settlement_mark_paid(group_id, settlement_id):
 
     now_iso = datetime.utcnow().isoformat()
 
-    # 1) Betaling maken in de payments tabel (jouw kolomnamen!)
+    # 1) Betaling maken in de payments tabel
     try:
         supabase.table("payments").insert({
             "group_id": group_id,
@@ -2310,7 +2262,7 @@ def settlement_mark_paid(group_id, settlement_id):
         }).execute()
     except Exception as e:
         print(">>> ERROR inserting payment:", e)
-        flash("Kon betaling niet registreren. Probeer later opnieuw.", "danger")
+        flash(_("Could not register payment. Please try again later."), "danger")
         return redirect(url_for("main.settlement_pay", group_id=group_id, settlement_id=settlement_id))
 
     # 2) Settlement status op 'paid' zetten
@@ -2319,7 +2271,7 @@ def settlement_mark_paid(group_id, settlement_id):
         "paid_at": now_iso
     }).eq("settlement_id", settlement_id).execute()
 
-    flash("Betaling geregistreerd! 🎉", "success")
+    flash(_("Payment registered! 🎉"), "success")
     return redirect(url_for("main.settlements", group_id=group_id))
 
 
@@ -2330,12 +2282,6 @@ def create_epc_qr(name: str, iban: str, amount: float, message: str, filename: s
     """
     Maakt een EPC SEPA QR-code aan die door de meeste banking apps
     (KBC, Belfius, ING, …) herkend wordt.
-
-    name:    naam van de ontvanger
-    iban:    IBAN van de ontvanger (zonder spaties)
-    amount:  bedrag in EUR
-    message: vrije mededeling
-    filename: bestandsnaam in static/qr/
     """
 
     # EPC-tekst volgens standaard
@@ -2362,13 +2308,11 @@ EUR{amount:.2f}
     # relatieve URL die je in <img src="..."> kan gebruiken
     return f"qr/{filename}"
 
+
 def generate_payment_qr(iban: str, amount: float, receiver_name: str, reference: str) -> str:
     """
     Maakt een simpele QR-code met IBAN, bedrag en mededeling.
-    Banken die het EPC-formaat verwachten zouden meer structuur willen,
-    maar voor je project is dit perfect als demo (scanner leest tekst).
     """
-    # Spaties uit IBAN halen
     iban_clean = (iban or "").replace(" ", "").upper()
 
     payload = (
@@ -2474,18 +2418,6 @@ def build_epc_qr_string(name: str, iban: str, amount: float, remittance: str, bi
     name_clean = (name or "").strip()[:70]
     rem_clean = (remittance or "").strip()[:140]
 
-    # EPC QR standaard (SCT = SEPA Credit Transfer)
-    # Regels:
-    # 1: "BCD"
-    # 2: "001"      -> versie
-    # 3: "1"        -> codering
-    # 4: "SCT"      -> schema (SEPA Credit Transfer)
-    # 5: BIC        -> mag leeg zijn
-    # 6: Naam
-    # 7: IBAN
-    # 8: Bedrag in de vorm "EUR12.34"
-    # 9: lege regel
-    # 10: Omschrijving
     lines = [
         "BCD",
         "001",
@@ -2501,10 +2433,9 @@ def build_epc_qr_string(name: str, iban: str, amount: float, remittance: str, bi
     return "\n".join(lines)
 
 
-
 @main.route("/groups/<int:group_id>/expenses/pdf")
 def group_expenses_pdf(group_id):
-    # Groep ophalen – zelfde pattern als in je andere routes
+    # Groep ophalen
     group = Group.query.get_or_404(group_id)
 
     # Uitgaven van die groep ophalen
@@ -2530,16 +2461,20 @@ def group_expenses_pdf(group_id):
     story = []
 
     # Titel
-    title = f"Overzicht uitgaven – {group.name}"
+    title = _("Expense overview – %(group_name)s", group_name=group.name)
     story.append(Paragraph(title, styles["Title"]))
     story.append(Spacer(1, 6))
 
-    meta = f"Valuta: {group.currency or 'EUR'} · Aantal uitgaven: {len(expenses)}"
+    meta = _(
+        "Currency: %(currency)s · Number of expenses: %(n)d",
+        currency=(group.currency or "EUR"),
+        n=len(expenses),
+    )
     story.append(Paragraph(meta, styles["Normal"]))
     story.append(Spacer(1, 12))
 
     # Tabeldata
-    data = [["Datum", "Omschrijving", "Betaler", "Bedrag"]]
+    data = [[_("Date"), _("Description"), _("Payer"), _("Amount")]]
     for e in expenses:
         date_str = str(e.created_at)[:10] if e.created_at else ""
         desc = e.description or ""
@@ -2576,10 +2511,11 @@ def group_expenses_pdf(group_id):
 
     # HTTP response met PDF
     response = make_response(pdf_bytes)
-    filename = f"fairsplit_{group_id}_overzicht.pdf"
+    filename = f"fairsplit_{group_id}_overview.pdf"
     response.headers["Content-Type"] = "application/pdf"
-    response.headers["Content-Disposition"] = f'inline; filename=\"{filename}\"'
+    response.headers["Content-Disposition"] = f'inline; filename="{filename}"'
     return response
+
 
 @main.route("/feedback", methods=["POST"])
 @login_required

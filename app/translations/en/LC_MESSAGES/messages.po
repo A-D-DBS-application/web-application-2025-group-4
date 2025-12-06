@@ -1,11 +1,10 @@
-
 msgid ""
 msgstr ""
-"Project-Id-Version: PROJECT VERSION\n"
+"Project-Id-Version: FairSplit+\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2025-12-02 20:54+0100\n"
-"PO-Revision-Date: 2025-11-24 22:57+0100\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"PO-Revision-Date: 2025-12-06 13:30+0100\n"
+"Last-Translator: Rune Meerpoel <EMAIL@ADDRESS>\n"
 "Language: en\n"
 "Language-Team: en <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -14,136 +13,101 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.17.0\n"
 
-#: app/routes.py:73
+#######################################################
+# ROUTES / FLASH MESSAGES
+#######################################################
+
 msgid "Log eerst in om deze pagina te bekijken."
 msgstr "Please log in to view this page."
 
-#: app/routes.py:119
 msgid "Transport"
-msgstr ""
+msgstr "Transport"
 
-#: app/routes.py:120
 msgid "Eten & drinken"
-msgstr ""
+msgstr "Food & drinks"
 
-#: app/routes.py:121
 msgid "Accommodatie"
-msgstr ""
+msgstr "Accommodation"
 
-#: app/routes.py:122
-#, fuzzy
 msgid "Activiteiten"
-msgstr "Active trip"
+msgstr "Activities"
 
-#: app/routes.py:123
 msgid "Winkelen"
-msgstr ""
+msgstr "Shopping"
 
-#: app/routes.py:430 app/routes.py:489 app/routes.py:1479 app/routes.py:1866
 msgid "Vul alle velden in."
 msgstr "Please fill in all fields."
 
-#: app/routes.py:447
-#, fuzzy
 msgid "Gebruikersnaam, e-mailadres of telefoonnummer bestaat al."
-msgstr "Username or email already exists."
+msgstr "Username, email address or phone number already exists."
 
-#: app/routes.py:475
 msgid "Registratie succesvol!"
 msgstr "Registration successful!"
 
-#: app/routes.py:500
 msgid "Ongeldige inloggegevens."
 msgstr "Invalid login credentials."
 
-#: app/routes.py:510
-#, python-format
 msgid "Welkom terug, %(username)s!"
 msgstr "Welcome back, %(username)s!"
 
-#: app/routes.py:526
 msgid "Je bent uitgelogd."
 msgstr "You have been logged out."
 
-#: app/routes.py:608
 msgid "Geef een groepsnaam in."
 msgstr "Please enter a group name."
 
-#: app/routes.py:663
 msgid "Groep aangemaakt!"
 msgstr "Group created!"
 
-#: app/routes.py:916 app/routes.py:921 app/routes.py:1055 app/routes.py:1121
-#: app/routes.py:1149 app/routes.py:1152 app/routes.py:1259 app/routes.py:1281
-#: app/routes.py:2060 app/routes.py:2099
 msgid "Onbekend"
 msgstr "Unknown"
 
-#: app/routes.py:979
-#, python-format
 msgid "Join our FairSplit+ group '%(name)s' 💸: %(link)s"
-msgstr ""
+msgstr "Join our FairSplit+ group '%(name)s' 💸: %(link)s"
 
-#: app/routes.py:1098
 msgid "Unknown"
 msgstr "Unknown"
 
-#: app/routes.py:1312
 msgid "Vul een groepscode in om te joinen."
 msgstr "Enter a group code to join."
 
-#: app/routes.py:1327
 msgid "Log in of registreer om aan de groep toegevoegd te worden."
 msgstr "Log in or register to be added to the group."
 
-#: app/routes.py:1342
 msgid "Geen groep gevonden met deze code. Controleer de code en probeer opnieuw."
 msgstr "No group found with this code. Check the code and try again."
 
-#: app/routes.py:1359
-#, python-format
 msgid "Je bent al lid van '%(name)s'."
 msgstr "You are already a member of '%(name)s'."
 
-#: app/routes.py:1373
-#, python-format
 msgid "Je bent toegevoegd aan de groep '%(name)s' 🎉"
 msgstr "You have been added to the group '%(name)s' 🎉"
 
-#: app/routes.py:1396 app/routes.py:1784
 msgid "Je hebt geen toegang tot deze groep."
 msgstr "You don't have access to this group."
 
-#: app/routes.py:1409
 msgid "Deze groep bestaat niet."
-msgstr ""
+msgstr "This group does not exist."
 
-#: app/routes.py:1436
 msgid ""
 "Deze groep is gesloten (einddatum verstreken). Je kunt geen nieuwe "
 "uitgaven meer toevoegen."
 msgstr ""
+"This group is closed (end date passed). You can no longer add new "
+"expenses."
 
-#: app/routes.py:1486 app/routes.py:1872
 msgid "Bedrag moet een getal zijn."
 msgstr "Amount must be a number."
 
-#: app/routes.py:1490 app/routes.py:1876
 msgid "Bedrag moet groter zijn dan 0."
 msgstr "Amount must be greater than 0."
 
-#: app/routes.py:1506 app/routes.py:1892
-#, python-format
 msgid "Bedrag bij %(user)s is geen geldig getal."
 msgstr "Amount for %(user)s is not a valid number."
 
-#: app/routes.py:1513 app/routes.py:1899
-#, python-format
 msgid "Bedrag bij %(user)s mag niet negatief zijn."
 msgstr "Amount for %(user)s cannot be negative."
 
-#: app/routes.py:1527 app/routes.py:1912
-#, python-format
 msgid ""
 "De som van de individuele bedragen (%(sum).2f) komt niet overeen met het "
 "totaal (%(total).2f)."
@@ -151,502 +115,866 @@ msgstr ""
 "The sum of the individual amounts (%(sum).2f) does not match the total "
 "(%(total).2f)."
 
-#: app/routes.py:1557
 msgid "Kon uitgave niet opslaan."
 msgstr "Could not save expense."
 
-#: app/routes.py:1579
 msgid "Uitgave toegevoegd!"
 msgstr "Expense added!"
 
-#: app/routes.py:1816
 msgid "De app-fee kan je niet aanpassen."
-msgstr ""
+msgstr "You cannot modify the app fee."
 
-#: app/routes.py:1821
 msgid "Je kan enkel je eigen uitgaven aanpassen."
-msgstr ""
+msgstr "You can only edit your own expenses."
 
-#: app/routes.py:1954
-#, fuzzy
 msgid "Uitgave bijgewerkt!"
-msgstr "Expense added!"
+msgstr "Expense updated!"
 
-#: app/routes.py:2154
-#, fuzzy
 msgid "Uitgave verwijderd."
+msgstr "Expense deleted."
+
+msgid "Feedback not sent – please enter something."
+msgstr "Feedback not sent – please enter something."
+
+msgid "Thank you! Your feedback has been received 🙏"
+msgstr "Thank you! Your feedback has been received 🙏"
+
+#######################################################
+# BASE HEADER / FOOTER
+#######################################################
+
+msgid "Logged in"
+msgstr "Logged in"
+
+msgid "Log out"
+msgstr "Log out"
+
+msgid "Log in"
+msgstr "Log in"
+
+msgid "Register"
+msgstr "Register"
+
+msgid "All rights reserved"
+msgstr "All rights reserved"
+
+#######################################################
+# HOME PAGE (home.html)
+#######################################################
+
+msgid "Less stress with shared expenses"
+msgstr "Less stress with shared expenses"
+
+msgid "Split expenses fairly"
 msgstr "Split expenses fairly"
 
-#: app/routes.py:2505
-msgid "Feedback not sent – please enter something."
+msgid "with friends, flatmates or on trips."
+msgstr "with friends, flatmates or on trips."
+
+msgid ""
+"Track balances per group, trip or flat. One clear overview of who paid "
+"what – without Excel, arguments or forgotten repayments."
 msgstr ""
+"Track balances per group, trip or flat. One clear overview of who paid "
+"what – without Excel, arguments or forgotten repayments."
 
-#: app/routes.py:2513
-msgid "Thank you! Your feedback has been received 🙏"
+msgid "Sign up for free"
+msgstr "Sign up for free"
+
+msgid "I already have an account"
+msgstr "I already have an account"
+
+msgid "Split expenses in seconds"
+msgstr "Split expenses in seconds"
+
+msgid "Perfect for trips, flats & teams"
+msgstr "Perfect for trips, flats & teams"
+
+msgid "Works on laptop, tablet and phone"
+msgstr "Works on laptop, tablet and phone"
+
+msgid "Trip"
+msgstr "Trip"
+
+msgid "Weekend with friends"
+msgstr "Weekend with friends"
+
+msgid "5 friends · 18 expenses"
+msgstr "5 friends · 18 expenses"
+
+msgid "Flights"
+msgstr "Flights"
+
+msgid "Apartment"
+msgstr "Apartment"
+
+msgid "Food & drinks"
+msgstr "Food & drinks"
+
+msgid "Student flat Ghent"
+msgstr "Student flat Ghent"
+
+msgid "still to be paid this month"
+msgstr "still to be paid this month"
+
+msgid "Team fund"
+msgstr "Team fund"
+
+msgid "still open"
+msgstr "still open"
+
+msgid "How does FairSplit+ work?"
+msgstr "How does FairSplit+ work?"
+
+msgid "Trips with friends"
+msgstr "Trips with friends"
+
+msgid ""
+"Create a group for each trip and keep all bookings, groceries and "
+"activities nicely organised."
 msgstr ""
+"Create a group for each trip and keep all bookings, groceries and "
+"activities nicely organised."
 
-#~ msgid "Ingelogd"
-#~ msgstr "Logged in"
+msgid "Home or flat expenses"
+msgstr "Home or flat expenses"
 
-#~ msgid "Log uit"
-#~ msgstr "Log out"
+msgid ""
+"From rent and energy bills to groceries: everyone instantly sees who "
+"paid for what."
+msgstr ""
+"From rent and energy bills to groceries: everyone instantly sees who "
+"paid for what."
 
-#~ msgid "Login"
-#~ msgstr "Login"
+msgid "Teams & clubs"
+msgstr "Teams & clubs"
 
-#~ msgid "Registreer"
-#~ msgstr "Register"
+msgid ""
+"Use FairSplit+ for team funds, weekends away or events with your club or "
+"society."
+msgstr ""
+"Use FairSplit+ for team funds, weekends away or events with your club or "
+"society."
 
-#~ msgid "Alle rechten voorbehouden"
-#~ msgstr "All rights reserved"
+msgid "Fair settlement"
+msgstr "Fair settlement"
 
-#~ msgid "New expense"
-#~ msgstr "New expense"
+msgid ""
+"Automatic calculation of balances per person – simple, transparent and "
+"argument-free."
+msgstr ""
+"Automatic calculation of balances per person – simple, transparent and "
+"argument-free."
 
-#~ msgid "New expense 💸"
-#~ msgstr "New expense 💸"
+#######################################################
+# LOGIN PAGE (login.html)
+#######################################################
 
-#~ msgid "New expense for"
-#~ msgstr "New expense for"
+msgid "Welcome back 👋"
+msgstr "Welcome back 👋"
 
-#~ msgid "Add an expense to this group. You can choose an"
-#~ msgstr "Add an expense to this group. You can choose an"
+msgid "Log in to your FairSplit+ groups"
+msgstr "Log in to your FairSplit+ groups"
 
-#~ msgid "equal split"
-#~ msgstr "equal split"
+msgid "Log in to your"
+msgstr "Log in to your"
 
-#~ msgid "or a"
-#~ msgstr "or a"
+msgid "groups"
+msgstr "groups"
 
-#~ msgid "custom split per person"
-#~ msgstr "custom split per person"
+msgid ""
+"See your trips, add expenses and settle everything fairly. One login for "
+"all groups."
+msgstr ""
+"See your trips, add expenses and settle everything fairly. One login for "
+"all groups."
 
-#~ msgid "Clear balances per person"
-#~ msgstr "Clear balances per person"
+msgid "Full transparency per group"
+msgstr "Full transparency per group"
 
-#~ msgid "Enter an amount per person"
-#~ msgstr "Enter an amount per person"
+msgid "No more Excel or arguments"
+msgstr "No more Excel or arguments"
 
-#~ msgid "Check that totals match"
-#~ msgstr "Check that totals match"
+msgid "Login"
+msgstr "Login"
 
-#~ msgid "Fill in the details and choose how to split the cost."
-#~ msgstr "Fill in the details and choose how to split the cost."
+msgid "Use your username or email address."
+msgstr "Use your username or email address."
 
-#~ msgid "Description"
-#~ msgstr "Description"
+msgid "Username or email"
+msgstr "Username or email"
 
-#~ msgid "e.g. Train tickets"
-#~ msgstr "e.g. Train tickets"
+msgid "No account yet?"
+msgstr "No account yet?"
 
-#~ msgid "Amount (EUR)"
-#~ msgstr "Amount (EUR)"
+msgid "Register for free"
+msgstr "Register for free"
 
-#~ msgid "Split"
-#~ msgstr "Split"
+msgid "By logging in you agree to fair splits & good vibes ✌️"
+msgstr "By logging in you agree to fair splits & good vibes ✌️"
 
-#~ msgid "Equal split"
-#~ msgstr "Equal split"
+#######################################################
+# REGISTER PAGE (register.html)
+#######################################################
 
-#~ msgid "Custom split"
-#~ msgstr "Custom split"
+msgid "Get started free"
+msgstr "Get started free"
 
-#~ msgid "Enter an amount first to split equally."
-#~ msgstr "Enter an amount first to split equally."
+msgid "Create your FairSplit+ account"
+msgstr "Create your FairSplit+ account"
 
-#~ msgid "Amount per person"
-#~ msgstr "Amount per person"
+msgid ""
+"One profile for all your group expenses: trips, roommates, teams and "
+"more."
+msgstr ""
+"One profile for all your group expenses: trips, roommates, teams and "
+"more."
 
-#~ msgid "Total entered"
-#~ msgstr "Total entered"
+msgid "Create unlimited groups"
+msgstr "Create unlimited groups"
 
-#~ msgid "Remaining"
-#~ msgstr "Remaining"
+msgid "Invite friends with a join link"
+msgstr "Invite friends with a join link"
 
-#~ msgid "Save"
-#~ msgstr "Save"
+msgid "Track who paid what"
+msgstr "Track who paid what"
 
-#~ msgid "Back to group"
-#~ msgstr "Back to group"
+msgid "Clear final balances per person"
+msgstr "Clear final balances per person"
 
-#~ msgid "Overview of all expenses, payments and who owes who."
-#~ msgstr "Overview of all expenses, payments and who owes who."
+msgid "Already have an account?"
+msgstr "Already have an account?"
 
-#~ msgid "Currency"
-#~ msgstr "Currency"
+msgid "Log in here"
+msgstr "Log in here"
 
-#~ msgid "Group code"
-#~ msgstr "Group code"
+msgid "Fill in your details to start."
+msgstr "Fill in your details to start."
 
-#~ msgid "Trip dates"
-#~ msgstr "Trip dates"
+msgid "Name"
+msgstr "Name"
 
-#~ msgid "Add expense"
-#~ msgstr "Add expense"
+msgid "First Last"
+msgstr "First Last"
 
-#~ msgid "Share invite link"
-#~ msgstr "Share invite link"
+msgid "Username"
+msgstr "Username"
 
-#~ msgid "Copy code"
-#~ msgstr "Copy code"
+msgid "Email"
+msgstr "Email"
 
-#~ msgid "Balance per person"
-#~ msgstr "Balance per person"
+msgid "Phone number"
+msgstr "Phone number"
 
-#~ msgid "Positive = gets money back. Negative = still has to pay."
-#~ msgstr "Positive = gets money back. Negative = still has to pay."
+msgid "IBAN"
+msgstr "IBAN"
 
-#~ msgid "User"
-#~ msgstr "User"
+msgid "Payment link (optional)"
+msgstr "Payment link (optional)"
 
-#~ msgid "Balance (€)"
-#~ msgstr "Balance (€)"
+msgid "optional"
+msgstr "optional"
 
-#~ msgid "No expenses yet. Add your first one to see balances."
-#~ msgstr "No expenses yet. Add your first one to see balances."
+msgid "Password"
+msgstr "Password"
 
-#~ msgid "Expenses"
-#~ msgstr "Expenses"
+msgid "Choose a strong password"
+msgstr "Choose a strong password"
 
-#~ msgid "paid"
-#~ msgstr "paid"
+msgid "Create account"
+msgstr "Create account"
 
-#~ msgid "No expenses yet. Click “Add expense” to start."
-#~ msgstr "No expenses yet. Click “Add expense” to start."
+msgid "Your data is only used to keep balances correct."
+msgstr "Your data is only used to keep balances correct."
 
-#~ msgid "Ledger"
-#~ msgstr "Ledger"
+######################################################################
+# Dashboard / index.html
+######################################################################
 
-#~ msgid "Group members"
-#~ msgstr "Group members"
+msgid "Dashboard"
+msgstr "Dashboard"
 
-#~ msgid "people"
-#~ msgstr "people"
+msgid "Welcome back"
+msgstr "Welcome back"
 
-#~ msgid "No members found."
-#~ msgstr "No members found."
+msgid "good to see you again"
+msgstr "good to see you again"
 
-#~ msgid "Payments (confirmed)"
-#~ msgstr "Payments (confirmed)"
+msgid "Overview of your groups, trips and friends you bankrupt 😅"
+msgstr "Overview of your groups, trips and friends you bankrupt 😅"
 
-#~ msgid "Date"
-#~ msgstr "Date"
+msgid "Give feedback"
+msgstr "Give feedback"
 
-#~ msgid "Sender → Receiver"
-#~ msgstr "Sender → Receiver"
+msgid "Active groups"
+msgstr "Active groups"
 
-#~ msgid "Amount (€)"
-#~ msgstr "Amount (€)"
+msgid "Your ongoing trips and projects."
+msgstr "Your ongoing trips and projects."
 
-#~ msgid "Join group"
-#~ msgstr "Join group"
+msgid "Create new group"
+msgstr "Create new group"
 
-#~ msgid "Enter the unique code of the group below."
-#~ msgstr "Enter the unique code of the group below."
+msgid "Code"
+msgstr "Code"
 
-#~ msgid "e.g. A3F9C2"
-#~ msgstr "e.g. A3F9C2"
+msgid "Closed"
+msgstr "Closed"
 
-#~ msgid "Back to dashboard"
-#~ msgstr "Back to dashboard"
+msgid "Open"
+msgstr "Open"
 
-#~ msgid "New group"
-#~ msgstr "New group"
+msgid "No groups yet"
+msgstr "No groups yet"
 
-#~ msgid "Create a new group"
-#~ msgstr "Create a new group"
+msgid "Create your first group and start splitting expenses fairly with friends."
+msgstr "Create your first group and start splitting expenses fairly with friends."
 
-#~ msgid "Start a trip or project and split expenses fairly with friends."
-#~ msgstr "Start a trip or project and split expenses fairly with friends."
+msgid "Start your first group"
+msgstr "Start your first group"
 
-#~ msgid "Create unlimited groups"
-#~ msgstr "Create unlimited groups"
+msgid "Join a group"
+msgstr "Join a group"
 
-#~ msgid "Invite friends with a join link"
-#~ msgstr "Invite friends with a join link"
+msgid "Enter the unique code you received from your friends."
+msgstr "Enter the unique code you received from your friends."
 
-#~ msgid "Track who paid what"
-#~ msgstr "Track who paid what"
+msgid "Group code"
+msgstr "Group code"
 
-#~ msgid "Clear final balances per person"
-#~ msgstr "Clear final balances per person"
+msgid "e.g. ECC07875"
+msgstr "e.g. ECC07875"
 
-#~ msgid "We charge a small app fee:"
-#~ msgstr "We charge a small app fee:"
+msgid "Join group"
+msgstr "Join group"
 
-#~ msgid "€2 for groups up to 8 people"
-#~ msgstr "€2 for groups up to 8 people"
+msgid "Tip: just send the code via WhatsApp or Messenger, copy-paste & join. 🚀"
+msgstr "Tip: just send the code via WhatsApp or Messenger, copy-paste & join. 🚀"
 
-#~ msgid "€5 for groups with 9 or more people"
-#~ msgstr "€5 for groups with 9 or more people"
+######################################################################
+# Global feedback overlay
+######################################################################
 
-#~ msgid ""
-#~ "The fee is paid by the group "
-#~ "creator and is automatically re-split"
-#~ " equally every time someone joins."
-#~ msgstr ""
-#~ "The fee is paid by the group "
-#~ "creator and is automatically re-split"
-#~ " equally every time someone joins."
+msgid "Share your feedback"
+msgstr "Share your feedback"
 
-#~ msgid "Give your group a name."
-#~ msgstr "Give your group a name."
+msgid "Tell us what went well and what could be better. Your feedback helps improve FairSplit+."
+msgstr "Tell us what went well and what could be better. Your feedback helps improve FairSplit+."
 
-#~ msgid "Group name"
-#~ msgstr "Group name"
+msgid "Your message"
+msgstr "Your message"
 
-#~ msgid "e.g. Weekend Paris"
-#~ msgstr "e.g. Weekend Paris"
+msgid "What went well? What could be better?"
+msgstr "What went well? What could be better?"
 
-#~ msgid "Start date"
-#~ msgstr "Start date"
+msgid "Cancel"
+msgstr "Cancel"
 
-#~ msgid "End date"
-#~ msgstr "End date"
+msgid "Send"
+msgstr "Send"
 
-#~ msgid "Create group"
-#~ msgstr "Create group"
+######################################################################
+# 🔥 NEW STRINGS – group_detail.html
+######################################################################
 
-#~ msgid "Minder stress bij gedeelde uitgaven"
-#~ msgstr "Less stress with shared expenses"
+msgid "Closed trip"
+msgstr "Closed trip"
 
-#~ msgid "met vrienden, huisgenoten of op reis."
-#~ msgstr "with friends, housemates or while travelling."
+msgid "Active trip"
+msgstr "Active trip"
 
-#~ msgid ""
-#~ "Hou saldo’s bij per groep, trip of"
-#~ " kot. Eén duidelijk overzicht van wie"
-#~ " wat betaalde – zonder Excel, "
-#~ "discussies of vergeten terugbetalingen."
-#~ msgstr ""
-#~ "Track balances per group, trip or "
-#~ "student house. One clear overview of "
-#~ "who paid what – without Excel "
-#~ "files, arguments or forgotten repayments."
+msgid "Includes app fee"
+msgstr "Includes app fee"
 
-#~ msgid "Registreer gratis"
-#~ msgstr "Register for free"
+msgid "Overview of all expenses, payments and who still owes what to whom."
+msgstr "Overview of all expenses, payments and who still owes what to whom."
 
-#~ msgid "Ik heb al een account"
-#~ msgstr "I already have an account"
+msgid "Trip dates"
+msgstr "Trip dates"
 
-#~ msgid "Uitgaven splitten in seconden"
-#~ msgstr "Split expenses in seconds"
+msgid "Number of members"
+msgstr "Number of members"
 
-#~ msgid "Perfect voor trips, kot & ploegen"
-#~ msgstr "Perfect for trips, houses & teams"
+msgid "This group is closed, you can no longer add new expenses."
+msgstr "This group is closed, you can no longer add new expenses."
 
-#~ msgid "Werkt op laptop, tablet en smartphone"
-#~ msgstr "Works on laptop, tablet and smartphone"
+msgid "Add expense (group closed)"
+msgstr "Add expense (group closed)"
 
-#~ msgid "Hoe werkt FairSplit+?"
-#~ msgstr "How does FairSplit+ work?"
+msgid "Add expense"
+msgstr "Add expense"
 
-#~ msgid "Reizen met vrienden"
-#~ msgstr "Trips with friends"
+msgid "Overview in PDF"
+msgstr "Overview in PDF"
 
-#~ msgid ""
-#~ "Maak een groep per reis en houd"
-#~ " alle boekingen, boodschappen en "
-#~ "activiteiten netjes bij."
-#~ msgstr ""
-#~ "Create a group for each trip and"
-#~ " keep all bookings, groceries and "
-#~ "activities neatly organised."
+msgid "Invite via WhatsApp"
+msgstr "Invite via WhatsApp"
 
-#~ msgid "Huis of kot-uitgaven"
-#~ msgstr "Household or student house expenses"
+msgid "Copy invite code"
+msgstr "Copy invite code"
 
-#~ msgid ""
-#~ "Van huur en energie tot boodschappen:"
-#~ " iedereen ziet meteen wie wat "
-#~ "betaalde."
-#~ msgstr ""
-#~ "From rent and energy to groceries: "
-#~ "everyone can immediately see who paid"
-#~ " what."
+msgid ""
+"This group is closed. You can still view expenses, balances and debts, but "
+"you can no longer add new costs."
+msgstr ""
+"This group is closed. You can still view expenses, balances and debts, but "
+"you can no longer add new costs."
 
-#~ msgid "Teams & clubs"
-#~ msgstr "Teams & clubs"
+msgid "Share the code or WhatsApp link with friends to add them to this group quickly."
+msgstr "Share the code or WhatsApp link with friends to add them to this group quickly."
 
-#~ msgid ""
-#~ "Gebruik FairSplit+ voor ploegkassen, "
-#~ "weekendjes weg of events met je "
-#~ "vereniging."
-#~ msgstr "Use FairSplit+ for team funds, weekends away or events with your club."
+msgid "Balance per person"
+msgstr "Balance per person"
 
-#~ msgid "Eerlijke afrekening"
-#~ msgstr "Fair settlement"
+msgid "Positive = is owed money. Negative = still has to pay."
+msgstr "Positive = is owed money. Negative = still has to pay."
 
-#~ msgid ""
-#~ "Automatische berekening van saldi per "
-#~ "persoon – simpel, transparant en "
-#~ "discussie-vrij."
-#~ msgstr ""
-#~ "Automatic calculation of balances per "
-#~ "person – simple, transparent and "
-#~ "argument-free."
+msgid "Settle debts"
+msgstr "Settle debts"
 
-#~ msgid "Dashboard"
-#~ msgstr "Dashboard"
+msgid "No expenses yet – add one to see balances."
+msgstr "No expenses yet – add one to see balances."
 
-#~ msgid "Welcome back"
-#~ msgstr "Welcome back"
+msgid "Latest expenses"
+msgstr "Latest expenses"
 
-#~ msgid "good to see you again"
-#~ msgstr "good to see you again"
+msgid "A quick look at the most recent costs in this group."
+msgstr "A quick look at the most recent costs in this group."
 
-#~ msgid "Overview of your groups, trips and friends you bankrupt 😅"
-#~ msgstr "Overview of your groups, trips and friends you bankrupt 😅"
+msgid "View all expenses"
+msgstr "View all expenses"
 
-#~ msgid "Active groups"
-#~ msgstr "Active groups"
+#, python-format
+msgid "%(payer)s paid"
+msgstr "%(payer)s paid"
 
-#~ msgid "Your ongoing trips and projects."
-#~ msgstr "Your ongoing trips and projects."
+msgid "Split equally between all members"
+msgstr "Split equally between all members"
 
-#~ msgid "Create new group"
-#~ msgstr "Create new group"
+msgid "No expenses yet – add one to see an overview here."
+msgstr "No expenses yet – add one to see an overview here."
 
-#~ msgid "Code"
-#~ msgstr "Code"
+msgid "There are more expenses…"
+msgstr "There are more expenses…"
 
-#~ msgid "Open"
-#~ msgstr "Open"
+msgid "view full history"
+msgstr "view full history"
 
-#~ msgid "No groups yet"
-#~ msgstr "No groups yet"
+msgid "All expenses are shown above."
+msgstr "All expenses are shown above."
 
-#~ msgid ""
-#~ "Create your first group and start "
-#~ "splitting expenses fairly with friends."
-#~ msgstr ""
-#~ "Create your first group and start "
-#~ "splitting expenses fairly with friends."
+msgid "Group members & payments"
+msgstr "Group members & payments"
 
-#~ msgid "Start your first group"
-#~ msgstr "Start your first group"
+msgid "Who is in the group and which repayments have already been recorded?"
+msgstr "Who is in the group and which repayments have already been recorded?"
 
-#~ msgid "Join a group"
-#~ msgstr "Join a group"
+msgid "Group members"
+msgstr "Group members"
 
-#~ msgid "Enter the unique code you received from your friends."
-#~ msgstr "Enter the unique code you received from your friends."
+msgid "people"
+msgstr "people"
 
-#~ msgid "e.g. ECC07875"
-#~ msgstr "e.g. ECC07875"
+#, python-format
+msgid "This group includes an app fee of €%(amt).2f which is automatically split equally."
+msgstr "This group includes an app fee of €%(amt).2f which is automatically split equally."
 
-#~ msgid "Tip: just send the code via WhatsApp or Messenger, copy-paste & join. 🚀"
-#~ msgstr "Tip: just send the code via WhatsApp or Messenger, copy-paste & join. 🚀"
+msgid "Payments"
+msgstr "Payments"
 
-#~ msgid "Total (€)"
-#~ msgstr "Total (€)"
+msgid "No payments recorded yet."
+msgstr "No payments recorded yet."
 
-#~ msgid "Final balances"
-#~ msgstr "Final balances"
+msgid "Currency"
+msgstr "Currency"
 
-#~ msgid "Export CSV"
-#~ msgstr "Export CSV"
+######################################################################
+# New translations – expense_new.html
+######################################################################
 
-#~ msgid "Welcome back 👋"
-#~ msgstr "Welcome back 👋"
+msgid "New expense"
+msgstr "New expense"
 
-#~ msgid "Log in to your"
-#~ msgstr "Log in to your"
+msgid "New expense for"
+msgstr "New expense for"
 
-#~ msgid "groups"
-#~ msgstr "groups"
+msgid "Add an expense to this group. You can choose an equal split or a custom amount per person."
+msgstr "Add an expense to this group. You can choose an equal split or a custom amount per person."
 
-#~ msgid ""
-#~ "See your trips, add expenses and "
-#~ "settle everything fairly. One login for"
-#~ " all groups."
-#~ msgstr ""
-#~ "See your trips, add expenses and "
-#~ "settle everything fairly. One login for"
-#~ " all groups."
+msgid "Clear balances per person"
+msgstr "Clear balances per person"
 
-#~ msgid "Split expenses in seconds"
-#~ msgstr "Split expenses in seconds"
+msgid "Enter an amount per person"
+msgstr "Enter an amount per person"
 
-#~ msgid "Full transparency per group"
-#~ msgstr "Full transparency per group"
+msgid "Check that totals match"
+msgstr "Check that totals match"
 
-#~ msgid "No more Excel or arguments"
-#~ msgstr "No more Excel or arguments"
+msgid "Description"
+msgstr "Description"
 
-#~ msgid "Use your username or email address."
-#~ msgstr "Use your username or email address."
+msgid "e.g. Train tickets"
+msgstr "e.g. Train tickets"
 
-#~ msgid "Username or email"
-#~ msgstr "Username or email"
+msgid "Amount (EUR)"
+msgstr "Amount (EUR)"
 
-#~ msgid "Password"
-#~ msgstr "Password"
+msgid "Date"
+msgstr "Date"
 
-#~ msgid "Log in"
-#~ msgstr "Log in"
+msgid "Category"
+msgstr "Category"
 
-#~ msgid "No account yet?"
-#~ msgstr "No account yet?"
+msgid "Automatic (AI chooses category)"
+msgstr "Automatic (AI chooses category)"
 
-#~ msgid "Register for free"
-#~ msgstr "Register for free"
+msgid "Leave on automatic to let AI pick the best category based on the description."
+msgstr "Leave on automatic to let AI pick the best category based on the description."
 
-#~ msgid "By logging in you agree to fair splits & good vibes ✌️"
-#~ msgstr "By logging in you agree to fair splits & good vibes ✌️"
+msgid "Scan receipt (optional)"
+msgstr "Scan receipt (optional)"
 
-#~ msgid "Register"
-#~ msgstr "Register"
+msgid "Choose photo"
+msgstr "Choose photo"
 
-#~ msgid "Get started free"
-#~ msgstr "Get started free"
+msgid "Scan items"
+msgstr "Scan items"
 
-#~ msgid "Create your FairSplit+ account"
-#~ msgstr "Create your FairSplit+ account"
+msgid "Take or choose a clear photo of the receipt. We will detect the items and help you split per person."
+msgstr "Take or choose a clear photo of the receipt. We will detect the items and help you split per person."
 
-#~ msgid ""
-#~ "One profile for all your group "
-#~ "expenses: trips, roommates, teams and "
-#~ "more."
-#~ msgstr ""
-#~ "One profile for all your group "
-#~ "expenses: trips, roommates, teams and "
-#~ "more."
+msgid "Split"
+msgstr "Split"
 
-#~ msgid "Already have an account?"
-#~ msgstr "Already have an account?"
+msgid "Equal split"
+msgstr "Equal split"
 
-#~ msgid "Log in here"
-#~ msgstr "Log in here"
+msgid "Custom split"
+msgstr "Custom split"
 
-#~ msgid "Fill in your details to start."
-#~ msgstr "Fill in your details to start."
+msgid "Enter an amount first to split equally."
+msgstr "Enter an amount first to split equally."
 
-#~ msgid "Name"
-#~ msgstr "Name"
+msgid "Amount per person"
+msgstr "Amount per person"
 
-#~ msgid "First Last"
-#~ msgstr "First Last"
+msgid "Total entered"
+msgstr "Total entered"
 
-#~ msgid "Username"
-#~ msgstr "Username"
+msgid "Remaining"
+msgstr "Remaining"
 
-#~ msgid "Email"
-#~ msgstr "Email"
+msgid "Save"
+msgstr "Save"
 
-#~ msgid "Phone number"
-#~ msgstr "Phone number"
+msgid "Save changes"
+msgstr "Save changes"
 
-#~ msgid "IBAN"
-#~ msgstr "IBAN"
+msgid "Back to group"
+msgstr "Back to group"
 
-#~ msgid "Choose a strong password"
-#~ msgstr "Choose a strong password"
+msgid "Item"
+msgstr "Item"
 
-#~ msgid "Create account"
-#~ msgstr "Create account"
+msgid "Not assigned"
+msgstr "Not assigned"
 
-#~ msgid "Your data is only used to keep balances correct."
-#~ msgstr "Your data is only used to keep balances correct."
+msgid "Choose a photo of the receipt first."
+msgstr "Choose a photo of the receipt first."
 
+msgid "Could not read the receipt. Try a clearer photo."
+msgstr "Could not read the receipt. Try a clearer photo."
+
+msgid "No items found on the receipt."
+msgstr "No items found on the receipt."
+
+msgid "Receipt read! Assign each item to the right person."
+msgstr "Receipt read! Assign each item to the right person."
+
+msgid "Something went wrong while scanning. Please try again."
+msgstr "Something went wrong while scanning. Please try again."
+
+# ==== LEDGER.PO – NEW STRINGS ====
+
+msgid "Closed group"
+msgstr "Closed group"
+
+msgid "Overview of all expenses in"
+msgstr "Overview of all expenses in"
+
+msgid "Complete history of all expenses in this group."
+msgstr "Complete history of all expenses in this group."
+
+msgid "Back to group overview"
+msgstr "Back to group overview"
+
+msgid "New expense"
+msgstr "New expense"
+
+msgid "Group closed – no new expenses allowed"
+msgstr "Group closed – no new expenses allowed"
+
+msgid "Expense history – "
+msgstr "Expense history – "
+
+msgid "Total number of expenses"
+msgstr "Total number of expenses"
+
+msgid "Date"
+msgstr "Date"
+
+msgid "Description"
+msgstr "Description"
+
+msgid "Category"
+msgstr "Category"
+
+msgid "Payer"
+msgstr "Payer"
+
+msgid "Amount"
+msgstr "Amount"
+
+msgid "Split between"
+msgstr "Split between"
+
+msgid "Your position"
+msgstr "Your position"
+
+msgid "Equally split between all members"
+msgstr "Equally split between all members"
+
+msgid "You lent out €%(amt).2f"
+msgstr "You lent out €%(amt).2f"
+
+msgid "You borrowed €%(amt).2f"
+msgstr "You borrowed €%(amt).2f"
+
+msgid "Balanced"
+msgstr "Balanced"
+
+msgid "Edit"
+msgstr "Edit"
+
+msgid "Delete"
+msgstr "Delete"
+
+msgid "Are you sure you want to delete this expense?"
+msgstr "Are you sure you want to delete this expense?"
+
+msgid "%(payer)s paid"
+msgstr "%(payer)s paid"
+
+msgid "Split between %(n)s people"
+msgstr "Split between %(n)s people"
+
+msgid "For you this expense is balanced."
+msgstr "For you this expense is balanced."
+
+msgid "No expenses yet"
+msgstr "No expenses yet"
+
+msgid "This group is closed and there are no expenses registered yet."
+msgstr "This group is closed and there are no expenses registered yet."
+
+msgid "As soon as there are expenses, they will appear here."
+msgstr "As soon as there are expenses, they will appear here."
+
+msgid "Add first expense"
+msgstr "Add first expense"
+
+# --- Settlements overview (EN) ---
+
+msgid "Settle debts – "
+msgstr "Settle debts – "
+
+msgid "Settle debts"
+msgstr "Settle debts"
+
+msgid ""
+"Based on all expenses and payments we suggest a simple list of transfers to "
+"bring everyone back to zero."
+msgstr ""
+"Based on all expenses and payments we suggest a simple list of transfers to "
+"bring everyone back to zero."
+
+msgid "Back to group overview"
+msgstr "Back to group overview"
+
+msgid "View all expenses"
+msgstr "View all expenses"
+
+msgid "You need to make this payment."
+msgstr "You need to make this payment."
+
+msgid "You will receive this amount once the payment is made."
+msgstr "You will receive this amount once the payment is made."
+
+msgid "Recommended transfer to bring the group back in balance."
+msgstr "Recommended transfer to bring the group back in balance."
+
+msgid ""
+"Suggested transfer to settle balances based on all expenses and payments in "
+"this group."
+msgstr ""
+"Suggested transfer to settle balances based on all expenses and payments in "
+"this group."
+
+msgid "Pay with banking app"
+msgstr "Pay with banking app"
+
+msgid "Open your banking app and transfer this amount manually."
+msgstr "Open your banking app and transfer this amount manually."
+
+msgid "Everyone is in balance 🎉"
+msgstr "Everyone is in balance 🎉"
+
+msgid ""
+"Based on the current expenses and payments there are no extra transfers "
+"needed."
+msgstr ""
+"Based on the current expenses and payments there are no extra transfers "
+"needed."
+
+msgid "Back to group"
+msgstr "Back to group"
+
+# --- Settlement pay page (EN) ---
+
+msgid "Settle debt"
+msgstr "Settle debt"
+
+msgid "Make the payment in your banking app and then register it in FairSplit+."
+msgstr "Make the payment in your banking app and then register it in FairSplit+."
+
+msgid ""
+"You are settling an open debt in this group. Use the payment details on the "
+"right in your banking app."
+msgstr ""
+"You are settling an open debt in this group. Use the payment details on the "
+"right in your banking app."
+
+msgid ""
+"Always double-check amount, IBAN and recipient name in your banking app "
+"before confirming."
+msgstr ""
+"Always double-check amount, IBAN and recipient name in your banking app "
+"before confirming."
+
+msgid ""
+"After paying, return to FairSplit+ and register it as a payment in this "
+"group."
+msgstr ""
+"After paying, return to FairSplit+ and register it as a payment in this "
+"group."
+
+msgid ""
+"Tip: use the same reference as below so everything stays easy to recognise."
+msgstr ""
+"Tip: use the same reference as below so everything stays easy to recognise."
+
+msgid "Back to settlements overview"
+msgstr "Back to settlements overview"
+
+msgid "Amount to pay"
+msgstr "Amount to pay"
+
+msgid "From"
+msgstr "From"
+
+msgid "To"
+msgstr "To"
+
+msgid "Group"
+msgstr "Group"
+
+msgid "Use these details in your banking app"
+msgstr "Use these details in your banking app"
+
+msgid "Recipient IBAN"
+msgstr "Recipient IBAN"
+
+msgid "Copy IBAN"
+msgstr "Copy IBAN"
+
+msgid ""
+"No IBAN is set yet for this user. Please make the transfer manually."
+msgstr ""
+"No IBAN is set yet for this user. Please make the transfer manually."
+
+msgid "Suggested reference"
+msgstr "Suggested reference"
+
+msgid "Register payment in FairSplit+"
+msgstr "Register payment in FairSplit+"
+
+msgid ""
+"Have you completed the payment in your banking app? Click below to save it "
+"as a payment in this group."
+msgstr ""
+"Have you completed the payment in your banking app? Click below to save it "
+"as a payment in this group."
+
+msgid "Register payment"
+msgstr "Register payment"
+
+msgid "IBAN cannot be copied by this browser."
+msgstr "IBAN cannot be copied by this browser."
+
+msgid "IBAN copied to clipboard."
+msgstr "IBAN copied to clipboard."
+
+msgid "Copying failed, please copy the IBAN manually."
+msgstr "Copying failed, please copy the IBAN manually."
+
+# New group page
+msgid "New group"
+msgstr "New group"
+
+msgid "Create a new group"
+msgstr "Create a new group"
+
+msgid "Start a trip or project and split expenses fairly with friends."
+msgstr "Start a trip or project and split expenses fairly with friends."
+
+msgid "Create unlimited groups"
+msgstr "Create unlimited groups"
+
+msgid "Invite friends with a join link"
+msgstr "Invite friends with a join link"
+
+msgid "Track who paid what"
+msgstr "Track who paid what"
+
+msgid "Clear final balances per person"
+msgstr "Clear final balances per person"
+
+msgid "We charge a small app fee:"
+msgstr "We charge a small app fee:"
+
+msgid "€2 for groups up to 8 people"
+msgstr "€2 for groups up to 8 people"
+
+msgid "€5 for groups with 9 or more people"
+msgstr "€5 for groups with 9 or more people"
+
+msgid "The fee is paid by the group creator and is automatically re-split equally every time someone joins."
+msgstr "The fee is paid by the group creator and is automatically re-split equally every time someone joins."
+
+msgid "Give your group a name."
+msgstr "Give your group a name."
+
+msgid "Group name"
+msgstr "Group name"
+
+msgid "e.g. Weekend Paris"
+msgstr "e.g. Weekend Paris"
+
+msgid "Start date"
+msgstr "Start date"
+
+msgid "End date"
+msgstr "End date"
+
+msgid "Create group"
+msgstr "Create group"

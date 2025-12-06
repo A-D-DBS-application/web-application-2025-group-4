@@ -1,18 +1,25 @@
+{# templates/login.html #}
 {% extends "base.html" %}
-{% block title %}{{ _('Login') }} – FairSplit+{% endblock %}
+{% block title %}FairSplit+ – {{ _('Login') }}{% endblock %}
 
 {% block content %}
 <div class="auth-page">
   <section class="auth-shell">
 
+    <!-- LINKERKANT: marketing copy -->
     <div class="auth-left">
-      <span class="auth-pill">{{ _('Welcome back 👋') }}</span>
+      <span class="auth-pill">
+        {{ _('Welcome back 👋') }}
+      </span>
+
       <h1 class="auth-title">
-        {{ _('Log in to your') }} <span class="accent-text">FairSplit+</span> {{ _('groups') }}
+        {{ _('Log in to your') }} <span class="accent">FairSplit+</span> {{ _('groups') }}
       </h1>
+
       <p class="auth-lead">
         {{ _('See your trips, add expenses and settle everything fairly. One login for all groups.') }}
       </p>
+
       <ul class="auth-benefits">
         <li>✅ {{ _('Split expenses in seconds') }}</li>
         <li>✅ {{ _('Full transparency per group') }}</li>
@@ -20,33 +27,47 @@
       </ul>
     </div>
 
+    <!-- RECHTERKANT: login formulier -->
     <div class="auth-card">
       <h2 class="auth-card-title">{{ _('Login') }}</h2>
-      <p class="auth-card-sub">{{ _('Use your username or email address.') }}</p>
+      <p class="auth-card-sub">
+        {{ _('Use your username or email address.') }}
+      </p>
 
-      <form method="post" action="{{ url_for('main.login') }}" class="auth-form">
+      <form method="POST" action="{{ url_for('main.login') }}" class="auth-form">
         <label class="auth-field">
           <span>{{ _('Username or email') }}</span>
-          <input type="text" name="username" autocomplete="username" required
-                 value="{{ request.form.username or '' }}">
+          <input
+            type="text"
+            name="username"
+            placeholder="{{ _('Username or email') }}"
+            required
+          >
         </label>
 
         <label class="auth-field">
           <span>{{ _('Password') }}</span>
-          <input type="password" name="password" autocomplete="current-password" required>
+          <input
+            type="password"
+            name="password"
+            placeholder="{{ _('Password') }}"
+            required
+          >
         </label>
 
-        <button type="submit" class="btn-primary btn-full">{{ _('Log in') }}</button>
+        <button type="submit" class="btn-primary btn-full" style="margin-top:10px;">
+          {{ _('Log in') }}
+        </button>
       </form>
 
       <p class="auth-switch">
-  {{ _('No account yet?') }}
-  <a href="{{ url_for('main.register') }}" class="btn-pill-ghost" style="margin-left:6px;">
-    {{ _('Register for free') }}
-  </a>
-</p>
+        {{ _('No account yet?') }}
+        <a href="{{ url_for('main.register') }}" class="btn-pill-ghost">
+          {{ _('Register for free') }}
+        </a>
+      </p>
 
-      <p class="auth-tiny">
+      <p class="auth-footnote">
         {{ _('By logging in you agree to fair splits & good vibes ✌️') }}
       </p>
     </div>
@@ -54,6 +75,7 @@
   </section>
 </div>
 {% endblock %}
+
 
 
  

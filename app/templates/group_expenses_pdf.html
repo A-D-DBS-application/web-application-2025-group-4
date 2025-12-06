@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="nl">
+<html lang="{{ session.get('lang', 'en') }}">
 <head>
   <meta charset="UTF-8">
-  <title>Overzicht uitgaven – {{ group.name }}</title>
+  <title>{{ _('Expense overview – ') }}{{ group.name }}</title>
   <style>
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -47,21 +47,21 @@
 </head>
 <body>
 
-  <h1>Overzicht uitgaven</h1>
+  <h1>{{ _('Expense overview') }}</h1>
   <div class="meta">
-    Groep: <strong>{{ group.name }}</strong><br>
-    Valuta: {{ group.currency or 'EUR' }}<br>
-    Aantal uitgaven: {{ expenses|length }}
+    {{ _('Group') }}: <strong>{{ group.name }}</strong><br>
+    {{ _('Currency') }}: {{ group.currency or 'EUR' }}<br>
+    {{ _('Number of expenses') }}: {{ expenses|length }}
   </div>
 
   <table>
     <thead>
       <tr>
-        <th>Datum</th>
-        <th>Omschrijving</th>
-        <th>Betaler</th>
-        <th>Bedrag</th>
-        <th>Gesplit tussen</th>
+        <th>{{ _('Date') }}</th>
+        <th>{{ _('Description') }}</th>
+        <th>{{ _('Payer') }}</th>
+        <th>{{ _('Amount') }}</th>
+        <th>{{ _('Split between') }}</th>
       </tr>
     </thead>
     <tbody>
@@ -79,7 +79,7 @@
                 {{ s.username }} ({{ '%.2f'|format(s.amount) }}){% if not loop.last %}, {% endif %}
               {% endfor %}
             {% else %}
-              Gelijk verdeeld over alle leden
+              {{ _('Split equally between all members') }}
             {% endif %}
           </td>
         </tr>
@@ -87,9 +87,9 @@
     </tbody>
   </table>
 
-  <h2>Totaal per betaler (optioneel)</h2>
+  <h2>{{ _('Total per payer (optional)') }}</h2>
   <p style="font-size:11px; color:#6b7280;">
-    Als je wil, kunnen we hier later nog een samenvatting per persoon inbouwen.
+    {{ _('If you like, we can later add a summary per person here.') }}
   </p>
 
 </body>

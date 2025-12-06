@@ -1,80 +1,165 @@
 {% extends "base.html" %}
-{% block title %}{{ _('Register') }} – FairSplit+{% endblock %}
+{% block title %}FairSplit+ – {{ _('Register') }}{% endblock %}
 
 {% block content %}
-<section class="auth-layout">
-  <div class="auth-copy">
-    <span class="chip">{{ _('Get started free') }}</span>
-    <h1 class="auth-title">{{ _('Create your FairSplit+ account') }}</h1>
-    <p class="auth-sub">
-      {{ _('One profile for all your group expenses: trips, roommates, teams and more.') }}
-    </p>
+<div class="auth-page">
+  <div class="auth-grid">
+    <!-- LINKER ZIJDE: uitleg + bullets -->
+    <section class="auth-panel auth-panel-left">
 
-    <ul class="auth-benefits">
-      <li>✅ {{ _('Create unlimited groups') }}</li>
-      <li>✅ {{ _('Invite friends with a join link') }}</li>
-      <li>✅ {{ _('Track who paid what') }}</li>
-      <li>✅ {{ _('Clear final balances per person') }}</li>
-    </ul>
+      <p class="auth-eyebrow">
+        {{ _('Get started free') }}
+      </p>
 
-    <p class="auth-switch">
-      {{ _('Already have an account?') }}
-      <a href="{{ url_for('main.login') }}" class="btn-pill-ghost" style="margin-left:6px;">
-        {{ _('Log in here') }}
-      </a>
-    </p>
-  </div>
+      <h1 class="auth-title">
+        {{ _('Create your FairSplit+ account') }}
+      </h1>
 
-  <div class="auth-card">
-    <h2>{{ _('Register') }}</h2>
-    <p class="auth-card-sub">{{ _('Fill in your details to start.') }}</p>
+      <p class="auth-sub">
+        {{ _('One profile for all your group expenses: trips, roommates, teams and more.') }}
+      </p>
 
-    <form method="post" action="{{ url_for('main.register') }}" class="auth-form">
+      <ul class="auth-benefits">
+        <li>✅ {{ _('Create unlimited groups') }}</li>
+        <li>✅ {{ _('Invite friends with a join link') }}</li>
+        <li>✅ {{ _('Track who paid what') }}</li>
+        <li>✅ {{ _('Clear final balances per person') }}</li>
+      </ul>
 
-      <div class="field-row">
-        <div class="field">
-          <label for="name">{{ _('Name') }}</label>
-          <input id="name" name="name" type="text" placeholder="{{ _('First Last') }}" required>
-        </div>
-        <div class="field">
-          <label for="username">{{ _('Username') }}</label>
-          <input id="username" name="username" type="text" placeholder="fairsplit_legend" required>
-        </div>
+      <p class="auth-switch">
+        {{ _('Already have an account?') }}
+        <a href="{{ url_for('main.login') }}">{{ _('Log in here') }}</a>
+      </p>
+    </section>
+
+    <!-- RECHTER ZIJDE: formulier-card -->
+    <section class="auth-panel auth-panel-right">
+      <div class="auth-card">
+        <h2 class="auth-card-title">
+          {{ _('Register') }}
+        </h2>
+        <p class="auth-card-sub">
+          {{ _('Fill in your details to start.') }}
+        </p>
+
+        <form method="post" action="{{ url_for('main.register') }}" class="auth-form">
+
+          <!-- Naam -->
+          <div class="mb-3">
+            <label for="name" class="form-label">
+              {{ _('Name') }}
+            </label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              class="form-control"
+              placeholder="{{ _('First Last') }}"
+              required
+            >
+          </div>
+
+          <!-- Gebruikersnaam -->
+          <div class="mb-3">
+            <label for="username" class="form-label">
+              {{ _('Username') }}
+            </label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              class="form-control"
+              placeholder="fairsplit_legend"
+              required
+            >
+          </div>
+
+          <!-- Email -->
+          <div class="mb-3">
+            <label for="email" class="form-label">
+              {{ _('Email') }}
+            </label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              class="form-control"
+              placeholder="you@example.com"
+              required
+            >
+          </div>
+
+          <!-- Telefoonnummer -->
+          <div class="mb-3">
+            <label for="phone_number" class="form-label">
+              {{ _('Phone number') }}
+            </label>
+            <input
+              type="text"
+              id="phone_number"
+              name="phone_number"
+              class="form-control"
+              placeholder="04xx xx xx xx"
+            >
+          </div>
+
+          <!-- IBAN -->
+          <div class="mb-3">
+            <label for="iban" class="form-label">
+              {{ _('IBAN') }}
+            </label>
+            <input
+              type="text"
+              id="iban"
+              name="iban"
+              class="form-control"
+              placeholder="BE00 0000 0000 0000"
+            >
+          </div>
+
+          <!-- Betaallink (optioneel) -->
+          <div class="mb-3">
+            <label for="payment_link" class="form-label">
+              {{ _('Payment link (optional)') }}
+            </label>
+            <input
+              type="url"
+              id="payment_link"
+              name="payment_link"
+              class="form-control"
+              placeholder="https://payconiq.com/.... ({{ _('optional') }})"
+            >
+          </div>
+
+          <!-- Wachtwoord -->
+          <div class="mb-4">
+            <label for="password" class="form-label">
+              {{ _('Password') }}
+            </label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              class="form-control"
+              placeholder="{{ _('Choose a strong password') }}"
+              required
+            >
+          </div>
+
+          <!-- Submit knop -->
+          <div class="d-grid">
+            <button type="submit" class="btn-primary btn-hero">
+              {{ _('Create account') }}
+            </button>
+          </div>
+
+          <p class="form-helper-text mt-3">
+            {{ _('Your data is only used to keep balances correct.') }}
+          </p>
+        </form>
       </div>
-
-      <label for="email">{{ _('Email') }}</label>
-      <input id="email" name="email" type="email" placeholder="you@example.com" required>
-
-      <div class="field-row">
-        <div class="field">
-          <label for="phone_number">{{ _('Phone number') }}</label>
-          <input id="phone_number" name="phone_number" type="tel" placeholder="04xx xx xx xx" required>
-        </div>
-        <div class="field">
-          <label for="iban">{{ _('IBAN') }}</label>
-          <input id="iban" name="iban" type="text" placeholder="BE00 0000 0000 0000" required>
-        </div>
-      </div>
-
-      {# NIEUW: optioneel veld voor betaallink / Payconiq-link #}
-      <label for="paylink">{{ _('Payment link (optional)') }}</label>
-      <input
-        id="paylink"
-        name="paylink"
-        type="url"
-        placeholder="https://payconiq.com/..... ({{ _('optional') }})">
-
-      <label for="password">{{ _('Password') }}</label>
-      <input id="password" name="password" type="password" placeholder="{{ _('Choose a strong password') }}" required>
-
-      <button type="submit" class="btn-primary btn-full">
-        {{ _('Create account') }}
-      </button>
-    </form>
-
-    <p class="auth-footnote">
-      {{ _('Your data is only used to keep balances correct.') }}
-    </p>
+    </section>
   </div>
-</section>
+</div>
 {% endblock %}
+

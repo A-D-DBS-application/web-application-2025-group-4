@@ -1,10 +1,10 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: PROJECT VERSION\n"
+"Project-Id-Version: FairSplit+\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2025-12-02 20:54+0100\n"
-"PO-Revision-Date: 2025-11-24 22:57+0100\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"PO-Revision-Date: 2025-12-06 13:30+0100\n"
+"Last-Translator: Rune Meerpoel <EMAIL@ADDRESS>\n"
 "Language: nl\n"
 "Language-Team: nl <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -13,169 +13,268 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.17.0\n"
 
-#: app/routes.py:73
+#######################################################
+# ROUTES / FLASH MESSAGES
+#######################################################
+
 msgid "Log eerst in om deze pagina te bekijken."
 msgstr "Log eerst in om deze pagina te bekijken."
 
-#: app/routes.py:119
 msgid "Transport"
-msgstr ""
+msgstr "Transport"
 
-#: app/routes.py:120
 msgid "Eten & drinken"
-msgstr ""
+msgstr "Eten & drinken"
 
-#: app/routes.py:121
 msgid "Accommodatie"
-msgstr ""
+msgstr "Accommodatie"
 
-#: app/routes.py:122
 msgid "Activiteiten"
-msgstr "Actieve trip"
+msgstr "Activiteiten"
 
-#: app/routes.py:123
 msgid "Winkelen"
-msgstr ""
+msgstr "Winkelen"
 
-#: app/routes.py:430 app/routes.py:489 app/routes.py:1479 app/routes.py:1866
 msgid "Vul alle velden in."
 msgstr "Vul alle velden in."
 
-#: app/routes.py:447
 msgid "Gebruikersnaam, e-mailadres of telefoonnummer bestaat al."
-msgstr "Gebruikersnaam of e-mailadres bestaat al."
+msgstr "Gebruikersnaam, e-mailadres of telefoonnummer bestaat al."
 
-#: app/routes.py:475
 msgid "Registratie succesvol!"
 msgstr "Registratie succesvol!"
 
-#: app/routes.py:500
 msgid "Ongeldige inloggegevens."
 msgstr "Ongeldige inloggegevens."
 
-#: app/routes.py:510
-#, python-format
 msgid "Welkom terug, %(username)s!"
 msgstr "Welkom terug, %(username)s!"
 
-#: app/routes.py:526
 msgid "Je bent uitgelogd."
 msgstr "Je bent uitgelogd."
 
-#: app/routes.py:608
 msgid "Geef een groepsnaam in."
 msgstr "Geef een groepsnaam in."
 
-#: app/routes.py:663
 msgid "Groep aangemaakt!"
 msgstr "Groep aangemaakt!"
 
-#: app/routes.py:916 app/routes.py:921 app/routes.py:1055 app/routes.py:1121 \
-app/routes.py:1149 app/routes.py:1152 app/routes.py:1259 app/routes.py:1281 \
-app/routes.py:2060 app/routes.py:2099
 msgid "Onbekend"
 msgstr "Onbekend"
 
-#: app/routes.py:979
-#, python-format
 msgid "Join our FairSplit+ group '%(name)s' 💸: %(link)s"
-msgstr ""
+msgstr "Word lid van onze FairSplit+-groep '%(name)s' 💸: %(link)s"
 
-#: app/routes.py:1098
 msgid "Unknown"
 msgstr "Onbekend"
 
-#: app/routes.py:1312
 msgid "Vul een groepscode in om te joinen."
 msgstr "Vul een groepscode in om te joinen."
 
-#: app/routes.py:1327
 msgid "Log in of registreer om aan de groep toegevoegd te worden."
 msgstr "Log in of registreer om aan de groep toegevoegd te worden."
 
-#: app/routes.py:1342
 msgid "Geen groep gevonden met deze code. Controleer de code en probeer opnieuw."
 msgstr "Geen groep gevonden met deze code. Controleer de code en probeer opnieuw."
 
-#: app/routes.py:1359
-#, python-format
 msgid "Je bent al lid van '%(name)s'."
 msgstr "Je bent al lid van '%(name)s'."
 
-#: app/routes.py:1373
-#, python-format
 msgid "Je bent toegevoegd aan de groep '%(name)s' 🎉"
 msgstr "Je bent toegevoegd aan de groep '%(name)s' 🎉"
 
-#: app/routes.py:1396 app/routes.py:1784
 msgid "Je hebt geen toegang tot deze groep."
 msgstr "Je hebt geen toegang tot deze groep."
 
-#: app/routes.py:1409
 msgid "Deze groep bestaat niet."
-msgstr ""
+msgstr "Deze groep bestaat niet."
 
-#: app/routes.py:1436
-msgid "Deze groep is gesloten (einddatum verstreken). Je kunt geen nieuwe uitgaven meer toevoegen."
+msgid ""
+"Deze groep is gesloten (einddatum verstreken). Je kunt geen nieuwe "
+"uitgaven meer toevoegen."
 msgstr ""
+"Deze groep is gesloten (einddatum verstreken). Je kunt geen nieuwe "
+"uitgaven meer toevoegen."
 
-#: app/routes.py:1486 app/routes.py:1872
 msgid "Bedrag moet een getal zijn."
 msgstr "Bedrag moet een getal zijn."
 
-#: app/routes.py:1490 app/routes.py:1876
 msgid "Bedrag moet groter zijn dan 0."
 msgstr "Bedrag moet groter zijn dan 0."
 
-#: app/routes.py:1506 app/routes.py:1892
-#, python-format
 msgid "Bedrag bij %(user)s is geen geldig getal."
 msgstr "Bedrag bij %(user)s is geen geldig getal."
 
-#: app/routes.py:1513 app/routes.py:1899
-#, python-format
 msgid "Bedrag bij %(user)s mag niet negatief zijn."
 msgstr "Bedrag bij %(user)s mag niet negatief zijn."
 
-#: app/routes.py:1527 app/routes.py:1912
-#, python-format
-msgid "De som van de individuele bedragen (%(sum).2f) komt niet overeen met het totaal (%(total).2f)."
-msgstr "De som van de individuele bedragen (%(sum).2f) komt niet overeen met het totaal (%(total).2f)."
+msgid ""
+"De som van de individuele bedragen (%(sum).2f) komt niet overeen met het "
+"totaal (%(total).2f)."
+msgstr ""
+"De som van de individuele bedragen (%(sum).2f) komt niet overeen met het "
+"totaal (%(total).2f)."
 
-#: app/routes.py:1557
 msgid "Kon uitgave niet opslaan."
 msgstr "Kon uitgave niet opslaan."
 
-#: app/routes.py:1579
 msgid "Uitgave toegevoegd!"
 msgstr "Uitgave toegevoegd!"
 
-#: app/routes.py:1816
 msgid "De app-fee kan je niet aanpassen."
-msgstr ""
+msgstr "De app-fee kan je niet aanpassen."
 
-#: app/routes.py:1821
 msgid "Je kan enkel je eigen uitgaven aanpassen."
-msgstr ""
+msgstr "Je kan enkel je eigen uitgaven aanpassen."
 
-#: app/routes.py:1954
 msgid "Uitgave bijgewerkt!"
-msgstr "Uitgave toegevoegd!"
+msgstr "Uitgave bijgewerkt!"
 
-#: app/routes.py:2154
 msgid "Uitgave verwijderd."
-msgstr "Deel uitgaven eerlijk"
+msgstr "Uitgave verwijderd."
 
-#: app/routes.py:2505
 msgid "Feedback not sent – please enter something."
-msgstr "Feedback niet verzonden – vul iets in."
+msgstr "Feedback niet verzonden – vul eerst iets in."
 
-#: app/routes.py:2513
 msgid "Thank you! Your feedback has been received 🙏"
-msgstr "Bedankt! Je feedback is ontvangen 🙏"
+msgstr "Bedankt! Je feedback is goed ontvangen 🙏"
+
+#######################################################
+# BASE HEADER / FOOTER
+#######################################################
+
+msgid "Logged in"
+msgstr "Ingelogd"
+
+msgid "Log out"
+msgstr "Log uit"
+
+msgid "Log in"
+msgstr "Log in"
+
+msgid "Register"
+msgstr "Registreer"
+
+msgid "All rights reserved"
+msgstr "Alle rechten voorbehouden"
+
+#######################################################
+# HOME PAGE (home.html)
+#######################################################
+
+msgid "Less stress with shared expenses"
+msgstr "Minder stress bij gedeelde uitgaven"
+
+msgid "Split expenses fairly"
+msgstr "Uitgaven eerlijk verdelen"
+
+msgid "with friends, flatmates or on trips."
+msgstr "met vrienden, huisgenoten of op reis."
+
+msgid ""
+"Track balances per group, trip or flat. One clear overview of who paid "
+"what – without Excel, arguments or forgotten repayments."
+msgstr ""
+"Hou saldi bij per groep, trip of kot. Eén duidelijk overzicht van wie wat "
+"betaalde – zonder Excel, discussies of vergeten terugbetalingen."
+
+msgid "Sign up for free"
+msgstr "Registreer gratis"
+
+msgid "I already have an account"
+msgstr "Ik heb al een account"
+
+msgid "Split expenses in seconds"
+msgstr "Uitgaven splitten in seconden"
+
+msgid "Perfect for trips, flats & teams"
+msgstr "Perfect voor trips, kot & ploegen"
+
+msgid "Works on laptop, tablet and phone"
+msgstr "Werkt op laptop, tablet en smartphone"
+
+msgid "Trip"
+msgstr "Reis"
+
+msgid "Weekend with friends"
+msgstr "Weekend met vrienden"
+
+msgid "5 friends · 18 expenses"
+msgstr "5 vrienden · 18 uitgaven"
+
+msgid "Flights"
+msgstr "Vluchten"
+
+msgid "Apartment"
+msgstr "Appartement"
+
+msgid "Food & drinks"
+msgstr "Eten & drinken"
+
+msgid "Student flat Ghent"
+msgstr "Studentenkot Gent"
+
+msgid "still to be paid this month"
+msgstr "nog te betalen deze maand"
+
+msgid "Team fund"
+msgstr "Ploegkas"
+
+msgid "still open"
+msgstr "nog open"
+
+msgid "How does FairSplit+ work?"
+msgstr "Hoe werkt FairSplit+?"
+
+msgid "Trips with friends"
+msgstr "Reizen met vrienden"
+
+msgid ""
+"Create a group for each trip and keep all bookings, groceries and "
+"activities nicely organised."
+msgstr ""
+"Maak een groep per trip en houd alle boekingen, boodschappen en "
+"activiteiten netjes bij."
+
+msgid "Home or flat expenses"
+msgstr "Huis- of kotuitgaven"
+
+msgid ""
+"From rent and energy bills to groceries: everyone instantly sees who "
+"paid for what."
+msgstr ""
+"Van huur en energie tot boodschappen: iedereen ziet meteen wie wat "
+"betaalde."
+
+msgid "Teams & clubs"
+msgstr "Teams & clubs"
+
+msgid ""
+"Use FairSplit+ for team funds, weekends away or events with your club or "
+"society."
+msgstr ""
+"Gebruik FairSplit+ voor ploegkassen, weekendjes weg of events met je "
+"vereniging."
+
+msgid "Fair settlement"
+msgstr "Eerlijke afrekening"
+
+msgid ""
+"Automatic calculation of balances per person – simple, transparent and "
+"argument-free."
+msgstr ""
+"Automatische berekening van saldi per persoon – simpel, transparant en "
+"discussie-vrij."
+
+#######################################################
+# LOGIN PAGE (login.html)
+#######################################################
 
 msgid "Welcome back 👋"
 msgstr "Welkom terug 👋"
+
+msgid "Log in to your FairSplit+ groups"
+msgstr "Log in op je FairSplit+-groepen"
 
 msgid "Log in to your"
 msgstr "Log in op je"
@@ -184,22 +283,17 @@ msgid "groups"
 msgstr "groepen"
 
 msgid ""
-"See your trips, add expenses and "
-"settle everything fairly. One login for "
+"See your trips, add expenses and settle everything fairly. One login for "
 "all groups."
 msgstr ""
-"Bekijk je trips, voeg uitgaven toe "
-"en settle alles eerlijk. Eén login "
+"Bekijk je trips, voeg uitgaven toe en reken alles eerlijk af. Eén login "
 "voor al je groepen."
-
-msgid "Split expenses in seconds"
-msgstr "Deel uitgaven in seconden"
 
 msgid "Full transparency per group"
 msgstr "Volledige transparantie per groep"
 
 msgid "No more Excel or arguments"
-msgstr "Geen Excel of discussies meer"
+msgstr "Geen Excel-bestanden of discussies meer"
 
 msgid "Login"
 msgstr "Login"
@@ -210,12 +304,6 @@ msgstr "Gebruik je gebruikersnaam of e-mailadres."
 msgid "Username or email"
 msgstr "Gebruikersnaam of e-mail"
 
-msgid "Password"
-msgstr "Wachtwoord"
-
-msgid "Log in"
-msgstr "Log in"
-
 msgid "No account yet?"
 msgstr "Nog geen account?"
 
@@ -223,8 +311,84 @@ msgid "Register for free"
 msgstr "Registreer gratis"
 
 msgid "By logging in you agree to fair splits & good vibes ✌️"
-msgstr "Door in te loggen ga je akkoord met eerlijke splits & goede vibes ✌️"
+msgstr "Door in te loggen ga je akkoord met eerlijke splits & good vibes ✌️"
 
+#######################################################
+# REGISTER PAGE (register.html)
+#######################################################
+
+msgid "Get started free"
+msgstr "Begin gratis"
+
+msgid "Create your FairSplit+ account"
+msgstr "Maak je FairSplit+-account aan"
+
+msgid ""
+"One profile for all your group expenses: trips, roommates, teams and "
+"more."
+msgstr ""
+"Eén profiel voor al je groepsuitgaven: reizen, huisgenoten, teams en meer."
+
+msgid "Create unlimited groups"
+msgstr "Maak onbeperkt groepen aan"
+
+msgid "Invite friends with a join link"
+msgstr "Nodig vrienden uit met een deellink"
+
+msgid "Track who paid what"
+msgstr "Volg wie wat betaald heeft"
+
+msgid "Clear final balances per person"
+msgstr "Maak eindsaldi per persoon duidelijk"
+
+msgid "Already have an account?"
+msgstr "Heb je al een account?"
+
+msgid "Log in here"
+msgstr "Log hier in"
+
+msgid "Fill in your details to start."
+msgstr "Vul je gegevens in om te starten."
+
+msgid "Name"
+msgstr "Naam"
+
+msgid "First Last"
+msgstr "Voornaam Achternaam"
+
+msgid "Username"
+msgstr "Gebruikersnaam"
+
+msgid "Email"
+msgstr "E-mail"
+
+msgid "Phone number"
+msgstr "Telefoonnummer"
+
+msgid "IBAN"
+msgstr "IBAN"
+
+msgid "Payment link (optional)"
+msgstr "Betaallink (optioneel)"
+
+msgid "optional"
+msgstr "optioneel"
+
+msgid "Password"
+msgstr "Wachtwoord"
+
+msgid "Choose a strong password"
+msgstr "Kies een sterk wachtwoord"
+
+msgid "Create account"
+msgstr "Account aanmaken"
+
+msgid "Your data is only used to keep balances correct."
+msgstr "Je gegevens worden enkel gebruikt om saldi correct te houden."
+
+######################################################################
+# Dashboard / index.html
+######################################################################
 
 msgid "Dashboard"
 msgstr "Dashboard"
@@ -233,10 +397,13 @@ msgid "Welcome back"
 msgstr "Welkom terug"
 
 msgid "good to see you again"
-msgstr "mooi je weer te zien"
+msgstr "goed je weer te zien"
 
 msgid "Overview of your groups, trips and friends you bankrupt 😅"
-msgstr "Overzicht van jouw groepen, trips en vrienden die jij blut maakt 😅"
+msgstr "Overzicht van je groepen, trips en vrienden die je blut maakt 😅"
+
+msgid "Give feedback"
+msgstr "Geef feedback"
 
 msgid "Active groups"
 msgstr "Actieve groepen"
@@ -244,35 +411,571 @@ msgstr "Actieve groepen"
 msgid "Your ongoing trips and projects."
 msgstr "Je lopende trips en projecten."
 
-msgid "+ Create new group"
-msgstr "+ Nieuwe groep aanmaken"
+msgid "Create new group"
+msgstr "Nieuwe groep aanmaken"
+
+msgid "Code"
+msgstr "Code"
+
+msgid "Closed"
+msgstr "Gesloten"
+
+msgid "Open"
+msgstr "Open"
+
+msgid "No groups yet"
+msgstr "Nog geen groepen"
+
+msgid "Create your first group and start splitting expenses fairly with friends."
+msgstr "Maak je eerste groep en begin uitgaven eerlijk te splitten met vrienden."
+
+msgid "Start your first group"
+msgstr "Start je eerste groep"
 
 msgid "Join a group"
-msgstr "Een groep joinen"
+msgstr "Word lid van een groep"
 
 msgid "Enter the unique code you received from your friends."
-msgstr "Ontvang een unieke code van je vrienden en voer hem hier in."
+msgstr "Vul de unieke code in die je van je vrienden kreeg."
 
 msgid "Group code"
 msgstr "Groepscode"
 
 msgid "e.g. ECC07875"
-msgstr "Bijv. ECC07875"
+msgstr "bv. ECC07875"
 
 msgid "Join group"
 msgstr "Groep joinen"
 
+msgid "Tip: just send the code via WhatsApp or Messenger, copy-paste & join. 🚀"
+msgstr "Tip: stuur de code gewoon via WhatsApp of Messenger, copy-paste & join. 🚀"
+
+######################################################################
+# Globale feedback overlay op dashboard
+######################################################################
+
+msgid "Share your feedback"
+msgstr "Deel je feedback"
+
+msgid "Tell us what went well and what could be better. Your feedback helps improve FairSplit+."
+msgstr "Vertel ons wat goed ging en wat beter kan. Je feedback helpt FairSplit+ verbeteren."
+
+msgid "Your message"
+msgstr "Je bericht"
+
+msgid "What went well? What could be better?"
+msgstr "Wat ging goed? Wat kan beter?"
+
+msgid "Cancel"
+msgstr "Annuleren"
+
+msgid "Send"
+msgstr "Versturen"
+
+######################################################################
+# 🔥 NIEUWE STRINGS – group_detail.html
+######################################################################
+
+msgid "Closed trip"
+msgstr "Afgesloten trip"
+
+msgid "Active trip"
+msgstr "Actieve trip"
+
+msgid "Includes app fee"
+msgstr "Inclusief app-fee"
+
+msgid "Overview of all expenses, payments and who still owes what to whom."
+msgstr "Overzicht van alle uitgaven, betalingen en wie nog wat aan wie verschuldigd is."
+
+msgid "Trip dates"
+msgstr "Reisdata"
+
+msgid "Number of members"
+msgstr "Aantal leden"
+
+msgid "This group is closed, you can no longer add new expenses."
+msgstr "Deze groep is gesloten, je kunt geen nieuwe uitgaven meer toevoegen."
+
+msgid "Add expense (group closed)"
+msgstr "Uitgave toevoegen (groep gesloten)"
+
+msgid "Add expense"
+msgstr "Uitgave toevoegen"
+
+msgid "Overview in PDF"
+msgstr "Overzicht in PDF"
+
+msgid "Invite via WhatsApp"
+msgstr "Uitnodigen via WhatsApp"
+
+msgid "Copy invite code"
+msgstr "Uitnodigingscode kopiëren"
+
 msgid ""
-"Tip: just send the code via WhatsApp or Messenger, copy-paste & join. 🚀"
+"This group is closed. You can still view expenses, balances and debts, but "
+"you can no longer add new costs."
 msgstr ""
-"Tip: stuur de code gewoon in WhatsApp of Messenger, copy-paste & join. 🚀"
+"Deze groep is gesloten. Je kunt nog wel uitgaven, saldi en schulden bekijken, "
+"maar geen nieuwe kosten meer toevoegen."
 
-msgid "No groups yet"
-msgstr "Nog geen groepen"
+msgid "Share the code or WhatsApp link with friends to add them to this group quickly."
+msgstr "Deel de code of WhatsApp-link met vrienden om hen snel aan deze groep toe te voegen."
+
+msgid "Balance per person"
+msgstr "Saldo per persoon"
+
+msgid "Positive = is owed money. Negative = still has to pay."
+msgstr "Positief = krijgt geld terug. Negatief = moet nog betalen."
+
+msgid "Settle debts"
+msgstr "Schulden vereffenen"
+
+msgid "No expenses yet – add one to see balances."
+msgstr "Nog geen uitgaven – voeg er één toe om saldi te zien."
+
+msgid "Latest expenses"
+msgstr "Laatste uitgaven"
+
+msgid "A quick look at the most recent costs in this group."
+msgstr "Een snelle blik op de meest recente kosten in deze groep."
+
+msgid "View all expenses"
+msgstr "Alle uitgaven bekijken"
+
+#, python-format
+msgid "%(payer)s paid"
+msgstr "%(payer)s betaalde"
+
+msgid "Split equally between all members"
+msgstr "Gelijk verdeeld over alle leden"
+
+msgid "No expenses yet – add one to see an overview here."
+msgstr "Nog geen uitgaven – voeg er één toe om hier een overzicht te zien."
+
+msgid "There are more expenses…"
+msgstr "Er zijn nog meer uitgaven…"
+
+msgid "view full history"
+msgstr "volledige historiek bekijken"
+
+msgid "All expenses are shown above."
+msgstr "Alle uitgaven worden hierboven getoond."
+
+msgid "Group members & payments"
+msgstr "Groepsleden & betalingen"
+
+msgid "Who is in the group and which repayments have already been recorded?"
+msgstr "Wie zit er in de groep en welke terugbetalingen zijn al geregistreerd?"
+
+msgid "Group members"
+msgstr "Groepsleden"
+
+msgid "people"
+msgstr "personen"
+
+#, python-format
+msgid "This group includes an app fee of €%(amt).2f which is automatically split equally."
+msgstr "Deze groep bevat een app-fee van €%(amt).2f die automatisch gelijk wordt verdeeld."
+
+msgid "Payments"
+msgstr "Betalingen"
+
+msgid "No payments recorded yet."
+msgstr "Nog geen betalingen geregistreerd."
+
+msgid "Currency"
+msgstr "Valuta"
+
+######################################################################
+# Nieuwe vertalingen – expense_new.html
+######################################################################
+
+msgid "New expense"
+msgstr "Nieuwe uitgave"
+
+msgid "New expense for"
+msgstr "Nieuwe uitgave voor"
+
+msgid "Add an expense to this group. You can choose an equal split or a custom amount per person."
+msgstr "Voeg een uitgave toe aan deze groep. Je kan kiezen voor een gelijke verdeling of een aangepast bedrag per persoon."
+
+msgid "Clear balances per person"
+msgstr "Saldo’s per persoon bijwerken"
+
+msgid "Enter an amount per person"
+msgstr "Bedrag per persoon invullen"
+
+msgid "Check that totals match"
+msgstr "Controleren of de totalen kloppen"
+
+msgid "Description"
+msgstr "Omschrijving"
+
+msgid "e.g. Train tickets"
+msgstr "bv. Treintickets"
+
+msgid "Amount (EUR)"
+msgstr "Bedrag (EUR)"
+
+msgid "Date"
+msgstr "Datum"
+
+msgid "Category"
+msgstr "Categorie"
+
+msgid "Automatic (AI chooses category)"
+msgstr "Automatisch (AI kiest categorie)"
+
+msgid "Leave on automatic to let AI pick the best category based on the description."
+msgstr "Laat op automatisch staan om de beste categorie door AI te laten kiezen op basis van de omschrijving."
+
+msgid "Scan receipt (optional)"
+msgstr "Ticket scannen (optioneel)"
+
+msgid "Choose photo"
+msgstr "Foto kiezen"
+
+msgid "Scan items"
+msgstr "Artikelen scannen"
+
+msgid "Take or choose a clear photo of the receipt. We will detect the items and help you split per person."
+msgstr "Neem of kies een duidelijke foto van het ticket. We herkennen de items en helpen je ze per persoon te verdelen."
+
+msgid "Split"
+msgstr "Verdeling"
+
+msgid "Equal split"
+msgstr "Gelijke verdeling"
+
+msgid "Custom split"
+msgstr "Aangepaste verdeling"
+
+msgid "Enter an amount first to split equally."
+msgstr "Voer eerst een bedrag in om het gelijk te verdelen."
+
+msgid "Amount per person"
+msgstr "Bedrag per persoon"
+
+msgid "Total entered"
+msgstr "Totaal ingevuld"
+
+msgid "Remaining"
+msgstr "Resterend"
+
+msgid "Save"
+msgstr "Opslaan"
+
+msgid "Save changes"
+msgstr "Wijzigingen opslaan"
+
+msgid "Back to group"
+msgstr "Terug naar groep"
+
+msgid "Item"
+msgstr "Item"
+
+msgid "Not assigned"
+msgstr "Niet toegewezen"
+
+msgid "Choose a photo of the receipt first."
+msgstr "Kies eerst een foto van het ticket."
+
+msgid "Could not read the receipt. Try a clearer photo."
+msgstr "Het ticket kon niet worden gelezen. Probeer een duidelijkere foto."
+
+msgid "No items found on the receipt."
+msgstr "Geen items gevonden op het ticket."
+
+msgid "Receipt read! Assign each item to the right person."
+msgstr "Ticket gelezen! Wijs elk item toe aan de juiste persoon."
+
+msgid "Something went wrong while scanning. Please try again."
+msgstr "Er ging iets mis tijdens het scannen. Probeer het opnieuw."
+
+# ==== LEDGER.PO – NIEUWE VERTALINGEN ====
+
+msgid "Closed group"
+msgstr "Groep gesloten"
+
+msgid "Overview of all expenses in"
+msgstr "Overzicht van alle uitgaven in"
+
+msgid "Complete history of all expenses in this group."
+msgstr "Volledige geschiedenis van alle uitgaven in deze groep."
+
+msgid "Back to group overview"
+msgstr "Terug naar groepsoverzicht"
+
+msgid "New expense"
+msgstr "Nieuwe uitgave"
+
+msgid "Group closed – no new expenses allowed"
+msgstr "Groep gesloten – geen nieuwe uitgaven toegestaan"
+
+msgid "Expense history – "
+msgstr "Uitgavegeschiedenis – "
+
+msgid "Total number of expenses"
+msgstr "Totaal aantal uitgaven"
+
+msgid "Date"
+msgstr "Datum"
+
+msgid "Description"
+msgstr "Beschrijving"
+
+msgid "Category"
+msgstr "Categorie"
+
+msgid "Payer"
+msgstr "Betaler"
+
+msgid "Amount"
+msgstr "Bedrag"
+
+msgid "Split between"
+msgstr "Gesplitst tussen"
+
+msgid "Your position"
+msgstr "Jouw positie"
+
+msgid "Equally split between all members"
+msgstr "Gelijk verdeeld over alle leden"
+
+msgid "You lent out €%(amt).2f"
+msgstr "Je leende €%(amt).2f uit"
+
+msgid "You borrowed €%(amt).2f"
+msgstr "Je leende €%(amt).2f"
+
+msgid "Balanced"
+msgstr "In balans"
+
+msgid "Edit"
+msgstr "Bewerken"
+
+msgid "Delete"
+msgstr "Verwijderen"
+
+msgid "Are you sure you want to delete this expense?"
+msgstr "Ben je zeker dat je deze uitgave wil verwijderen?"
+
+msgid "%(payer)s paid"
+msgstr "%(payer)s betaalde"
+
+msgid "Split between %(n)s people"
+msgstr "Gesplitst tussen %(n)s personen"
+
+msgid "For you this expense is balanced."
+msgstr "Voor jou is deze uitgave in balans."
+
+msgid "No expenses yet"
+msgstr "Nog geen uitgaven"
+
+msgid "This group is closed and there are no expenses registered yet."
+msgstr "Deze groep is gesloten en er zijn nog geen uitgaven geregistreerd."
+
+msgid "As soon as there are expenses, they will appear here."
+msgstr "Zodra er uitgaven zijn, verschijnen ze hier."
+
+msgid "Add first expense"
+msgstr "Eerste uitgave toevoegen"
+
+# --- Settlements overview (NL) ---
+
+msgid "Settle debts – "
+msgstr "Schulden vereffenen – "
+
+msgid "Settle debts"
+msgstr "Schulden vereffenen"
 
 msgid ""
-"Create your first group and start splitting expenses fairly with friends."
-msgstr "Maak je eerste groep aan en begin met eerlijk splitsen met je vrienden."
+"Based on all expenses and payments we suggest a simple list of transfers to "
+"bring everyone back to zero."
+msgstr ""
+"Op basis van alle uitgaven en betalingen stellen we een eenvoudige lijst "
+"overschrijvingen voor om iedereen terug op nul te krijgen."
 
-msgid "Start your first group"
-msgstr "Start je eerste groep"
+msgid "Back to group overview"
+msgstr "Terug naar groepsoverzicht"
+
+msgid "View all expenses"
+msgstr "Alle uitgaven bekijken"
+
+msgid "You need to make this payment."
+msgstr "Je moet deze betaling uitvoeren."
+
+msgid "You will receive this amount once the payment is made."
+msgstr "Je ontvangt dit bedrag zodra de betaling gebeurd is."
+
+msgid "Recommended transfer to bring the group back in balance."
+msgstr "Aanbevolen overschrijving om de groep terug in evenwicht te brengen."
+
+msgid ""
+"Suggested transfer to settle balances based on all expenses and payments in "
+"this group."
+msgstr ""
+"Voorgestelde overschrijving om de saldi te vereffenen op basis van alle "
+"uitgaven en betalingen in deze groep."
+
+msgid "Pay with banking app"
+msgstr "Betalen met banking app"
+
+msgid "Open your banking app and transfer this amount manually."
+msgstr "Open je banking app en maak dit bedrag handmatig over."
+
+msgid "Everyone is in balance 🎉"
+msgstr "Iedereen staat in evenwicht 🎉"
+
+msgid ""
+"Based on the current expenses and payments there are no extra transfers "
+"needed."
+msgstr ""
+"Op basis van de huidige uitgaven en betalingen zijn er geen extra "
+"overschrijvingen nodig."
+
+msgid "Back to group"
+msgstr "Terug naar groep"
+
+# --- Settlement pay page (NL) ---
+
+msgid "Settle debt"
+msgstr "Schuld vereffenen"
+
+msgid "Make the payment in your banking app and then register it in FairSplit+."
+msgstr ""
+"Voer de betaling uit in je banking app en registreer ze daarna in FairSplit+."
+
+msgid ""
+"You are settling an open debt in this group. Use the payment details on the "
+"right in your banking app."
+msgstr ""
+"Je bent een openstaande schuld in deze groep aan het vereffenen. Gebruik de "
+"betalingsgegevens rechts in je banking app."
+
+msgid ""
+"Always double-check amount, IBAN and recipient name in your banking app "
+"before confirming."
+msgstr ""
+"Controleer in je banking app altijd zorgvuldig bedrag, IBAN en naam van de "
+"ontvanger voordat je bevestigt."
+
+msgid ""
+"After paying, return to FairSplit+ and register it as a payment in this "
+"group."
+msgstr ""
+"Na het betalen ga je terug naar FairSplit+ en registreer je het als een "
+"betaling in deze groep."
+
+msgid ""
+"Tip: use the same reference as below so everything stays easy to recognise."
+msgstr ""
+"Tip: gebruik dezelfde mededeling als hieronder, zo blijft alles herkenbaar."
+
+msgid "Back to settlements overview"
+msgstr "Terug naar overzicht schulden"
+
+msgid "Amount to pay"
+msgstr "Bedrag te betalen"
+
+msgid "From"
+msgstr "Van"
+
+msgid "To"
+msgstr "Naar"
+
+msgid "Group"
+msgstr "Groep"
+
+msgid "Use these details in your banking app"
+msgstr "Gebruik deze gegevens in je banking app"
+
+msgid "Recipient IBAN"
+msgstr "IBAN ontvanger"
+
+msgid "Copy IBAN"
+msgstr "IBAN kopiëren"
+
+msgid ""
+"No IBAN is set yet for this user. Please make the transfer manually."
+msgstr ""
+"Er is nog geen IBAN ingesteld voor deze gebruiker. Voer de overschrijving "
+"handmatig uit."
+
+msgid "Suggested reference"
+msgstr "Voorgestelde mededeling"
+
+msgid "Register payment in FairSplit+"
+msgstr "Betaling registreren in FairSplit+"
+
+msgid ""
+"Have you completed the payment in your banking app? Click below to save it "
+"as a payment in this group."
+msgstr ""
+"Heb je de betaling uitgevoerd in je banking app? Klik hieronder om ze op te "
+"slaan als betaling in deze groep."
+
+msgid "Register payment"
+msgstr "Betaling registreren"
+
+msgid "IBAN cannot be copied by this browser."
+msgstr "IBAN kan niet gekopieerd worden door deze browser."
+
+msgid "IBAN copied to clipboard."
+msgstr "IBAN gekopieerd naar klembord."
+
+msgid "Copying failed, please copy the IBAN manually."
+msgstr "Kopiëren is mislukt, kopieer de IBAN handmatig."
+
+# New group page
+msgid "New group"
+msgstr "Nieuwe groep"
+
+msgid "Create a new group"
+msgstr "Maak een nieuwe groep"
+
+msgid "Start a trip or project and split expenses fairly with friends."
+msgstr "Start een trip of project en verdeel uitgaven eerlijk met vrienden."
+
+msgid "Create unlimited groups"
+msgstr "Maak onbeperkt groepen aan"
+
+msgid "Invite friends with a join link"
+msgstr "Nodig vrienden uit met een deellink"
+
+msgid "Track who paid what"
+msgstr "Volg wie wat betaald heeft"
+
+msgid "Clear final balances per person"
+msgstr "Maak eindsaldi per persoon duidelijk"
+
+msgid "We charge a small app fee:"
+msgstr "We rekenen een kleine appkost aan:"
+
+msgid "€2 for groups up to 8 people"
+msgstr "€2 voor groepen tot en met 8 personen"
+
+msgid "€5 for groups with 9 or more people"
+msgstr "€5 voor groepen met 9 personen of meer"
+
+msgid "The fee is paid by the group creator and is automatically re-split equally every time someone joins."
+msgstr "De kost wordt betaald door de groepsmaker en wordt automatisch opnieuw eerlijk verdeeld telkens iemand zich aansluit."
+
+msgid "Give your group a name."
+msgstr "Geef je groep een naam."
+
+msgid "Group name"
+msgstr "Groepsnaam"
+
+msgid "e.g. Weekend Paris"
+msgstr "bv. Weekend Parijs"
+
+msgid "Start date"
+msgstr "Startdatum"
+
+msgid "End date"
+msgstr "Einddatum"
+
+msgid "Create group"
+msgstr "Groep aanmaken"

@@ -5,17 +5,17 @@
 {% block content %}
 <main class="group-page">
 
-  <!-- HERO / OVERZICHT BOVENAAN -->
+  <!-- HERO / OVERVIEW -->
   <section class="group-hero">
     <div class="group-hero-main">
       <div class="group-pill">
         {% if is_closed %}
-          🔒 {{ _('Afgesloten trip') }}
+          🔒 {{ _('Closed trip') }}
         {% else %}
-          🧳 {{ _('Actieve trip') }}
+          🧳 {{ _('Active trip') }}
         {% endif %}
         {% if app_fee_expense %}
-          · 💶 {{ _('Inclusief app-fee') }}
+          · 💶 {{ _('Includes app fee') }}
         {% endif %}
       </div>
 
@@ -24,33 +24,33 @@
       </h1>
 
       <p class="group-sub">
-        {{ _('Overzicht van alle uitgaven, betalingen en wie nog wat aan wie verschuldigd is.') }}
+        {{ _('Overview of all expenses, payments and who still owes what to whom.') }}
       </p>
 
       <div class="group-meta-row">
         <div class="group-meta-item">
-          <span class="meta-label">{{ _('Valuta') }}</span>
+          <span class="meta-label">{{ _('Currency') }}</span>
           <span class="meta-value">{{ group.currency or 'EUR' }}</span>
         </div>
 
         <div class="group-meta-item">
-          <span class="meta-label">{{ _('Groepscode') }}</span>
+          <span class="meta-label">{{ _('Group code') }}</span>
           <span class="meta-value code">{{ group.join_code }}</span>
         </div>
 
         <div class="group-meta-item">
-          <span class="meta-label">{{ _('Reisdata') }}</span>
+          <span class="meta-label">{{ _('Trip dates') }}</span>
           <span class="meta-value">
             {% if group.start_date and group.end_date %}
               {{ group.start_date }} – {{ group.end_date }}
             {% else %}
-              {{ _('Onbekend') }}
+              {{ _('Unknown') }}
             {% endif %}
           </span>
         </div>
 
         <div class="group-meta-item">
-          <span class="meta-label">{{ _('Aantal leden') }}</span>
+          <span class="meta-label">{{ _('Number of members') }}</span>
           <span class="meta-value">{{ members|length }}</span>
         </div>
       </div>
@@ -60,22 +60,22 @@
           <button type="button"
                   class="btn-primary"
                   disabled
-                  title="{{ _('Deze groep is afgesloten, je kan geen nieuwe uitgaven meer toevoegen.') }}\">
-            ➕ {{ _('Uitgave toevoegen (groep gesloten)') }}
+                  title="{{ _('This group is closed, you can no longer add new expenses.') }}">
+            ➕ {{ _('Add expense (group closed)') }}
           </button>
         {% else %}
           <a href="{{ url_for('main.expense_new', group_id=group.group_id) }}"
              class="btn-primary">
-            ➕ {{ _('Uitgave toevoegen') }}
+            ➕ {{ _('Add expense') }}
           </a>
         {% endif %}
 
         <a href="{{ url_for('main.ledger', group_id=group.group_id, print=1) }}"
            class="btn-secondary">
-          📄 {{ _('Overzicht in PDF') }}
+          📄 {{ _('Overview in PDF') }}
         </a>
 
-        {# NIEUW: WhatsApp invite knop #}
+        {# WhatsApp invite button #}
         <a href="{{ whatsapp_link }}"
            target="_blank"
            rel="noopener"
@@ -88,34 +88,34 @@
         <button type="button"
                 class="btn-pill-ghost"
                 onclick="navigator.clipboard.writeText('{{ group.join_code }}');">
-          🔗 {{ _('Invite-code kopiëren') }}
+          🔗 {{ _('Copy invite code') }}
         </button>
       </div>
 
       {% if is_closed %}
         <p class="hint-text" style="color:#b45309;">
-          {{ _('Deze groep is afgesloten. Je kunt nog wel uitgaven, saldi en schulden bekijken, maar geen nieuwe kosten meer toevoegen.') }}
+          {{ _('This group is closed. You can still view expenses, balances and debts, but you can no longer add new costs.') }}
         </p>
       {% else %}
         <p class="hint-text">
-          {{ _('Deel de code of WhatsApp-link met vrienden om hen snel toe te voegen aan deze groep.') }}
+          {{ _('Share the code or WhatsApp link with friends to add them to this group quickly.') }}
         </p>
       {% endif %}
     </div>
 
-    <!-- RECHTS: SALDO-KAART -->
+    <!-- RIGHT: BALANCE CARD -->
     <aside class="group-hero-card">
       <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
         <div>
-          <h2>{{ _('Saldo per persoon') }}</h2>
+          <h2>{{ _('Balance per person') }}</h2>
           <p class="card-sub">
-            {{ _('Positief = krijgt nog geld. Negatief = moet nog betalen.') }}
+            {{ _('Positive = is owed money. Negative = still has to pay.') }}
           </p>
         </div>
         
         <a href="{{ url_for('main.settlements_overview', group_id=group.group_id) }}"
            class="btn-secondary">
-          💸 {{ _('Schulden vereffenen') }}
+          💸 {{ _('Settle debts') }}
         </a>
       </div>
 
@@ -141,32 +141,32 @@
         </ul>
       {% else %}
         <p class="card-empty">
-          {{ _('Nog geen uitgaven – voeg er eentje toe om saldi te zien.') }}
+          {{ _('No expenses yet – add one to see balances.') }}
         </p>
       {% endif %}
     </aside>
   </section>
 
-  <!-- BODY: LAATSTE UITGAVEN + LEDEN/BETALINGEN -->
+  <!-- BODY: LATEST EXPENSES + MEMBERS/PAYMENTS -->
   <section class="group-body">
 
-    <!-- LINKERKAART: LAATSTE UITGAVEN -->
+    <!-- LEFT CARD: LATEST EXPENSES -->
     <article class="group-card group-recent-card">
       <div class="group-recent-intro">
-        <p class="group-eyebrow">{{ _('Laatste uitgaven') }}</p>
+        <p class="group-eyebrow">{{ _('Latest expenses') }}</p>
         <h3 class="group-recent-title">
-          {{ _('Een snelle blik op de recentste kosten in deze groep.') }}
+          {{ _('A quick look at the most recent costs in this group.') }}
         </h3>
 
         <a href="{{ url_for('main.ledger', group_id=group.group_id) }}"
            class="btn-round">
-          {{ _('Alle uitgaven bekijken') }}
+          {{ _('View all expenses') }}
         </a>
       </div>
 
       <div class="recent-exp-list">
         {% if expenses %}
-          {# nieuwste 3 #}
+          {# newest 3 #}
           {% set recent_expenses = (expenses | sort(attribute='created_at', reverse=True))[:3] %}
 
           {% for exp in recent_expenses %}
@@ -188,7 +188,7 @@
                         justify-content:space-between;
                         gap:12px;
                       ">
-                <!-- links: titel -->
+                <!-- left: title -->
                 <div style="display:flex; flex-direction:column; gap:6px; flex:1; min-width:0;">
                   <span class="recent-exp-title"
                         style="font-size:16px; font-weight:600; color:#111827; word-break:break-word;">
@@ -209,7 +209,7 @@
                   </span>
                 </div>
 
-                <!-- rechts: bedrag -->
+                <!-- right: amount -->
                 <span class="recent-exp-amount"
                       style="
                         font-weight:700;
@@ -224,7 +224,7 @@
 
               <p class="recent-exp-meta">
                 {{ exp.created_at[:10] }}
-                · {{ _('%(payer)s betaalde', payer=exp.payer_username) }}
+                · {{ _('%(payer)s paid', payer=exp.payer_username) }}
               </p>
 
               {% if exp.shares and exp.shares|length > 0 %}
@@ -238,7 +238,7 @@
               {% else %}
                 <div class="recent-exp-pill-row">
                   <span class="recent-equal-pill">
-                    {{ _('Gelijk verdeeld over alle leden') }}
+                    {{ _('Split equally between all members') }}
                   </span>
                 </div>
               {% endif %}
@@ -246,7 +246,7 @@
           {% endfor %}
         {% else %}
           <p class="card-empty">
-            {{ _('Nog geen uitgaven – voeg er eentje toe om hier een overzicht te zien.') }}
+            {{ _('No expenses yet – add one to see an overview here.') }}
           </p>
         {% endif %}
       </div>
@@ -254,36 +254,36 @@
       <div class="group-recent-more">
         {% if expenses and expenses|length > 3 %}
           <p>
-            {{ _('Er zijn nog meer uitgaven…') }}
+            {{ _('There are more expenses…') }}
             <a href="{{ url_for('main.ledger', group_id=group.group_id) }}">
-              {{ _('bekijk volledige historiek') }}
+              {{ _('view full history') }}
             </a>
           </p>
         {% else %}
           <p class="muted">
-            {{ _('Alle uitgaven worden hierboven getoond.') }}
+            {{ _('All expenses are shown above.') }}
           </p>
         {% endif %}
       </div>
     </article>
 
-    <!-- RECHTERKAART: LEDEN + BETALINGEN -->
+    <!-- RIGHT CARD: MEMBERS + PAYMENTS -->
     <aside class="group-card group-side-card">
       <header class="group-card-header">
         <div>
-          <h3>{{ _('Groepsleden & betalingen') }}</h3>
+          <h3>{{ _('Group members & payments') }}</h3>
           <p class="card-sub">
-            {{ _('Wie zit in de groep en welke terugbetalingen zijn al geregistreerd?') }}
+            {{ _('Who is in the group and which repayments have already been recorded?') }}
           </p>
         </div>
       </header>
 
-      <!-- Leden -->
+      <!-- Members -->
       <div class="side-block">
         <div class="side-block-header">
-          <span class="side-block-title">{{ _('Groepsleden') }}</span>
+          <span class="side-block-title">{{ _('Group members') }}</span>
           <span class="side-block-pill">
-            {{ members|length }} {{ _('personen') }}
+            {{ members|length }} {{ _('people') }}
           </span>
         </div>
 
@@ -303,15 +303,15 @@
 
         {% if app_fee_expense %}
           <p class="side-note">
-            💶 {{ _('Deze groep bevat een app-fee van €%(amt).2f die automatisch gelijk verdeeld wordt.', amt=app_fee_expense.total_amount) }}
+            💶 {{ _('This group includes an app fee of €%(amt).2f which is automatically split equally.', amt=app_fee_expense.total_amount) }}
           </p>
         {% endif %}
       </div>
 
-      <!-- Betalingen -->
+      <!-- Payments -->
       <div class="side-block payments-block">
         <div class="side-block-header">
-          <span class="side-block-title">{{ _('Betalingen') }}</span>
+          <span class="side-block-title">{{ _('Payments') }}</span>
           {% if payments %}
             <span class="side-block-pill">{{ payments|length }}</span>
           {% endif %}
@@ -340,7 +340,7 @@
           </ul>
         {% else %}
           <p class="side-empty">
-            {{ _('Nog geen betalingen geregistreerd.') }}
+            {{ _('No payments recorded yet.') }}
           </p>
         {% endif %}
       </div>

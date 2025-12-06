@@ -1,6 +1,6 @@
 {# templates/settlement_pay.html #}
 {% extends "base.html" %}
-{% block title %}{{ _('Schuld vereffenen') }} – FairSplit+{% endblock %}
+{% block title %}{{ _('Settle debt') }} – FairSplit+{% endblock %}
 
 {% block content %}
 <main class="group-page settlement-page">
@@ -9,13 +9,13 @@
   <section class="group-hero">
     <div class="group-hero-main">
       <div class="group-pill">
-        💸 {{ _('Schuld vereffenen') }}
+        💸 {{ _('Settle debt') }}
       </div>
       <h1 class="group-title">
         {{ sender.username }} → {{ receiver.username }}
       </h1>
       <p class="group-sub">
-        {{ _('Voer de betaling uit in je banking app en registreer ze daarna in FairSplit+.') }}
+        {{ _('Make the payment in your banking app and then register it in FairSplit+.') }}
       </p>
     </div>
   </section>
@@ -25,87 +25,87 @@
     <article class="group-card settlement-card">
 
       <div class="settle-layout">
-        <!-- LINKERKANT: uitleg -->
+        <!-- LEFT: explanation -->
         <div class="settle-left">
           <p class="settle-text">
-            {{ _('Je vereffent een openstaande schuld in deze groep. Gebruik de betaalgegevens hiernaast in je banking app.') }}
+            {{ _('You are settling an open debt in this group. Use the payment details on the right in your banking app.') }}
           </p>
 
           <ul class="settle-list">
-            <li>{{ _('Controleer altijd bedrag, IBAN en naam ontvanger in je banking app voordat je bevestigt.') }}</li>
-            <li>{{ _('Na de betaling keer je terug naar FairSplit+ en registreer je ze als betaling in deze groep.') }}</li>
+            <li>{{ _('Always double-check amount, IBAN and recipient name in your banking app before confirming.') }}</li>
+            <li>{{ _('After paying, return to FairSplit+ and register it as a payment in this group.') }}</li>
           </ul>
 
           <p class="settle-hint">
-            {{ _('Tip: gebruik dezelfde mededeling als hieronder, zo blijft alles netjes herkenbaar.') }}
+            {{ _('Tip: use the same reference as below so everything stays easy to recognise.') }}
           </p>
 
           <a href="{{ url_for('main.settlements_overview', group_id=group.group_id) }}"
              class="link-back">
-            ← {{ _('Terug naar schuldoverzicht') }}
+            ← {{ _('Back to settlements overview') }}
           </a>
         </div>
 
-        <!-- RECHTS: bedrag + betaalgegevens + registratieknop -->
+        <!-- RIGHT: amount + payment details + register button -->
         <aside class="settle-right">
 
-          <!-- Bedrag + basisinfo -->
+          <!-- Amount + basic info -->
           <div class="settle-card-amount">
-            <h2>{{ _('Te betalen bedrag') }}</h2>
+            <h2>{{ _('Amount to pay') }}</h2>
             <p class="settle-amount">€ {{ '%.2f'|format(amount) }}</p>
             <p class="settle-line">
-              {{ _('Van') }}: <strong>{{ sender.username }}</strong><br>
-              {{ _('Aan') }}: <strong>{{ receiver.username }}</strong>
+              {{ _('From') }}: <strong>{{ sender.username }}</strong><br>
+              {{ _('To') }}: <strong>{{ receiver.username }}</strong>
             </p>
             {% if group.name %}
               <p class="settle-line">
-                {{ _('Groep') }}: {{ group.name }}
+                {{ _('Group') }}: {{ group.name }}
               </p>
             {% endif %}
           </div>
 
-          <!-- Betaalgegevens (IBAN + mededeling) -->
+          <!-- Payment details (IBAN + reference) -->
           <div class="settle-block">
-            <h3>{{ _('Gebruik deze gegevens in je banking app') }}</h3>
+            <h3>{{ _('Use these details in your banking app') }}</h3>
 
             {% if receiver.iban %}
               <p class="settle-line">
-                <strong>{{ _('IBAN ontvanger') }}:</strong>
+                <strong>{{ _('Recipient IBAN') }}:</strong>
                 <code id="iban-text">{{ receiver.iban }}</code>
               </p>
 
               <button type="button"
                       class="btn-secondary"
                       onclick="copyIban('{{ receiver.iban }}')">
-                📋 {{ _('Kopieer IBAN') }}
+                📋 {{ _('Copy IBAN') }}
               </button>
             {% else %}
               <p class="settle-line">
-                {{ _('Er is nog geen IBAN ingesteld voor deze gebruiker. Voer de betaling handmatig uit.') }}
+                {{ _('No IBAN is set yet for this user. Please make the transfer manually.') }}
               </p>
             {% endif %}
 
             <p class="settle-line" style="margin-top:10px;">
-              <strong>{{ _('Aanbevolen mededeling') }}:</strong><br>
+              <strong>{{ _('Suggested reference') }}:</strong><br>
               <code>
                 FairSplit+ {{ group.name }} – {{ sender.username }} → {{ receiver.username }}
               </code>
             </p>
           </div>
 
-          <!-- Betaling registreren in FairSplit+ -->
+          <!-- Register payment in FairSplit+ -->
           <form method="post"
                 action="{{ url_for('main.settlement_mark_paid',
                                    group_id=group.group_id,
                                    settlement_id=settlement_id) }}"
                 class="settle-block">
-            <h3>{{ _('Betaling registreren in FairSplit+') }}</h3>
+            <h3>{{ _('Register payment in FairSplit+') }}</h3>
             <p class="settle-help">
-              {{ _('Heb je de betaling uitgevoerd in je banking app? Klik hieronder om ze als betaling in deze groep op te slaan.') }}
+              {{ _('Have you completed the payment in your banking app? Click below to save it as a payment in this group.') }}
             </p>
 
             <button type="submit" class="btn-primary btn-full">
-              ✅ {{ _('Betaling registreren') }}
+              ✅ {{ _('Register payment') }}
             </button>
           </form>
 
@@ -119,17 +119,16 @@
 <script>
   function copyIban(iban) {
     if (!navigator.clipboard) {
-      alert("{{ _('IBAN kan niet gekopieerd worden door deze browser.') }}");
+      alert("{{ _('IBAN cannot be copied by this browser.') }}");
       return;
     }
     navigator.clipboard.writeText(iban)
       .then(function () {
-        alert("{{ _('IBAN gekopieerd naar het klembord.') }}");
+        alert("{{ _('IBAN copied to clipboard.') }}");
       })
       .catch(function () {
-        alert("{{ _('Kopiëren is mislukt, kopieer de IBAN manueel.') }}");
+        alert("{{ _('Copying failed, please copy the IBAN manually.') }}");
       });
   }
 </script>
 {% endblock %}
-

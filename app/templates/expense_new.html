@@ -1,546 +1,95 @@
+{# templates/expense_new.html #}
 {% extends "base.html" %}
+
 {% block title %}
-  {{ (is_edit|default(False)) and _('Edit expense') or _('New expense') }} – FairSplit+
+  {% if is_edit|default(False) %}
+    {{ _('Edit expense') }} – FairSplit+
+  {% else %}
+    {{ _('New expense') }} – FairSplit+
+  {% endif %}
 {% endblock %}
 
 {% block content %}
 <main class="auth-page">
-  <style>
-    /* SPLIT TOGGLE – CLEAN + SPECTACULAR, ZONDER GROOT KADER */
-    .split-mode-toggle {
-      display: flex;
-      gap: 8px;
-      padding: 0;
-      background: none;
-      border: none;
-      box-shadow: none;
-    }
+  <section class="auth-shell">
 
-    .split-pill {
-      flex: 1;
-      border-radius: 999px;
-      padding: 10px 18px;
-      border: none;
-      background: transparent;
-      font-size: 14px;
-      font-weight: 600;
-      color: #94a3b8;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      cursor: pointer;
-      position: relative;
-      z-index: 1;
-      transition:
-        color 150ms ease,
-        transform 120ms ease,
-        text-shadow 150ms ease;
-    }
-
-    .split-pill .toggle-dot {
-      width: 9px;
-      height: 9px;
-      border-radius: 999px;
-      border: 2px solid #cbd5f5;
-      background: transparent;
-      box-shadow: 0 0 0 0 rgba(148, 163, 184, 0.2);
-      transition:
-        background 160ms ease,
-        border-color 160ms ease,
-        box-shadow 160ms ease;
-    }
-
-    .split-pill:hover:not(.active) {
-      color: #64748b;
-      text-shadow: 0 0 8px rgba(148, 163, 184, 0.4);
-    }
-
-    .split-pill:active:not(.active) {
-      transform: translateY(1px) scale(0.99);
-    }
-
-    .split-pill.active {
-      color: #ffffff;
-      text-shadow: 0 0 10px rgba(22, 163, 74, 0.8);
-      transform: translateY(-0.5px);
-    }
-
-    .split-pill.active::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      border-radius: 999px;
-      background: linear-gradient(135deg, #22c55e, #16a34a, #4ade80);
-      box-shadow:
-        0 16px 30px rgba(22, 163, 74, 0.55),
-        0 0 0 1px rgba(22, 163, 74, 0.4);
-      z-index: -1;
-      opacity: 1;
-      transition: box-shadow 180ms ease;
-      animation: pillGlow 2.6s ease-in-out infinite;
-    }
-
-    .split-pill.active .toggle-dot {
-      background: #ffffff;
-      border-color: rgba(255, 255, 255, 0.95);
-      box-shadow: 0 0 12px rgba(255, 255, 255, 0.8);
-    }
-
-    @keyframes pillGlow {
-      0%   { box-shadow: 0 16px 30px rgba(22, 163, 74, 0.55); }
-      50%  { box-shadow: 0 18px 34px rgba(22, 163, 74, 0.75); }
-      100% { box-shadow: 0 16px 30px rgba(22, 163, 74, 0.55); }
-    }
-
-    /* MOBILE */
-    @media (max-width: 640px) {
-      .split-mode-toggle {
-        flex-direction: column;
-        align-items: stretch;
-      }
-
-      .split-pill {
-        width: 100%;
-      }
-
-      .receipt-shell {
-        padding: 10px 10px;
-      }
-
-      .receipt-row {
-        flex-direction: column;
-        align-items: stretch;
-      }
-
-      .scan-receipt-btn,
-      .file-upload-btn {
-        width: 100%;
-        justify-content: center;
-      }
-    }
-
-    /* AVATAR LETTER LIME GREEN */
-    .auth-card .avatar-circle {
-      width: 32px;
-      height: 32px;
-      border-radius: 999px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: 14px;
-      background: #ecfdf3;
-      color: #22c55e;
-      border: 1px solid #bbf7d0;
-      text-transform: uppercase;
-    }
-
-    /* ========================
-       RECEIPT SCAN STYLING
-       ======================== */
-    .receipt-shell {
-      border-radius: 14px;
-      border: 1px solid #e2e8f0;
-      background: radial-gradient(circle at top left, #f0fdf4, #f9fafb 45%, #f8fafc);
-      padding: 12px 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .receipt-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .file-upload-btn {
-      background: white;
-      border-radius: 999px;
-      border: 1px solid #cbd5e1;
-      padding: 8px 14px;
-      font-size: 13px;
-      font-weight: 600;
-      color: #0f172a;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      cursor: pointer;
-      box-shadow:
-        0 4px 10px rgba(15, 23, 42, 0.04);
-      transition: all 150ms ease;
-    }
-
-    .file-upload-btn:hover {
-      background: #f8fafc;
-      border-color: #94a3b8;
-      box-shadow:
-        0 6px 14px rgba(15, 23, 42, 0.07);
-    }
-
-    .file-upload-btn input[type="file"] {
-      display: none;
-    }
-
-    .scan-receipt-btn {
-      background: linear-gradient(135deg, #22c55e, #16a34a, #4ade80);
-      border: none;
-      padding: 9px 18px;
-      border-radius: 999px;
-      color: white;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      box-shadow:
-        0 10px 22px rgba(22, 163, 74, 0.45),
-        0 0 0 1px rgba(22, 163, 74, 0.35);
-      transition: all 150ms ease;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      white-space: nowrap;
-    }
-
-    .scan-receipt-btn:hover:not(.is-loading) {
-      transform: translateY(-1px);
-      box-shadow:
-        0 14px 26px rgba(22, 163, 74, 0.55),
-        0 0 0 1px rgba(22, 163, 74, 0.4);
-    }
-
-    .scan-receipt-btn:active:not(.is-loading) {
-      transform: translateY(1px) scale(0.98);
-    }
-
-    .scan-receipt-btn.is-loading {
-      opacity: 0.8;
-      cursor: default;
-    }
-
-    .receipt-meta {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      font-size: 12px;
-      color: #64748b;
-    }
-
-    .receipt-status {
-      font-weight: 600;
-    }
-
-    .receipt-status.ok {
-      color: #15803d;
-    }
-
-    .receipt-status.err {
-      color: #b91c1c;
-    }
-
-    .receipt-preview {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-top: 4px;
-    }
-
-    .receipt-preview img {
-      width: 82px;
-      height: 82px;
-      object-fit: cover;
-      border-radius: 12px;
-      border: 1px solid #cbd5e1;
-      box-shadow: 0 6px 14px rgba(15, 23, 42, 0.08);
-      background:#f8fafc;
-    }
-
-    .receipt-loading {
-      display: none;
-      align-items: center;
-      gap: 8px;
-      font-size: 12px;
-      color: #0f172a;
-      margin-top: 4px;
-    }
-
-    .receipt-loading .spinner {
-      width: 16px;
-      height: 16px;
-      border-radius: 999px;
-      border: 2px solid #bbf7d0;
-      border-top-color: #16a34a;
-      animation: spin 0.8s linear infinite;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    /* -------- Items-kaart -------- */
-    .receipt-items-card {
-      margin-top: 6px;
-      border-radius: 14px;
-      background: radial-gradient(circle at top left, #ecfdf3, #ffffff 55%, #f9fafb);
-      border: 1px solid #e2e8f0;
-      padding: 10px 12px;
-      box-shadow:
-        0 16px 30px rgba(15, 23, 42, 0.08),
-        0 0 0 1px rgba(148, 163, 184, 0.12);
-      font-size: 13px;
-    }
-
-    .receipt-items-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      margin-bottom: 8px;
-      gap: 10px;
-    }
-
-    .receipt-items-header-title {
-      font-weight: 600;
-      color: #0f172a;
-      font-size: 14px;
-    }
-
-    .receipt-items-header-meta {
-      font-size: 12px;
-      color: #6b7280;
-      text-align: right;
-    }
-
-    .receipt-items-table {
-      width: 100%;
-      border-collapse: separate;
-      border-spacing: 0;
-      table-layout: fixed;
-    }
-
-    .receipt-items-table th,
-    .receipt-items-table td {
-      padding: 6px 6px;
-    }
-
-    .receipt-items-table th {
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: #6b7280;
-      border-bottom: 1px solid #e5e7eb;
-    }
-
-    .receipt-items-table td {
-      font-size: 13px;
-      border-bottom: 1px solid #f1f5f9;
-    }
-
-    .receipt-items-table tr:last-child td {
-      border-bottom: none;
-    }
-
-    .receipt-items-table tbody tr:hover {
-      background: #ecfdf3;
-    }
-
-    /* kolombreedtes */
-    .receipt-items-table th:nth-child(1),
-    .receipt-items-table td:nth-child(1) {
-      width: 40%;
-    }
-
-    .receipt-items-table th:nth-child(2),
-    .receipt-items-table td:nth-child(2) {
-      width: 30%;
-    }
-
-    .receipt-items-table th:nth-child(3),
-    .receipt-items-table td:nth-child(3) {
-      width: 30%;
-    }
-
-    .receipt-item-name {
-      font-weight: 500;
-      color: #111827;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .receipt-item-sub {
-      font-size: 11px;
-      color: #6b7280;
-    }
-
-    /* ---------- ASSIGN SELECT: clean pill ---------- */
-    .receipt-assign-select {
-      width: 100%;
-      padding: 6px 12px;
-      border-radius: 999px;
-      border: 1px solid #e5e7eb;
-      background: #ffffff;
-      font-size: 13px;
-      color: #0f172a;
-      outline: none;
-      box-shadow: 0 4px 10px rgba(15, 23, 42, 0.06);
-      appearance: none;
-      -webkit-appearance: none;
-      -moz-appearance: none;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      cursor: pointer;
-    }
-
-    .receipt-assign-select:focus {
-      border-color: #22c55e;
-      box-shadow:
-        0 0 0 1px rgba(34, 197, 94, 0.35),
-        0 6px 14px rgba(22, 163, 74, 0.25);
-    }
-
-    .receipt-amount-cell {
-      text-align: right;
-      font-variant-numeric: tabular-nums;
-      /* GEEN nowrap meer, dan kruipt de (1/2) niet onder de select */
-      white-space: normal;
-    }
-  </style>
-
-  <section class="auth-shell" style="max-width:1120px;">
-
-    <div class="auth-left">
-      <span class="auth-pill">
-        {{ (is_edit|default(False)) and _('Edit expense ✏️') or _('New expense 💸') }}
-      </span>
-      <h1 class="auth-title" style="margin-top:14px;">
-        {{ (is_edit|default(False)) and _('Edit expense for') or _('New expense for') }}
-        <span class="accent-text">{{ group.name }}</span>
-      </h1>
-      <p class="auth-lead">
-        {{ _('Add an expense to this group. You can choose an') }}
-        <strong>{{ _('equal split') }}</strong>
-        {{ _('or a') }}
-        <strong>{{ _('custom split per person') }}</strong>.
+    <!-- LINKERKANT: intro -->
+    <div class="auth-panel auth-panel-left">
+      <p class="auth-pill">
+        {% if is_edit|default(False) %}
+          ✏️ {{ _('Edit expense') }}
+        {% else %}
+          💸 {{ _('New expense') }}
+        {% endif %}
       </p>
 
-      <ul class="auth-benefits">
+      <h1 class="auth-title">
+        {% if is_edit|default(False) %}
+          {{ _('Update the expense for') }}
+        {% else %}
+          {{ _('New expense for') }}
+        {% endif %}
+        <span class="accent-text">{{ group.name }}</span>
+      </h1>
+
+      <p class="auth-sub">
+        {{ _('Add an expense to this group. You can choose an equal split or a custom amount per person.') }}
+      </p>
+
+      <ul class="auth-list">
         <li>✅ {{ _('Clear balances per person') }}</li>
         <li>✅ {{ _('Enter an amount per person') }}</li>
         <li>✅ {{ _('Check that totals match') }}</li>
       </ul>
     </div>
 
-    <div class="auth-card">
-      <h2 class="auth-card-title">
-        {{ (is_edit|default(False)) and _('Edit expense') or _('New expense') }}
-      </h2>
-      <p class="auth-card-sub">
-        {{ _('Fill in the details and choose how to split the cost.') }}
-      </p>
+    <!-- RECHTERKANT: formulier -->
+    <div class="auth-panel auth-panel-right">
 
-      <form method="post"
+      <form id="expense-form"
+            method="post"
+            enctype="multipart/form-data"
             action="{{ form_action }}"
-            class="auth-form"
-            id="expense-form"
-            data-is-edit="{% if is_edit|default(False) %}1{% else %}0{% endif %}">
+            data-is-edit="{{ 1 if is_edit|default(False) else 0 }}">
 
-        <!-- Description -->
+        <!-- Beschrijving -->
         <label class="auth-field">
           <span>{{ _('Description') }}</span>
           <input type="text"
                  name="description"
+                 required
                  placeholder="{{ _('e.g. Train tickets') }}"
-                 value="{{ expense.description if expense is defined and expense }}"
-                 required>
+                 value="{{ expense.description if expense else '' }}">
         </label>
 
-        <!-- Amount -->
+        <!-- Bedrag -->
         <label class="auth-field">
           <span>{{ _('Amount (EUR)') }}</span>
           <input type="number"
                  step="0.01"
                  min="0"
-                 name="amount"
                  id="amount-input"
-                 value="{% if expense %}{{ '%.2f'|format(expense.total_amount or 0) }}{% else %}0{% endif %}"
-                 required>
+                 name="amount"
+                 required
+                 placeholder="0.00"
+                 value="{% if expense and expense.total_amount is not none %}{{ '%.2f'|format(expense.total_amount) }}{% endif %}">
         </label>
 
-        <!-- 📸 Receipt Scan Block -->
-        <div class="auth-field">
-          <span>{{ _('Scan receipt with AI (optional)') }}</span>
+        <!-- Datum (optioneel, afhankelijk van je route) -->
+        <label class="auth-field">
+          <span>{{ _('Date') }}</span>
+          <input type="date"
+                 name="date"
+                 value="{{ expense.date if expense and expense.date is not none else '' }}">
+        </label>
 
-          <div class="receipt-shell">
-            <div class="receipt-row">
-              <label class="file-upload-btn">
-                <span id="receipt-file-label">📁 {{ _('Choose photo') }}</span>
-                <input type="file"
-                       id="receipt-input"
-                       accept="image/*">
-              </label>
-
-              <button type="button"
-                      class="scan-receipt-btn"
-                      id="btn-receipt-scan">
-                <span>📸 {{ _('Scan receipt') }}</span>
-              </button>
-            </div>
-
-            <div class="receipt-meta">
-              <span id="receipt-helper">
-                {{ _('Take or choose a clear photo of the receipt. We will detect the items and help you split per person.') }}
-              </span>
-              <span class="receipt-status" id="receipt-status" style="display:none;"></span>
-            </div>
-
-            <div class="receipt-preview" id="receipt-preview" style="display:none;">
-              <img id="receipt-preview-img"
-                   src=""
-                   alt="{{ _('Receipt preview') }}">
-            </div>
-
-            <div class="receipt-loading" id="receipt-loading">
-              <div class="spinner"></div>
-              <span>{{ _('Scanning receipt with AI…') }}</span>
-            </div>
-
-            <div class="receipt-items-card" id="receipt-items" style="display:none;">
-              <div class="receipt-items-header">
-                <div class="receipt-items-header-title">
-                  {{ _('Items found on the receipt') }}
-                </div>
-                <div class="receipt-items-header-meta">
-                  {{ _('Assign each item to the correct person – we update the amounts above automatically.') }}
-                </div>
-              </div>
-
-              <table class="receipt-items-table">
-                <thead>
-                  <tr>
-                    <th style="text-align:left;">{{ _('Item') }}</th>
-                    <th style="text-align:right;">{{ _('Amount') }}</th>
-                    <th style="text-align:left;">{{ _('Assign to') }}</th>
-                  </tr>
-                </thead>
-                <tbody id="receipt-items-tbody"></tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        <!-- Category -->
+        <!-- Categorie -->
         <label class="auth-field">
           <span>{{ _('Category') }}</span>
-          <select name="category"
-                  id="category-select"
-                  style="width:100%; padding:8px 10px; border-radius:10px; border:1px solid #d4d4d8; font-size:14px;">
-            <option value=""
-                    {% if not (expense and expense.category) %}selected{% endif %}>
-              {{ _('Automatic (AI – choose best match)') }}
+          <select name="category">
+            <option value="auto">
+              {{ _('Automatic (AI chooses category)') }}
             </option>
-
             {% for cid in CATEGORY_IDS %}
               <option value="{{ cid }}"
                       {% if expense and expense.category == cid %}selected{% endif %}>
@@ -552,6 +101,60 @@
             {{ _('Leave on automatic to let AI pick the best category based on the description.') }}
           </small>
         </label>
+
+        <!-- Kassabon / receipt upload -->
+        <div class="auth-field">
+          <span>{{ _('Scan receipt (optional)') }}</span>
+
+          <div class="receipt-upload">
+            <label class="btn-chip" for="receipt-input" id="receipt-file-label">
+              📁 {{ _('Choose photo') }}
+            </label>
+            <input type="file"
+                   id="receipt-input"
+                   name="receipt"
+                   accept="image/*"
+                   style="display:none;">
+            <button type="button"
+                    class="btn-chip btn-chip-outline"
+                    id="btn-receipt-scan">
+              🔍 {{ _('Scan items') }}
+            </button>
+            <span id="receipt-status" class="receipt-status" style="display:none;"></span>
+          </div>
+
+          <small id="receipt-helper" style="font-size:13px; color:#64748b;">
+            {{ _('Take or choose a clear photo of the receipt. We will detect the items and help you split per person.') }}
+          </small>
+
+          <div id="receipt-preview"
+               style="display:none; margin-top:10px; gap:8px; align-items:center;">
+            <img id="receipt-preview-img"
+                 src=""
+                 alt="receipt preview"
+                 style="max-height:90px; border-radius:10px; border:1px solid #e5e7eb;">
+          </div>
+
+          <div id="receipt-loading"
+               style="display:none; margin-top:8px; font-size:13px; color:#64748b; align-items:center; gap:6px;">
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            <span>{{ _('Analyzing receipt…') }}</span>
+          </div>
+
+          <div id="receipt-items"
+               style="display:none; margin-top:12px; border-radius:12px; border:1px solid #e5e7eb; padding:10px;">
+            <table class="table receipt-table">
+              <thead>
+                <tr>
+                  <th>{{ _('Item') }}</th>
+                  <th style="text-align:right;">{{ _('Amount') }}</th>
+                  <th>{{ _('Assign to') }}</th>
+                </tr>
+              </thead>
+              <tbody id="receipt-items-tbody"></tbody>
+            </table>
+          </div>
+        </div>
 
         <!-- Split toggle -->
         <div class="auth-field">
@@ -582,7 +185,7 @@
           </small>
         </div>
 
-        <!-- Per person -->
+        <!-- Per persoon -->
         <div class="auth-field">
           <span>{{ _('Amount per person') }}</span>
 
@@ -644,6 +247,7 @@
           </div>
         </div>
 
+        <!-- Submit -->
         <button type="submit" class="btn-primary btn-full" style="margin-top:10px;">
           {{ (is_edit|default(False)) and _('Save changes') or _('Save') }}
         </button>
@@ -659,7 +263,7 @@
   </section>
 </main>
 
-<!-- Members JSON for JS -->
+<!-- Members JSON voor JS -->
 <script type="application/json" id="members-json">
   {{ members | tojson }}
 </script>
@@ -693,6 +297,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const receiptTbody      = document.getElementById("receipt-items-tbody");
   const receiptFileLabel  = document.getElementById("receipt-file-label");
   const membersData       = JSON.parse(document.getElementById("members-json").textContent);
+
+  const LABEL_ITEM = "{{ _('Item') }}";
 
   let lastReceiptItems = [];
 
@@ -774,7 +380,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Split items met quantity > 1 op in losse units
   function expandReceiptItems(items) {
     const expanded = [];
 
@@ -808,7 +413,6 @@ document.addEventListener("DOMContentLoaded", () => {
     return expanded;
   }
 
-  // RECOMPUTE SHARES FROM RECEIPT
   function recomputeSharesFromReceipt() {
     if (!lastReceiptItems || lastReceiptItems.length === 0) return;
 
@@ -838,7 +442,6 @@ document.addEventListener("DOMContentLoaded", () => {
     updateSummary();
   }
 
-  // RECEIPT FILE SELECT PREVIEW
   if (receiptInput) {
     receiptInput.addEventListener("change", () => {
       const file = receiptInput.files && receiptInput.files[0];
@@ -882,7 +485,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // HANDLE RECEIPT SCAN
   async function handleReceiptScan() {
     if (!receiptInput || !receiptInput.files || receiptInput.files.length === 0) {
       receiptHelper.textContent = "{{ _('Choose a photo of the receipt first.') }}";
@@ -930,7 +532,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       receiptTbody.innerHTML = "";
       items.forEach((item, idx) => {
-        const desc  = item.description || `Item ${idx + 1}`;
+        const desc  = item.description || `${LABEL_ITEM} ${idx + 1}`;
         const qty   = item.quantity || 1;
         const unit  = item.unit_price || item.price || item.total_price || 0;
         const total = item.total_price || (qty * unit) || 0;
@@ -982,7 +584,7 @@ document.addEventListener("DOMContentLoaded", () => {
     receiptBtn.addEventListener("click", handleReceiptScan);
   }
 
-  // INIT BUTTONS / SUMMARY
+  // INIT
   buttons.forEach(btn => {
     btn.addEventListener("click", () => {
       setActive(btn.dataset.mode);
@@ -1012,5 +614,4 @@ document.addEventListener("DOMContentLoaded", () => {
   updateSummary();
 });
 </script>
-
 {% endblock %}

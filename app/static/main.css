@@ -4546,17 +4546,16 @@ button:focus-visible,
 .split-pill {
   flex: 1;
   border-radius: 999px;
-  border: 1px solid #e2e8f0;
-  background: #f8fafc;
+  border: 1px solid #d1d5db;
+  background: #e5e7eb;     /* donkerder grijs */
+  color: #374151;          /* donkergrijze tekst i.p.v. wit */
   padding: 7px 10px;
   cursor: pointer;
   transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.split-pill-inner {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.split-pill:hover:not(.active) {
+  background: #dcdfe3;
 }
 
 .split-pill-icon {
