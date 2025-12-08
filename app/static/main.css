@@ -5067,3 +5067,259 @@ button:focus-visible,
   padding: 6px 12px;
   color: #4b5563;
 }
+
+/* =========================================
+   1) DASHBOARD – "Nieuwe groep aanmaken" binnen de kaart
+   ========================================= */
+@media (max-width: 576px) {
+  /* Zorg dat de kaart zelf gewoon haar eigen breedte houdt */
+  .dash-card {
+    position: relative;
+    padding: 14px 14px 18px !important;
+    border-radius: 16px !important;
+  }
+
+  /* Button altijd volledig binnen de kaart */
+  .dash-card .btn-new-group {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: 100% !important;        /* volle breedte van de kaart */
+    max-width: 100% !important;
+    box-sizing: border-box;
+
+    padding: 10px 12px !important; /* niet te breed worden */
+    white-space: normal !important;/* tekst mag op 2 regels */
+    text-align: center;
+  }
+}
+
+/* =========================================
+   2) UITGAVEN – groene kaart volledig in witte kaart
+      + knoppen volledig in de groene kaart
+   ========================================= */
+
+/* Witte container van alle uitgavenkaarten */
+.group-expenses-card {
+  overflow: hidden;                          /* niets mag uitsteken */
+  padding: 12px 12px 14px 12px !important;   /* witte rand rondom */
+  box-sizing: border-box;
+}
+
+/* Groene kaart zelf (DESKTOP/BASIS) */
+.group-expenses-card .expense-item-wide {
+  position: relative;
+  box-sizing: border-box;
+
+  margin: 0 0 12px 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+
+  /* links: plek voor lijn, rechts: genoeg ruimte voor knoppen */
+  padding: 14px 24px 14px 56px !important;
+  border-radius: 16px !important;
+}
+
+/* Groene verticale lijn, volledig binnen de groene kaart */
+.group-expenses-card .expense-item-wide::before {
+  content: "";
+  position: absolute;
+  width: 4px;
+  background: #1dd75b;
+  border-radius: 3px;
+
+  left: 18px !important;   /* duidelijk binnen de groene kaart */
+  top: 10px !important;
+  bottom: 10px !important;
+}
+
+/* =========================================
+   GROENE KADER PERFECT UITLIJNEN (MOBIEL)
+   ========================================= */
+@media (max-width: 768px) {
+
+  /* Witte container → iets minder padding links zodat alles opschuift */
+  .group-expenses-card {
+    padding-left: 6px !important;   /* meer naar links */
+    padding-right: 12px !important; /* extra ruimte rechts */
+  }
+
+  /* Groene kaart volledig binnen de witte,
+     iets meer ruimte rechts voor de knoppen */
+  .group-expenses-card .expense-item-wide {
+    margin: 0 0 12px 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+
+    padding: 14px 26px 14px 50px !important;
+    border-radius: 16px !important;
+  }
+
+  /* Groene balk iets dichter tegen de linkerrand van de groene kaart */
+  .group-expenses-card .expense-item-wide::before {
+    left: 12px !important;
+    top: 10px !important;
+    bottom: 10px !important;
+  }
+}
+
+/* =========================================
+   EXTRA RUIMTE RECHTS VAN BEWERKEN/VERWIJDEREN
+   ========================================= */
+@media (max-width: 768px) {
+
+  /* Groene kaart → meer ruimte rechts */
+  .group-expenses-card .expense-item-wide {
+    padding-right: 38px !important;  /* was 24–26, nu extra ruimte */
+  }
+
+  /* Knoppen zelf iets meer naar links */
+  .expense-actions {
+    justify-content: flex-start !important;  /* duwt ze naar links */
+    gap: 8px !important;                     /* mooie afstand tussen knoppen */
+  }
+
+  .expense-actions .btn {
+    margin-left: 0 !important;               /* absoluut links starten */
+  }
+}
+/* =========================================
+   EINDFIX – ALLES NAAR LINKS ZODAT KNOPPEN
+   VOLLEDIG BINNEN DE GROENE KAART VALLEN
+   ========================================= */
+@media (max-width: 768px) {
+
+  /* Witte container → minder padding rechts, meer links */
+  .group-expenses-card {
+    padding-left: 10px !important;   /* schuift groene kaart + inhoud links */
+    padding-right: 10px !important;  /* meer ruimte rechts */
+  }
+
+  /* Groene kaart → meer ruimte rechts zodat knoppen NEVER uitsteken */
+  .group-expenses-card .expense-item-wide {
+    width: 100% !important;
+    max-width: calc(100% - 4px) !important; /* DUWT ALLES NAAR LINKS */
+    margin: 0 auto 14px auto !important;
+
+    padding-left: 50px !important;   /* ruimte voor groene lijn */
+    padding-right: 48px !important;  /* EXTRA ruimte rechts -> knoppen 100% zichtbaar */
+
+    border-radius: 16px !important;
+  }
+
+  /* Groene verticale lijn links */
+  .group-expenses-card .expense-item-wide::before {
+    left: 14px !important;  
+    top: 10px !important;
+    bottom: 10px !important;
+  }
+
+  /* Knoppen links uitlijnen */
+  .expense-actions {
+    display: flex !important;
+    justify-content: flex-start !important;  /* duwt knoppen naar links */
+    width: 100% !important;
+    gap: 10px !important;
+  }
+
+  /* Knoppen zelf iets smaller + linkser starten */
+  .expense-actions .btn {
+    margin-left: 0 !important;
+    transform: translateX(-6px); /* trekt ze visueel nog iets verder naar links */
+    max-width: 90% !important;   /* voorkomt dat ze te breed zijn */
+  }
+
+  /* Tekstgedeelte ook iets naar links */
+  .expense-main-wide,
+  .expense-details,
+  .expense-line-top,
+  .expense-item-wide * {
+    margin-left: -2px !important;
+  }
+}
+
+
+/* =========================================
+   1) DASHBOARD – "Nieuwe groep aanmaken" binnen de kaart
+   ========================================= */
+@media (max-width: 576px) {
+
+  /* Kaart zelf */
+  .dash-card {
+    position: relative;
+    padding: 14px 14px 18px !important;
+    border-radius: 16px !important;
+    overflow: hidden; /* niks kan er buiten steken */
+  }
+
+  /* Knop altijd volledig binnen de kaart */
+  .dash-card .btn-new-group,
+  .btn-new-group {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    position: static !important;   /* NIET meer absoluut of met right/top */
+    transform: none !important;
+    right: auto !important;
+    top: auto !important;
+
+    width: 100% !important;        /* volle breedte van de kaart */
+    max-width: 100% !important;
+    box-sizing: border-box;
+
+    margin-top: 10px !important;   /* beetje ruimte boven de knop */
+    padding: 10px 8px !important;
+
+    white-space: normal !important;/* tekst mag op 2 regels */
+    word-break: break-word;
+    text-align: center;
+  }
+}
+
+
+@media (max-width: 576px) {
+
+  /* Titel + subtitel van "Actieve groepen" */
+  .dash-card-header,
+  .dash-card h3,
+  .dash-card p {
+    width: 100% !important;
+    display: block !important;
+  }
+
+  /* De container van de knop onder de titel zetten */
+  .dash-card .btn-new-group {
+    position: static !important;  /* geen absolute/right/top meer */
+    transform: none !important;
+    margin-top: 12px !important;
+
+    width: 100% !important;       /* volledige breedte */
+    max-width: 100% !important;
+    box-sizing: border-box;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    white-space: normal !important;
+    text-align: center !important;
+    line-height: 1.2;
+    padding: 12px !important;
+  }
+
+  /* Zorg dat de tekst breekt als nodig */
+  .dash-card .btn-new-group span {
+    display: block !important;
+    width: 100% !important;
+  }
+}
+
+
+
+
+
+
+
+
