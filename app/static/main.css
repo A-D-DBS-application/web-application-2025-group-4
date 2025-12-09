@@ -5323,3 +5323,367 @@ button:focus-visible,
 
 
 
+.feedback-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1050;
+}
+
+.feedback-modal {
+  width: 100%;
+  max-width: 640px;
+  background: #ffffff;
+  border-radius: 24px;
+  box-shadow: 0 30px 80px rgba(15, 23, 42, 0.25);
+  padding: 24px 26px 22px;
+}
+
+.feedback-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.feedback-title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: #020617;
+}
+
+.feedback-close {
+  border: none;
+  background: transparent;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  color: #94a3b8;
+}
+
+.feedback-sub {
+  margin: 0 0 12px;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.feedback-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 6px;
+}
+
+.feedback-form textarea {
+  width: 100%;
+  border-radius: 14px;
+  border: 2px solid #22c55e;
+  padding: 10px 12px;
+  font-size: 14px;
+  min-height: 140px;
+  resize: vertical;
+}
+
+.feedback-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 14px;
+}
+/* Basiskaart met linkerbalk */
+.expense-item-wide {
+  border-left: 4px solid #22c55e;   /* fallback-kleur */
+  border-radius: 24px;
+}
+/* Balkkleur per categorie (slugs = exp.category) */
+
+.expense-item-wide.cat-food {
+  border-left-color: #f97316;   /* Food & drinks -> oranje */
+}
+
+.expense-item-wide.cat-transport {
+  border-left-color: #3b82f6;   /* Transport -> blauw */
+}
+
+.expense-item-wide.cat-shopping {
+  border-left-color: #a855f7;   /* Shopping -> paars */
+}
+
+.expense-item-wide.cat-activities {
+  border-left-color: #22c55e;   /* Activities -> groen */
+}
+
+.expense-item-wide.cat-other {
+  border-left-color: #6b7280;   /* Overige -> grijs */
+}
+/* HARD OVERRULE – verwijder de standaard groene balk (::before) */
+.expense-item-wide::before {
+    content: none !important;
+    display: none !important;
+}
+/* ===== CATEGORY COLOR TUNING ===== */
+
+/* ACCOMMODATION – iets donkerder rood */
+.cat-accommodation {
+  --cat-accent: #e14b4b;   /* donkerder rood */
+  --cat-bg: #fff1f1;       /* zachte rode achtergrond */
+}
+
+/* FOOD & DRINKS – iets lichter oranje */
+.cat-food,
+.cat-food-drinks {
+  --cat-accent: #ff9f43;   /* lichter oranje */
+  --cat-bg: #fff6ec;       /* warme lichte oranje achtergrond */
+}
+
+/* Apply vars */
+.expense-item-wide.cat-accommodation {
+  border-color: var(--cat-accent);
+  background: var(--cat-bg);
+}
+
+.expense-item-wide.cat-food,
+.expense-item-wide.cat-food-drinks {
+  border-color: var(--cat-accent);
+  background: var(--cat-bg);
+}
+
+/* Pills */
+.expense-category-pill.cat-accommodation {
+  background: rgba(225, 75, 75, 0.12);
+  color: #c43a3a;
+}
+
+.expense-category-pill.cat-food,
+.expense-category-pill.cat-food-drinks {
+  background: rgba(255, 159, 67, 0.18);
+  color: #d97706;
+}
+/* ============================================
+   EXPENSE – SPLIT TOGGLE (Equal / Custom)
+   Mooier segmented control
+   ============================================ */
+
+.split-mode-toggle {
+  display: flex;
+  gap: 8px;
+  padding: 4px;
+  border-radius: 999px;
+  background: #ecfdf3; /* zacht groen */
+  border: 1px solid rgba(34, 197, 94, 0.35);
+}
+
+.split-pill {
+  flex: 1;
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+  padding: 9px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.05s ease,
+    opacity 0.15s ease;
+  opacity: 0.8;
+}
+
+.split-pill-inner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.split-pill-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  background: rgba(34, 197, 94, 0.08);
+  color: #16a34a;
+}
+
+.split-pill-text {
+  text-align: left;
+}
+
+.split-pill-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #022c22;
+}
+
+.split-pill-sub {
+  font-size: 0.78rem;
+  color: #6b7280;
+}
+
+/* Hover en active state */
+
+.split-pill:hover {
+  opacity: 1;
+}
+
+.split-pill.active {
+  opacity: 1;
+  background: #ffffff;
+  box-shadow: 0 8px 20px rgba(34, 197, 94, 0.35);
+  transform: translateY(-1px);
+}
+
+.split-pill.active .split-pill-icon {
+  background: #bbf7d0;
+  color: #166534;
+}
+
+.split-pill.active .split-pill-title {
+  color: #022c22;
+}
+
+.split-pill.active .split-pill-sub {
+  color: #16a34a;
+}
+
+/* Mobiel: onder elkaar als dat nodig is */
+@media (max-width: 640px) {
+  .split-mode-toggle {
+    flex-direction: column;
+  }
+}
+/* ============================================
+   Avatars (bolletjes met initialen) – groen i.p.v. blauw
+   ============================================ */
+
+.avatar-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  background: #dcfce7;           /* licht groen */
+  color: #166534;                /* donkerder groen voor letter */
+  box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.12);
+}
+
+/* ============================================
+   FINAL POLISH – Split buttons (Equal / Custom)
+   ============================================ */
+
+.split-mode-toggle {
+  display: flex;
+  padding: 6px;
+  border-radius: 999px;
+  background: #ecfdf3; /* zeer zacht groen */
+  border: 1px solid #bbf7d0;
+}
+
+.split-pill {
+  flex: 1;
+  border: none;
+  background: transparent;
+  border-radius: 999px;
+  padding: 10px 16px;
+  cursor: pointer;
+
+  font-size: 1rem;
+  font-weight: 500;
+  color: #475569;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+/* Actieve knop */
+.split-pill.active {
+  background: #ffffff;
+  color: #15803d;
+  font-weight: 600;
+
+  box-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.06),
+    0 0 0 2px rgba(34, 197, 94, 0.25);
+}
+
+/* Hover (heel subtiel) */
+.split-pill:hover:not(.active) {
+  color: #166534;
+}
+/* ============================================
+   Remove background container – keep clean pills
+   ============================================ */
+
+.split-mode-toggle {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  gap: 10px;              /* ruimte tussen knoppen */
+}
+
+/* Knoppen zelf iets strakker */
+.split-pill {
+  background: #f0fdf4;    /* heel licht groen */
+  border: 1px solid #bbf7d0;
+}
+
+/* Actieve knop */
+.split-pill.active {
+  background: #ffffff;
+  color: #15803d;
+  font-weight: 600;
+  border-color: #86efac;
+
+  box-shadow:
+    0 2px 6px rgba(0,0,0,0.06);
+}
+.group-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.group-card-main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: inherit;
+  flex: 1;
+}
+
+.group-card-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-pin-group {
+  border: 1px solid #e5e7eb;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  background: #f9fafb;
+  color: #0f172a;
+  cursor: pointer;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn-pin-group:hover {
+  background: #ecfdf3;
+  box-shadow: 0 6px 14px rgba(16, 185, 129, 0.25);
+}

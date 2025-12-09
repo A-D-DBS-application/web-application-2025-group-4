@@ -11,9 +11,56 @@
     rel="stylesheet"
   >
 
-  <!-- Pico (optioneel) + jouw custom theme -->
+  <!-- Pico + custom theme -->
   <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@2/css/pico.min.css" />
   <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}" />
+
+  <style>
+    /* FEEDBACK MODAL STYLING */
+
+    dialog#feedbackModal {
+      border: none;
+      border-radius: 24px;
+      padding: 22px 24px 20px;
+      max-width: 520px;
+      width: 100%;
+      box-shadow: 0 24px 60px rgba(15, 23, 42, 0.25);
+    }
+
+    dialog#feedbackModal::backdrop {
+      background: rgba(15, 23, 42, 0.45);
+      backdrop-filter: blur(3px);
+    }
+
+    .feedback-modal-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: #0f172a;
+    }
+
+    .feedback-modal-sub {
+      font-size: 0.95rem;
+      color: #6b7280;
+      margin-bottom: 14px;
+    }
+
+    .feedback-textarea {
+      width: 100%;
+      min-height: 130px;
+      border-radius: 14px;
+      border: 1px solid #d1d5db;
+      padding: 10px 12px;
+      font-size: 0.95rem;
+      resize: vertical;
+    }
+
+    .feedback-textarea:focus {
+      outline: none;
+      border-color: #22c55e;
+      box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.25);
+    }
+  </style>
 </head>
 
 <body class="bg">
@@ -53,7 +100,6 @@
         <div class="collapse navbar-collapse justify-content-end" id="mainNavbar">
           <div class="d-flex flex-column flex-lg-row align-items-lg-center gap-2 gap-lg-3 mt-3 mt-lg-0">
 
-            {# Gebruik de actuele locale i.p.v. rechtstreeks uit session #}
             {% set current_lang = (get_locale() | string) %}
 
             <!-- Taal-switch -->
@@ -93,6 +139,7 @@
 
   <!-- MAIN CONTENT -->
   <main class="container" style="padding-bottom:3rem;">
+
     {# Flash messages bovenaan de content #}
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
@@ -114,10 +161,63 @@
     FairSplit+ © 2025 – {{ _('All rights reserved') }}
   </footer>
 
-  <!-- Bootstrap JS bundle (voor de hamburger, dropdowns, enz.) -->
+  {# FEEDBACK MODAL – de knop die het opent zit in index.html #}
+  <dialog id="feedbackModal">
+    <form method="post" action="{{ url_for('main.global_feedback') }}">
+      <h2 class="feedback-modal-title">
+        {{ _('Share your feedback') }}
+      </h2>
+      <p class="feedback-modal-sub">
+        {{ _('Tell us what went well and what could be better. Your feedback helps improve FairSplit+.') }}
+      </p>
+
+      <textarea
+        name="feedback"
+        class="feedback-textarea"
+        placeholder="{{ _('What went well? What could be better?') }}"
+        required
+      ></textarea>
+
+      <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:14px;">
+        <button type="button" id="feedbackClose" class="btn-chip btn-chip-outline">
+          {{ _('Cancel') }}
+        </button>
+        <button type="submit" class="btn-chip btn-chip-primary">
+          {{ _('Send') }}
+        </button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Bootstrap JS bundle -->
   <script
     src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
   </script>
+
+  <!-- Feedback-modal script: opent bij ELKE knop met class .js-open-feedback -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const triggers = document.querySelectorAll(".js-open-feedback");
+      const modal   = document.getElementById("feedbackModal");
+      const closeBtn = document.getElementById("feedbackClose");
+
+      if (triggers.length && modal) {
+        triggers.forEach(btn => {
+          btn.addEventListener("click", function () {
+            modal.showModal();
+          });
+        });
+      }
+
+      if (closeBtn && modal) {
+        closeBtn.addEventListener("click", function () {
+          modal.close();
+        });
+      }
+    });
+  </script>
 </body>
 </html>
+
+
 

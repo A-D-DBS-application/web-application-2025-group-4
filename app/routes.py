@@ -40,6 +40,12 @@ from app.supabase_client import supabase
 import os
 from openai import OpenAI
 import urllib.parse
+import json
+from flask import request, jsonify
+from openai import OpenAI
+
+
+
 
 client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
@@ -546,51 +552,82 @@ def home():
 def dashboard():
     """
     Dashboard met overzicht van alle groepen.
+    Nu met per-gebruiker pinned groepen.
     """
     user = current_user()
+    uid = user["users_id"]
+
     groups = []
 
-    # Groepen die de user zelf heeft aangemaakt
+    # 1) Groepen die de user zelf heeft aangemaakt
     created = (
         supabase.table("groups")
         .select("*")
-        .eq("created_by_user_id", user["users_id"])
+        .eq("created_by_user_id", uid)
         .execute()
         .data
         or []
     )
     groups.extend(created)
 
-    # Groepen waar hij/zij lid van is
+    # 2) Groepen waar hij/zij lid van is
     member_records = (
         supabase.table("group_members")
-        .select("*")
-        .eq("user_id", user["users_id"])
+        .select("group_id")
+        .eq("user_id", uid)
         .execute()
         .data
         or []
     )
 
-    group_ids = [m["group_id"] for m in member_records]
+    # voorkom dubbele groups
+    already_ids = {g["group_id"] for g in groups}
+    extra_ids = [
+        m["group_id"]
+        for m in member_records
+        if m["group_id"] not in already_ids
+    ]
 
-    if group_ids:
+    if extra_ids:
         other_groups = (
             supabase.table("groups")
             .select("*")
-            .in_("group_id", group_ids)
+            .in_("group_id", extra_ids)
             .execute()
             .data
             or []
         )
-        for g in other_groups:
-            if g not in groups:
-                groups.append(g)
+        groups.extend(other_groups)
 
-    # 👉 Nieuw: bij elke groep bepalen of ze gesloten is
+    # 3) Pinned groups voor deze user ophalen
+    pin_rows = (
+        supabase.table("user_pinned_groups")
+        .select("group_id")
+        .eq("user_id", uid)
+        .execute()
+        .data
+        or []
+    )
+    pinned_ids = {row["group_id"] for row in pin_rows}
+
+    # 4) Extra flags op elk group-dictje zetten
     for g in groups:
         g["is_closed"] = is_group_closed(g)
+        g["is_pinned"] = g["group_id"] in pinned_ids
+
+    # 5) Sorteren:
+    #    - eerst gepind (True)
+    #    - binnen elke groep: nieuwste created_at eerst
+    groups.sort(
+        key=lambda g: g.get("created_at") or "",
+        reverse=True,  # nieuwste eerst
+    )
+    groups.sort(
+        key=lambda g: not g["is_pinned"]
+    )  # gepinde eerst (False komt na True)
 
     return render_template("index.html", user=user, groups=groups)
+
 
 
 # -----------------------------
@@ -2537,3 +2574,137 @@ def global_feedback():
 
     flash(_("Thank you! Your feedback has been received 🙏"), "success")
     return redirect(url_for("main.dashboard"))
+
+
+@main.route("/groups/<int:group_id>/toggle_pin", methods=["POST"])
+@login_required
+def toggle_pin_group(group_id):
+    user = current_user()
+    uid = user["users_id"]
+
+    # Bestaat er al een pin voor deze user + group?
+    existing = (
+        supabase.table("user_pinned_groups")
+        .select("user_id, group_id")
+        .eq("user_id", uid)
+        .eq("group_id", group_id)
+        .execute()
+        .data
+        or []
+    )
+
+    if existing:
+        # Unpin
+        supabase.table("user_pinned_groups") \
+            .delete() \
+            .eq("user_id", uid) \
+            .eq("group_id", group_id) \
+            .execute()
+        flash(_("Group unpinned"), "info")
+    else:
+        # Pin
+        supabase.table("user_pinned_groups") \
+            .insert({
+                "user_id": uid,
+                "group_id": group_id,
+            }) \
+            .execute()
+        flash(_("Group pinned"), "success")
+
+    return redirect(url_for("main.dashboard"))
+
+
+@main.route("/groups/<int:group_id>/expense/parse_voice", methods=["POST"])
+@login_required
+def expense_parse_voice(group_id):
+    """
+    Neemt een audio- of videobestand (voice memo / filmpje),
+    transcribeert met Whisper en laat GPT de uitgave + verdeling parsen.
+    GEEN database-queries nodig: we sturen enkel namen + bedragen terug
+    en mappen die op de frontend naar de juiste gebruikers.
+    """
+    voice_file = request.files.get("voice")
+    if not voice_file:
+        return jsonify(success=False, error="No voice file provided"), 400
+
+    try:
+        # 1) Audio / video -> tekst
+        transcript = client.audio.transcriptions.create(
+            model="whisper-1",
+            file=(voice_file.filename, voice_file.stream, voice_file.mimetype),
+            response_format="text",
+            language="nl",  # eventueel weglaten voor auto-detect
+        )
+        text = transcript  # bij response_format="text" is dit gewoon een string
+
+        # 2) Tekst -> gestructureerde data
+        system_prompt = """
+Je bent een hulpje in een kosten-split app.
+Je krijgt één korte beschrijving van een uitgave.
+
+Haal hieruit:
+- description: korte beschrijving van de uitgave (max 10 woorden)
+- total_amount: totaalbedrag in euro (float)
+- shares: lijst met objecten { "name": "<persoon>", "amount": <bedrag> }
+
+Als er GEEN individuele bedragen genoemd worden maar wel personen,
+en er wordt duidelijk gemaakt dat de uitgave voor hen is
+(bv. "Uber voor Rune en Stan, 18 euro"),
+dan verdeel je het bedrag gelijk over die personen.
+
+Voorbeeld van JSON die je moet teruggeven:
+
+{
+  "description": "Pizza",
+  "total_amount": 30.0,
+  "shares": [
+    {"name": "Rune", "amount": 10.0},
+    {"name": "Stan", "amount": 20.0}
+  ]
+}
+
+Geef ALLEEN geldige JSON in precies dit formaat terug.
+"""
+
+        completion = client.chat.completions.create(
+            model="gpt-4o-mini",
+            response_format={"type": "json_object"},
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": text},
+            ],
+        )
+
+        parsed = json.loads(completion.choices[0].message.content)
+
+        description = parsed.get("description") or ""
+        total_amount = float(parsed.get("total_amount") or 0.0)
+        shares = parsed.get("shares") or []
+        # shares is een lijst van {"name": ..., "amount": ...}
+
+        # som van alle shares (handig voor warning in de UI)
+        shares_sum = 0.0
+        clean_shares = []
+        for s in shares:
+            name = s.get("name") or ""
+            try:
+                amt = float(s.get("amount") or 0.0)
+            except (TypeError, ValueError):
+                amt = 0.0
+            if not name or amt <= 0:
+                continue
+            clean_shares.append({"name": name, "amount": amt})
+            shares_sum += amt
+
+        return jsonify(
+            success=True,
+            description=description,
+            total_amount=total_amount,
+            shares=clean_shares,
+            transcript=text,
+            shares_sum=shares_sum,
+        )
+
+    except Exception as e:
+        print("VOICE PARSE ERROR:", e)
+        return jsonify(success=False, error="Error while analyzing voice memo."), 500

@@ -75,14 +75,6 @@
                  value="{% if expense and expense.total_amount is not none %}{{ '%.2f'|format(expense.total_amount) }}{% endif %}">
         </label>
 
-        <!-- Datum (optioneel, afhankelijk van je route) -->
-        <label class="auth-field">
-          <span>{{ _('Date') }}</span>
-          <input type="date"
-                 name="date"
-                 value="{{ expense.date if expense and expense.date is not none else '' }}">
-        </label>
-
         <!-- Categorie -->
         <label class="auth-field">
           <span>{{ _('Category') }}</span>
@@ -156,6 +148,46 @@
           </div>
         </div>
 
+        <!-- VOICE MEMO / spraakuitgave (optioneel) -->
+        <div class="auth-field">
+          <span>{{ _('Add via voice or video (optional)') }}</span>
+
+          <div class="receipt-upload">
+            <label class="btn-chip" for="voice-input" id="voice-file-label">
+              🎤 {{ _('Choose voice memo or video') }}
+            </label>
+            <input type="file"
+                   id="voice-input"
+                   name="voice"
+                   accept="audio/*,video/*"
+                   style="display:none;">
+
+            <button type="button"
+                    class="btn-chip btn-chip-outline"
+                    id="btn-voice-scan">
+              🤖 {{ _('Analyze voice') }}
+            </button>
+
+            <span id="voice-status" class="receipt-status" style="display:none;"></span>
+          </div>
+
+          <small style="font-size:13px; color:#64748b;">
+            {{ _('Describe the expense, total amount and who pays how much. Example: "Pizza for Rune and Stan, total 30 euro, Rune 10, Stan 20."') }}
+          </small>
+
+          <!-- Voice preview -->
+          <div id="voice-preview"
+               style="display:none; margin-top:8px; padding:10px; border-radius:10px; border:1px solid #e2e8f0; background:#f8fafc; font-size:13px;">
+            <div style="margin-bottom:6px; font-weight:600;">
+              {{ _('Voice result') }}
+            </div>
+            <div id="voice-transcript"
+                 style="margin-bottom:6px; font-style:italic; color:#475569;">
+            </div>
+            <div id="voice-interpretation"></div>
+          </div>
+        </div>
+
         <!-- Split toggle -->
         <div class="auth-field">
           <span>{{ _('Split') }}</span>
@@ -171,13 +203,13 @@
               {{ _('Equal split') }}
             </button>
 
-            <button type="button"
-                    class="split-pill"
-                    data-mode="custom"
-                    id="btn-split-custom">
-              <span class="toggle-dot"></span>
-              {{ _('Custom split') }}
-            </button>
+          <button type="button"
+                  class="split-pill"
+                  data-mode="custom"
+                  id="btn-split-custom">
+            <span class="toggle-dot"></span>
+            {{ _('Custom split') }}
+          </button>
           </div>
 
           <small id="split-helper" style="font-size:13px; color:#64748b;">
@@ -273,6 +305,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const formEl         = document.getElementById("expense-form");
   const amountInput    = document.getElementById("amount-input");
   const splitModeInput = document.getElementById("split-mode");
+  const descriptionInput = document.querySelector('input[name="description"]');
 
   const btnEqual   = document.getElementById("btn-split-equal");
   const btnCustom  = document.getElementById("btn-split-custom");
@@ -307,6 +340,54 @@ document.addEventListener("DOMContentLoaded", () => {
     const match = input.name.match(/^share_(\d+)$/);
     if (match) shareInputsByUserId[match[1]] = input;
   });
+
+  // Voice UI
+  const voiceInput        = document.getElementById("voice-input");
+  const voiceBtn          = document.getElementById("btn-voice-scan");
+  const voiceStatus       = document.getElementById("voice-status");
+  const voiceFileLabel    = document.getElementById("voice-file-label");
+  const voicePreview      = document.getElementById("voice-preview");
+  const voiceTranscriptEl = document.getElementById("voice-transcript");
+  const voiceInterpEl     = document.getElementById("voice-interpretation");
+
+  function normalizeName(str) {
+    return (str || "").trim().toLowerCase();
+  }
+
+  function findUserIdForName(name) {
+    const target = normalizeName(name);
+    if (!target) return null;
+
+    let match = null;
+
+    // exact match
+    membersData.forEach(m => {
+      const uname = normalizeName(m.username);
+      if (!match && uname === target) {
+        match = String(m.user_id);
+      }
+    });
+    if (match) return match;
+
+    // startswith
+    membersData.forEach(m => {
+      const uname = normalizeName(m.username);
+      if (!match && uname.startsWith(target)) {
+        match = String(m.user_id);
+      }
+    });
+    if (match) return match;
+
+    // contains
+    membersData.forEach(m => {
+      const uname = normalizeName(m.username);
+      if (!match && uname.includes(target)) {
+        match = String(m.user_id);
+      }
+    });
+
+    return match;
+  }
 
   function getAmount() {
     const v = parseFloat((amountInput.value || "0").replace(",", "."));
@@ -582,6 +663,208 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (receiptBtn) {
     receiptBtn.addEventListener("click", handleReceiptScan);
+  }
+
+  // VOICE HELPERS
+  function setVoiceStatus(text, type) {
+    if (!voiceStatus) return;
+    voiceStatus.textContent = text || "";
+    voiceStatus.classList.remove("ok", "err");
+    if (type === "ok") voiceStatus.classList.add("ok");
+    if (type === "err") voiceStatus.classList.add("err");
+    voiceStatus.style.display = text ? "inline" : "none";
+  }
+
+  if (voiceInput) {
+    voiceInput.addEventListener("change", () => {
+      const file = voiceInput.files && voiceInput.files[0];
+      if (!file) {
+        voiceFileLabel.textContent = "🎤 " + "{{ _('Choose voice memo or video') }}";
+        return;
+      }
+      const shortName = file.name.length > 26
+        ? file.name.slice(0, 23) + "…"
+        : file.name;
+      voiceFileLabel.textContent = "🎤 " + shortName;
+      setVoiceStatus("", null);
+    });
+  }
+
+  async function handleVoiceScan() {
+    if (!voiceInput || !voiceInput.files || voiceInput.files.length === 0) {
+      setVoiceStatus("{{ _('Choose a voice memo or video first.') }}", "err");
+      return;
+    }
+
+    const file = voiceInput.files[0];
+    const formData = new FormData();
+    formData.append("voice", file);
+
+    setVoiceStatus("{{ _('Analyzing voice memo…') }}", null);
+    voiceBtn.disabled = true;
+
+    if (voicePreview) {
+      voicePreview.style.display = "none";
+      if (voiceTranscriptEl) voiceTranscriptEl.textContent = "";
+      if (voiceInterpEl) voiceInterpEl.innerHTML = "";
+    }
+
+    try {
+      const resp = await fetch("{{ url_for('main.expense_parse_voice', group_id=group_id) }}", {
+        method: "POST",
+        body: formData
+      });
+
+      const data = await resp.json();
+      voiceBtn.disabled = false;
+
+      if (!data.success) {
+        setVoiceStatus(data.error || "{{ _('Could not understand the voice memo.') }}", "err");
+        return;
+      }
+
+      const transcriptText = data.transcript || "";
+      const total = (typeof data.total_amount === "number") ? data.total_amount : null;
+      const shares = Array.isArray(data.shares) ? data.shares : [];
+      let sharesSum = (typeof data.shares_sum === "number")
+        ? data.shares_sum
+        : shares.reduce((s, sh) => s + Number(sh.amount || 0), 0);
+
+      // PREVIEW
+      if (voicePreview && voiceTranscriptEl && voiceInterpEl) {
+        voiceTranscriptEl.textContent = transcriptText
+          ? `"${transcriptText}"`
+          : "{{ _('No transcript available.') }}";
+
+        let html = "";
+
+        if (total !== null) {
+          html += `<div>{{ _('Detected total:') }} <strong>€ ${total.toFixed(2)}</strong></div>`;
+        }
+
+        if (shares.length > 0) {
+          html += `<div style="margin-top:4px;">{{ _('Per person (by name):') }}</div>`;
+          html += `<ul style="margin:4px 0 0 14px; padding:0;">`;
+          shares.forEach(sh => {
+            const nm = sh.name || "{{ _('Unknown') }}";
+            const amt = Number(sh.amount || 0).toFixed(2);
+            html += `<li>${nm}: € ${amt}</li>`;
+          });
+          html += `</ul>`;
+        } else {
+          html += `<div style="margin-top:4px;">{{ _('No individual amounts detected.') }}</div>`;
+        }
+
+        if (total !== null && sharesSum > 0) {
+          const diff = total - sharesSum;
+          if (Math.abs(diff) > 0.01) {
+            html += `<div style="margin-top:6px; color:#b45309;">
+              ⚠ {{ _('Sum of shares does not match total (difference:') }} € ${diff.toFixed(2)}).
+            </div>`;
+          }
+        }
+
+        html += `<div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">
+          <button type="button" id="btn-voice-apply" class="split-pill">
+            {{ _('Apply to form') }}
+          </button>
+          <button type="button" id="btn-voice-clear" class="split-pill">
+            🗑 {{ _('Delete') }}
+          </button>
+        </div>`;
+
+        voiceInterpEl.innerHTML = html;
+        voicePreview.style.display = "block";
+
+        const applyBtn = document.getElementById("btn-voice-apply");
+        if (applyBtn) {
+          applyBtn.addEventListener("click", () => {
+            // 1) beschrijving
+            if (data.description && descriptionInput) {
+              descriptionInput.value = data.description;
+            }
+
+            // 2) totaalbedrag
+            if (total !== null) {
+              amountInput.value = Number(total).toFixed(2);
+            }
+
+            // 3) shares per user_id op basis van naam
+            const totalsByUser = {};
+            shares.forEach(sh => {
+              const uid = findUserIdForName(sh.name);
+              if (!uid) return;
+              const amt = Number(sh.amount || 0);
+              if (isNaN(amt) || amt <= 0) return;
+              totalsByUser[uid] = (totalsByUser[uid] || 0) + amt;
+            });
+
+            Object.entries(shareInputsByUserId).forEach(([uid, input]) => {
+              if (uid in totalsByUser) {
+                input.value = totalsByUser[uid].toFixed(2);
+              }
+            });
+
+            setActive("custom");
+            updateSummary();
+            setVoiceStatus("{{ _('Voice memo applied to the form.') }}", "ok");
+          });
+        }
+
+        const clearBtn = document.getElementById("btn-voice-clear");
+        if (clearBtn) {
+          clearBtn.addEventListener("click", () => {
+            if (voicePreview) {
+              voicePreview.style.display = "none";
+            }
+            if (voiceTranscriptEl) voiceTranscriptEl.textContent = "";
+            if (voiceInterpEl) voiceInterpEl.innerHTML = "";
+
+            if (voiceInput) {
+              voiceInput.value = "";
+            }
+            if (voiceFileLabel) {
+              voiceFileLabel.textContent = "🎤 " + "{{ _('Choose voice memo or video') }}";
+            }
+
+            setVoiceStatus("{{ _('Voice result discarded.') }}", "ok");
+          });
+        }
+      } else {
+        // fallback: direct invullen zonder preview
+        if (data.description && descriptionInput) {
+          descriptionInput.value = data.description;
+        }
+        if (total !== null) {
+          amountInput.value = Number(total).toFixed(2);
+        }
+        const totalsByUser = {};
+        shares.forEach(sh => {
+          const uid = findUserIdForName(sh.name);
+          if (!uid) return;
+          const amt = Number(sh.amount || 0);
+          if (isNaN(amt) || amt <= 0) return;
+          totalsByUser[uid] = (totalsByUser[uid] || 0) + amt;
+        });
+        Object.entries(shareInputsByUserId).forEach(([uid, input]) => {
+          if (uid in totalsByUser) {
+            input.value = totalsByUser[uid].toFixed(2);
+          }
+        });
+        setActive("custom");
+        updateSummary();
+        setVoiceStatus("{{ _('Voice memo understood! Check the fields before saving.') }}", "ok");
+      }
+
+    } catch (err) {
+      console.error(err);
+      voiceBtn.disabled = false;
+      setVoiceStatus("{{ _('Something went wrong while analyzing. Please try again.') }}", "err");
+    }
+  }
+
+  if (voiceBtn) {
+    voiceBtn.addEventListener("click", handleVoiceScan);
   }
 
   // INIT

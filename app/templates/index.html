@@ -21,9 +21,9 @@
           </p>
         </div>
 
+        {# KLEINE FEEDBACK-KNOP – opent de modal uit base.html #}
         <button type="button"
-                id="btn-feedback-open"
-                class="btn-pill-ghost"
+                class="btn-pill-ghost js-open-feedback"
                 style="white-space:nowrap; margin-top:4px;">
           💬 {{ _('Give feedback') }}
         </button>
@@ -51,9 +51,10 @@
             <ul class="group-list">
               {% for g in groups %}
                 <li>
-                  <a href="{{ url_for('main.group_detail', group_id=g['group_id']) }}"
-                     class="group-card{% if g.is_closed %} group-card-closed{% endif %}">
-                    <div class="group-card-main">
+                  <div class="group-card{% if g.is_closed %} group-card-closed{% endif %}">
+                    <!-- Link naar detail -->
+                    <a href="{{ url_for('main.group_detail', group_id=g['group_id']) }}"
+                       class="group-card-main">
                       <div class="group-avatar">
                         {{ g.name[0]|upper }}
                       </div>
@@ -63,16 +64,33 @@
                           {{ g.currency or 'EUR' }} • {{ _('Code') }}: {{ g.join_code }}
                         </p>
                       </div>
-                    </div>
+                    </a>
 
-                    <span class="group-tag {% if g.is_closed %}group-tag-closed{% else %}group-tag-open{% endif %}">
-                      {% if g.is_closed %}
-                        🔒 {{ _('Closed') }}
-                      {% else %}
-                        🟢 {{ _('Open') }}
-                      {% endif %}
-                    </span>
-                  </a>
+                    <!-- Rechts: status + pin-knop -->
+                    <div class="group-card-right">
+                      <span class="group-tag {% if g.is_closed %}group-tag-closed{% else %}group-tag-open{% endif %}">
+                        {% if g.is_closed %}
+                          🔒 {{ _('Closed') }}
+                        {% else %}
+                          🟢 {{ _('Open') }}
+                        {% endif %}
+                      </span>
+
+                      <form method="post"
+                            action="{{ url_for('main.toggle_pin_group', group_id=g['group_id']) }}"
+                            style="margin:0;">
+                        <button type="submit"
+                                class="btn-pin-group"
+                                title="{% if g.is_pinned %}{{ _('Unpin group') }}{% else %}{{ _('Pin group') }}{% endif %}">
+                          {% if g.is_pinned %}
+                            📌 {{ _('Pinned') }}
+                          {% else %}
+                            📌 {{ _('Pin') }}
+                          {% endif %}
+                        </button>
+                      </form>
+                    </div>
+                  </div>
                 </li>
               {% endfor %}
             </ul>
@@ -122,77 +140,5 @@
     </section>
 
   </section>
-</div>
-
-<!-- GLOBAL FEEDBACK OVERLAY -->
-<div id="feedback-overlay"
-     style="
-       display:none;
-       position:fixed;
-       inset:0;
-       background:rgba(15,23,42,0.45);
-       z-index:60;
-       display:none;
-       align-items:center;
-       justify-content:center;
-       padding:16px;
-     ">
-  <div style="
-        max-width:520px;
-        width:100%;
-        border-radius:20px;
-        background:#ffffff;
-        box-shadow:0 24px 80px rgba(15,23,42,0.35);
-        border:1px solid #e5e7eb;
-        padding:22px 22px 18px;
-      ">
-    <form method="post" action="{{ url_for('main.global_feedback') }}">
-      <h2 style="font-size:20px; font-weight:700; color:#0f172a; margin-bottom:6px;">
-        {{ _('Share your feedback') }}
-      </h2>
-      <p style="font-size:14px; color:#6b7280; margin-bottom:14px;">
-        {{ _('Tell us what went well and what could be better. Your feedback helps improve FairSplit+.') }}
-      </p>
-
-      <label class="feedback-label" style="display:block; margin-bottom:14px;">
-        <span style="display:block; font-size:13px; font-weight:600; color:#0f172a; margin-bottom:6px;">
-          {{ _('Your message') }}
-        </span>
-        <textarea name="feedback"
-                  rows="5"
-                  placeholder="{{ _('What went well? What could be better?') }}"
-                  required
-                  style="
-                    width:100%;
-                    resize:vertical;
-                    min-height:120px;
-                    border-radius:14px;
-                    border:1px solid #d4d4d8;
-                    padding:10px 12px;
-                    font-size:14px;
-                    font-family:inherit;
-                    outline:none;
-                    background:#f9fafb;
-                  "
-                  onfocus="this.style.background='#ffffff'; this.style.borderColor='#22c55e';"
-                  onblur="this.style.background='#f9fafb'; this.style.borderColor='#d4d4d8';"></textarea>
-      </label>
-
-      <div class="feedback-actions"
-           style="display:flex; justify-content:flex-end; gap:10px; margin-top:6px;">
-        <button type="button"
-                id="btn-feedback-cancel"
-                class="btn-tertiary"
-                style="min-width:90px;">
-          {{ _('Cancel') }}
-        </button>
-        <button type="submit"
-                class="btn-primary"
-                style="min-width:120px;">
-          {{ _('Send') }}
-        </button>
-      </div>
-    </form>
-  </div>
 </div>
 {% endblock %}
