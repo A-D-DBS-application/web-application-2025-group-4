@@ -8,12 +8,14 @@
 
     <!-- BANNER -->
     <section class="dash-banner">
-      <div class="dash-banner-header" style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px;">
+      <div class="dash-banner-header"
+           style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px;">
         <div>
           <p class="dash-pill">{{ _('Welcome back') }} 👋</p>
 
           <h1 class="dash-title">
-            {{ user.name }}, <span class="accent-text">{{ _('good to see you again') }}</span>
+            {{ user.name }},
+            <span class="accent-text">{{ _('good to see you again') }}</span>
           </h1>
 
           <p class="dash-sub">
@@ -21,7 +23,6 @@
           </p>
         </div>
 
-        {# KLEINE FEEDBACK-KNOP – opent de modal uit base.html #}
         <button type="button"
                 class="btn-pill-ghost js-open-feedback"
                 style="white-space:nowrap; margin-top:4px;">
@@ -30,11 +31,13 @@
       </div>
     </section>
 
-    <!-- MAIN LAYOUT -->
+    <!-- MAIN -->
     <section class="dash-main">
-      <!-- LINKERKANT: groepen -->
+
+      <!-- LINKS: GROEPEN -->
       <div class="dash-left">
         <div class="dash-card">
+
           <div class="dash-card-header">
             <div>
               <h2 class="dash-card-title">{{ _('Active groups') }}</h2>
@@ -52,48 +55,57 @@
               {% for g in groups %}
                 <li>
                   <div class="group-card{% if g.is_closed %} group-card-closed{% endif %}">
-                    <!-- Link naar detail -->
+
+                    <!-- KLIKBARE KAART -->
                     <a href="{{ url_for('main.group_detail', group_id=g['group_id']) }}"
                        class="group-card-main">
+
+                      <!-- AVATAR -->
                       <div class="group-avatar">
                         {{ g.name[0]|upper }}
                       </div>
-                      <div>
-                        <h3 class="group-name">{{ g.name }}</h3>
+
+                      <!-- INFO -->
+                      <div style="padding-top:6px;">
+                        <h3 class="group-name" style="margin-bottom:4px;">
+                          {{ g.name }}
+                        </h3>
+
+                        <!-- ✅ OPEN + PIN NAAST ELKAAR -->
+                        <div class="group-badges" style="margin-bottom:6px;">
+                          <span class="group-tag {% if g.is_closed %}group-tag-closed{% else %}group-tag-open{% endif %}">
+                            {% if g.is_closed %}
+                              🔒 {{ _('Closed') }}
+                            {% else %}
+                              🟢 {{ _('Open') }}
+                            {% endif %}
+                          </span>
+
+                          <form method="post"
+                                action="{{ url_for('main.toggle_pin_group', group_id=g['group_id']) }}"
+                                style="margin:0;">
+                            <button type="submit"
+                                    class="split-pill">
+                              {% if g.is_pinned %}
+                                📌 {{ _('Pinned') }}
+                              {% else %}
+                                📌 {{ _('Pin') }}
+                              {% endif %}
+                            </button>
+                          </form>
+                        </div>
+
                         <p class="group-meta">
                           {{ g.currency or 'EUR' }} • {{ _('Code') }}: {{ g.join_code }}
                         </p>
                       </div>
                     </a>
 
-                    <!-- Rechts: status + pin-knop -->
-                    <div class="group-card-right">
-                      <span class="group-tag {% if g.is_closed %}group-tag-closed{% else %}group-tag-open{% endif %}">
-                        {% if g.is_closed %}
-                          🔒 {{ _('Closed') }}
-                        {% else %}
-                          🟢 {{ _('Open') }}
-                        {% endif %}
-                      </span>
-
-                      <form method="post"
-                            action="{{ url_for('main.toggle_pin_group', group_id=g['group_id']) }}"
-                            style="margin:0;">
-                        <button type="submit"
-                                class="btn-pin-group"
-                                title="{% if g.is_pinned %}{{ _('Unpin group') }}{% else %}{{ _('Pin group') }}{% endif %}">
-                          {% if g.is_pinned %}
-                            📌 {{ _('Pinned') }}
-                          {% else %}
-                            📌 {{ _('Pin') }}
-                          {% endif %}
-                        </button>
-                      </form>
-                    </div>
                   </div>
                 </li>
               {% endfor %}
             </ul>
+
           {% else %}
             <div class="empty-state">
               <h3>{{ _('No groups yet') }}</h3>
@@ -108,7 +120,7 @@
         </div>
       </div>
 
-      <!-- RECHTS: join group -->
+      <!-- RECHTS: JOIN GROUP -->
       <aside class="dash-right">
         <div class="dash-card">
           <h2 class="dash-card-title">{{ _('Join a group') }}</h2>
@@ -137,8 +149,9 @@
           </p>
         </div>
       </aside>
-    </section>
 
+    </section>
   </section>
 </div>
 {% endblock %}
+

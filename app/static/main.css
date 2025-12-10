@@ -5687,3 +5687,32 @@ button:focus-visible,
   background: #ecfdf3;
   box-shadow: 0 6px 14px rgba(16, 185, 129, 0.25);
 }
+.group-badges {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;   /* 🔑 DIT IS DE FIX */
+}
+.group-badges .split-pill {
+  padding: 4px 12px;
+  font-size: 12.5px;
+}
+/* Kleine pin-knop naast Open/Gesloten */
+.group-badges .split-pill {
+  width: auto;              /* 🔑 geen full width */
+  display: inline-flex;     /* 🔑 naast elkaar */
+  padding: 4px 12px;
+  font-size: 12.5px;
+  white-space: nowrap;
+}
+.group-badges form {
+  margin: 0;
+}
+.group-badges .split-pill:hover {
+  transform: translateY(-1px);
+}
+/* Fijnere verticale uitlijning van Pin naast Open */
+.group-badges .split-pill {
+  position: relative;
+  top: 5px;   /* 🔑 dit laat de pin nét zakken */
+}
