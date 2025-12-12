@@ -1,0 +1,159 @@
+-- ============================
+-- TABLE: users
+-- ============================
+CREATE TABLE users (
+    users_id        BIGINT PRIMARY KEY,
+    created_at      TIMESTAMP NULL,
+    name            VARCHAR(255),
+    email           VARCHAR(255),
+    phone_number    VARCHAR(255),
+    iban            VARCHAR(255),
+    deleted_at      TIMESTAMP NULL,
+    is_active       BOOLEAN,
+    password        VARCHAR(255),
+    username        VARCHAR(255),
+    paylink         TEXT
+) ENGINE=InnoDB;
+
+-- ============================
+-- TABLE: groups
+-- ============================
+CREATE TABLE groups (
+    group_id            BIGINT PRIMARY KEY,
+    name                VARCHAR(255),
+    start_date          DATE,
+    end_date            DATE,
+    auto_close_on_end   BOOLEAN,
+    invite_link         VARCHAR(255),
+    currency            VARCHAR(50),
+    created_by_user_id  BIGINT,
+    app_fee_amount      DOUBLE,
+    deleted_at          TIMESTAMP NULL,
+    is_active           BOOLEAN,
+    created_at          TIMESTAMP NULL,
+    join_code           VARCHAR(255),
+    max_members         INT,
+    feedback            TEXT,
+    FOREIGN KEY (created_by_user_id) REFERENCES users(users_id)
+) ENGINE=InnoDB;
+
+-- ============================
+-- TABLE: group_members
+-- ============================
+CREATE TABLE group_members (
+    created_at      TIMESTAMP NULL,
+    group_id        BIGINT NOT NULL,
+    user_id         BIGINT NOT NULL,
+    role            VARCHAR(255),
+    PRIMARY KEY (group_id, user_id),
+    FOREIGN KEY (group_id) REFERENCES groups(group_id),
+    FOREIGN KEY (user_id)  REFERENCES users(users_id)
+) ENGINE=InnoDB;
+
+-- ============================
+-- TABLE: expenses
+-- ============================
+CREATE TABLE expenses (
+    expense_id          BIGINT PRIMARY KEY,
+    created_at          TIMESTAMP NULL,
+    group_id            BIGINT,
+    created_by_user_id  BIGINT,
+    description         VARCHAR(255),
+    total_amount        FLOAT,
+    split_method        VARCHAR(255),
+    attachment_id       BIGINT,
+    status              VARCHAR(255),
+    deleted_at          TIMESTAMP NULL,
+    is_active           BOOLEAN,
+    is_app_fee          BOOLEAN,
+    category            TEXT,
+    FOREIGN KEY (group_id) REFERENCES groups(group_id),
+    FOREIGN KEY (created_by_user_id) REFERENCES users(users_id)
+) ENGINE=InnoDB;
+
+-- ============================
+-- TABLE: expense_shares
+-- ============================
+CREATE TABLE expense_shares (
+    share_id    BIGINT PRIMARY KEY,
+    group_id    BIGINT,
+    user_id     BIGINT,
+    expense_id  BIGINT,
+    amount      FLOAT,
+    created_at  TIMESTAMP NULL,
+    is_active   BOOLEAN,
+    FOREIGN KEY (group_id) REFERENCES groups(group_id),
+    FOREIGN KEY (user_id) REFERENCES users(users_id),
+    FOREIGN KEY (expense_id) REFERENCES expenses(expense_id)
+) ENGINE=InnoDB;
+
+-- ============================
+-- TABLE: payments
+-- ============================
+CREATE TABLE payments (
+    payments_id BIGINT PRIMARY KEY,
+    created_at  TIMESTAMP NULL,
+    amount      FLOAT,
+    group_id    BIGINT,
+    sender_id   BIGINT,
+    receiver_id BIGINT,
+    currency    VARCHAR(50),
+    deleted_at  TIMESTAMP NULL,
+    is_active   BOOLEAN,
+    FOREIGN KEY (group_id) REFERENCES groups(group_id),
+    FOREIGN KEY (sender_id) REFERENCES users(users_id),
+    FOREIGN KEY (receiver_id) REFERENCES users(users_id)
+) ENGINE=InnoDB;
+
+-- ============================
+-- TABLE: settlements
+-- ============================
+CREATE TABLE settlements (
+    settlement_id   BIGINT PRIMARY KEY,
+    group_id        BIGINT,
+    from_user_id    BIGINT,
+    to_user_id      BIGINT,
+    amount          DOUBLE,
+    currency        VARCHAR(50),
+    status          VARCHAR(255),
+    note            TEXT,
+    created_at      TIMESTAMP NULL,
+    paid_at         TIMESTAMP NULL,
+    FOREIGN KEY (group_id) REFERENCES groups(group_id),
+    FOREIGN KEY (from_user_id) REFERENCES users(users_id),
+    FOREIGN KEY (to_user_id) REFERENCES users(users_id)
+) ENGINE=InnoDB;
+
+-- ============================
+-- TABLE: feedback
+-- ============================
+CREATE TABLE feedback (
+    feedback_id BIGINT PRIMARY KEY,
+    user_id     BIGINT,
+    feedback    TEXT,
+    created_at  TIMESTAMP NULL,
+    FOREIGN KEY (user_id) REFERENCES users(users_id)
+) ENGINE=InnoDB;
+
+-- ============================
+-- TABLE: user_pinned_groups
+-- ============================
+CREATE TABLE user_pinned_groups (
+    user_id     BIGINT,
+    group_id    BIGINT,
+    created_at  TIMESTAMP NULL,
+    PRIMARY KEY (user_id, group_id),
+    FOREIGN KEY (user_id) REFERENCES users(users_id),
+    FOREIGN KEY (group_id) REFERENCES groups(group_id)
+) ENGINE=InnoDB;
+
+-- ============================
+-- TABLE: category_cache
+-- ============================
+CREATE TABLE category_cache (
+    id              BIGINT PRIMARY KEY,
+    normalized_desc TEXT,
+    category        TEXT,
+    created_at      TIMESTAMP NULL
+) ENGINE=InnoDB;
+
