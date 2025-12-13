@@ -4,15 +4,19 @@
 CREATE TABLE users (
     users_id        BIGINT PRIMARY KEY,
     created_at      TIMESTAMP NULL,
-    name            VARCHAR(255),
-    email           VARCHAR(255),
+    name            VARCHAR(255) NOT NULL,
+    email           VARCHAR(255) NOT NULL,
     phone_number    VARCHAR(255),
     iban            VARCHAR(255),
     deleted_at      TIMESTAMP NULL,
-    is_active       BOOLEAN,
-    password        VARCHAR(255),
+    is_active       BOOLEAN NOT NULL,
+    password        VARCHAR(255) NOT NULL,
     username        VARCHAR(255),
-    paylink         TEXT
+    paylink         TEXT,
+    CONSTRAINT uq_users_name UNIQUE (name),
+    CONSTRAINT uq_users_email UNIQUE (email),
+    CONSTRAINT uq_users_phone UNIQUE (phone_number),
+    CONSTRAINT uq_users_iban UNIQUE (iban)
 ) ENGINE=InnoDB;
 
 -- ============================
@@ -20,20 +24,24 @@ CREATE TABLE users (
 -- ============================
 CREATE TABLE groups (
     group_id            BIGINT PRIMARY KEY,
-    name                VARCHAR(255),
-    start_date          DATE,
-    end_date            DATE,
-    auto_close_on_end   BOOLEAN,
+    name                VARCHAR(255) NOT NULL,
+    start_date          DATE NOT NULL,
+    end_date            DATE NULL,
+    auto_close_on_end   BOOLEAN NOT NULL,
     invite_link         VARCHAR(255),
-    currency            VARCHAR(50),
-    created_by_user_id  BIGINT,
-    app_fee_amount      DOUBLE,
+    currency            VARCHAR(50) NOT NULL,
+    created_by_user_id  BIGINT NOT NULL,
+    app_fee_amount      DOUBLE NULL,
     deleted_at          TIMESTAMP NULL,
-    is_active           BOOLEAN,
-    created_at          TIMESTAMP NULL,
+    is_active           BOOLEAN NOT NULL,
+    created_at          TIMESTAMP NOT NULL,
     join_code           VARCHAR(255),
-    max_members         INT,
+    max_members         INT NULL,
     feedback            TEXT,
+    CONSTRAINT chk_groups_app_fee_positive
+        CHECK (app_fee_amount IS NULL OR app_fee_amount > 0),
+    CONSTRAINT chk_groups_max_members_positive
+        CHECK (max_members IS NULL OR max_members > 0),
     FOREIGN KEY (created_by_user_id) REFERENCES users(users_id)
 ) ENGINE=InnoDB;
 
@@ -41,10 +49,10 @@ CREATE TABLE groups (
 -- TABLE: group_members
 -- ============================
 CREATE TABLE group_members (
-    created_at      TIMESTAMP NULL,
-    group_id        BIGINT NOT NULL,
-    user_id         BIGINT NOT NULL,
-    role            VARCHAR(255),
+    created_at  TIMESTAMP NOT NULL,
+    group_id    BIGINT NOT NULL,
+    user_id     BIGINT NOT NULL,
+    role        VARCHAR(255) NOT NULL,
     PRIMARY KEY (group_id, user_id),
     FOREIGN KEY (group_id) REFERENCES groups(group_id),
     FOREIGN KEY (user_id)  REFERENCES users(users_id)
@@ -55,18 +63,20 @@ CREATE TABLE group_members (
 -- ============================
 CREATE TABLE expenses (
     expense_id          BIGINT PRIMARY KEY,
-    created_at          TIMESTAMP NULL,
-    group_id            BIGINT,
-    created_by_user_id  BIGINT,
-    description         VARCHAR(255),
-    total_amount        FLOAT,
+    created_at          TIMESTAMP NOT NULL,
+    group_id            BIGINT NOT NULL,
+    created_by_user_id  BIGINT NOT NULL,
+    description         VARCHAR(255) NOT NULL,
+    total_amount        FLOAT NOT NULL,
     split_method        VARCHAR(255),
     attachment_id       BIGINT,
-    status              VARCHAR(255),
+    status              VARCHAR(255) NOT NULL,
     deleted_at          TIMESTAMP NULL,
-    is_active           BOOLEAN,
-    is_app_fee          BOOLEAN,
+    is_active           BOOLEAN NOT NULL,
+    is_app_fee          BOOLEAN NOT NULL,
     category            TEXT,
+    CONSTRAINT chk_expenses_total_amount_positive
+        CHECK (total_amount > 0),
     FOREIGN KEY (group_id) REFERENCES groups(group_id),
     FOREIGN KEY (created_by_user_id) REFERENCES users(users_id)
 ) ENGINE=InnoDB;
@@ -76,12 +86,14 @@ CREATE TABLE expenses (
 -- ============================
 CREATE TABLE expense_shares (
     share_id    BIGINT PRIMARY KEY,
-    group_id    BIGINT,
-    user_id     BIGINT,
-    expense_id  BIGINT,
-    amount      FLOAT,
-    created_at  TIMESTAMP NULL,
-    is_active   BOOLEAN,
+    group_id    BIGINT NOT NULL,
+    user_id     BIGINT NOT NULL,
+    expense_id  BIGINT NOT NULL,
+    amount      FLOAT NOT NULL,
+    created_at  TIMESTAMP NOT NULL,
+    is_active   BOOLEAN NOT NULL,
+    CONSTRAINT chk_expense_shares_amount_positive
+        CHECK (amount > 0),
     FOREIGN KEY (group_id) REFERENCES groups(group_id),
     FOREIGN KEY (user_id) REFERENCES users(users_id),
     FOREIGN KEY (expense_id) REFERENCES expenses(expense_id)
@@ -92,14 +104,16 @@ CREATE TABLE expense_shares (
 -- ============================
 CREATE TABLE payments (
     payments_id BIGINT PRIMARY KEY,
-    created_at  TIMESTAMP NULL,
-    amount      FLOAT,
-    group_id    BIGINT,
-    sender_id   BIGINT,
-    receiver_id BIGINT,
+    created_at  TIMESTAMP NOT NULL,
+    amount      FLOAT NOT NULL,
+    group_id    BIGINT NOT NULL,
+    sender_id   BIGINT NOT NULL,
+    receiver_id BIGINT NOT NULL,
     currency    VARCHAR(50),
     deleted_at  TIMESTAMP NULL,
-    is_active   BOOLEAN,
+    is_active   BOOLEAN NOT NULL,
+    CONSTRAINT chk_payments_amount_positive
+        CHECK (amount > 0),
     FOREIGN KEY (group_id) REFERENCES groups(group_id),
     FOREIGN KEY (sender_id) REFERENCES users(users_id),
     FOREIGN KEY (receiver_id) REFERENCES users(users_id)
@@ -110,15 +124,17 @@ CREATE TABLE payments (
 -- ============================
 CREATE TABLE settlements (
     settlement_id   BIGINT PRIMARY KEY,
-    group_id        BIGINT,
-    from_user_id    BIGINT,
-    to_user_id      BIGINT,
-    amount          DOUBLE,
+    group_id        BIGINT NOT NULL,
+    from_user_id    BIGINT NOT NULL,
+    to_user_id      BIGINT NOT NULL,
+    amount          DOUBLE NOT NULL,
     currency        VARCHAR(50),
     status          VARCHAR(255),
     note            TEXT,
-    created_at      TIMESTAMP NULL,
+    created_at      TIMESTAMP NOT NULL,
     paid_at         TIMESTAMP NULL,
+    CONSTRAINT chk_settlements_amount_positive
+        CHECK (amount > 0),
     FOREIGN KEY (group_id) REFERENCES groups(group_id),
     FOREIGN KEY (from_user_id) REFERENCES users(users_id),
     FOREIGN KEY (to_user_id) REFERENCES users(users_id)
@@ -129,9 +145,9 @@ CREATE TABLE settlements (
 -- ============================
 CREATE TABLE feedback (
     feedback_id BIGINT PRIMARY KEY,
-    user_id     BIGINT,
-    feedback    TEXT,
-    created_at  TIMESTAMP NULL,
+    user_id     BIGINT NOT NULL,
+    feedback    TEXT NOT NULL,
+    created_at  TIMESTAMP NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(users_id)
 ) ENGINE=InnoDB;
 
@@ -139,9 +155,9 @@ CREATE TABLE feedback (
 -- TABLE: user_pinned_groups
 -- ============================
 CREATE TABLE user_pinned_groups (
-    user_id     BIGINT,
-    group_id    BIGINT,
-    created_at  TIMESTAMP NULL,
+    user_id     BIGINT NOT NULL,
+    group_id    BIGINT NOT NULL,
+    created_at  TIMESTAMP NOT NULL,
     PRIMARY KEY (user_id, group_id),
     FOREIGN KEY (user_id) REFERENCES users(users_id),
     FOREIGN KEY (group_id) REFERENCES groups(group_id)
@@ -152,8 +168,8 @@ CREATE TABLE user_pinned_groups (
 -- ============================
 CREATE TABLE category_cache (
     id              BIGINT PRIMARY KEY,
-    normalized_desc TEXT,
-    category        TEXT,
-    created_at      TIMESTAMP NULL
+    normalized_desc TEXT NOT NULL,
+    category        TEXT NOT NULL,
+    created_at      TIMESTAMP NOT NULL,
+    CONSTRAINT uq_category_cache_normalized_desc UNIQUE (normalized_desc)
 ) ENGINE=InnoDB;
-
