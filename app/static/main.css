@@ -5716,3 +5716,64 @@ button:focus-visible,
   position: relative;
   top: 5px;   /* 🔑 dit laat de pin nét zakken */
 }
+
+
+
+
+
+
+
+
+/* =========================================
+   MOBILE FIX – "Laatste uitgaven" sectie
+   Tekst + knop boven, kaarten eronder
+   ========================================= */
+@media (max-width: 576px) {
+
+  /* hoofdcontainer van deze sectie */
+  .group-recent-card,
+  .latest-expenses,
+  .recent-expenses {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  /* linkerblok (tekst + knop) */
+  .group-recent-intro,
+  .latest-expenses-intro {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    width: 100% !important;
+    margin-bottom: 16px;
+  }
+
+  /* knop onder de tekst */
+  .group-recent-intro .btn,
+  .group-recent-intro .btn-round,
+  .latest-expenses-intro .btn,
+  .latest-expenses-intro .btn-round {
+    margin-top: 12px;
+    align-self: flex-start;
+  }
+
+  /* rechterkolom → nu onderaan */
+  .group-recent-list,
+  .recent-exp-list,
+  .latest-expenses-list {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    gap: 12px;
+  }
+
+  /* elke uitgavekaart */
+  .recent-exp-card,
+  .expense-card {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+}
+
+
