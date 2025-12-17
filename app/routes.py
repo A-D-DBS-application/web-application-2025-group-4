@@ -1798,7 +1798,7 @@ Regels:
             }
         )
 
-    # Totaalbedrag (optioneel)
+    # Totaalbedrag 
     total_val = parsed.get("total")
     try:
         total_float = float(str(total_val).replace(",", ".")) if total_val is not None else None
@@ -1900,9 +1900,7 @@ def expense_edit(group_id, expense_id):
             .data
         )
         if u:
-            members.append(
-                {"user_id": u[0]["users_id"], "username": u[0]["username"]}
-            )
+            members.append({"user_id": u[0]["users_id"], "username": u[0]["username"]})
 
     # bestaande shares ophalen
     share_rows = (
@@ -1981,20 +1979,17 @@ def expense_edit(group_id, expense_id):
 
         now_iso = datetime.utcnow().isoformat()
 
-        # expense updaten
+        # expense updaten (GEEN updated_at, want kolom bestaat niet)
         supabase.table("expenses").update(
             {
                 "description": description,
                 "total_amount": total_amount,
                 "category": guessed_cat,
-                "updated_at": now_iso,
             }
         ).eq("expense_id", expense_id).eq("group_id", group_id).execute()
 
         # oude shares weg + nieuwe schrijven
-        supabase.table("expense_shares").delete().eq(
-            "expense_id", expense_id
-        ).execute()
+        supabase.table("expense_shares").delete().eq("expense_id", expense_id).execute()
 
         if shares:
             rows = []
@@ -2026,7 +2021,6 @@ def expense_edit(group_id, expense_id):
         is_edit=True,
         form_action=url_for("main.expense_edit", group_id=group_id, expense_id=expense_id),
     )
-
 
 # -----------------------------
 # TAAL SWITCH
@@ -2236,7 +2230,7 @@ def settlements(group_id):
     # gebruikers ophalen (voor namen)
     members = (
         supabase.table("users")
-        .select("users_id, username, iban, paylink")
+        .select("users_id, username, iban")
         .execute()
         .data
     )
@@ -2251,7 +2245,6 @@ def settlements(group_id):
             "from_username": user_map.get(s["from_user_id"], {}).get("username", _("Unknown")),
             "to_username": user_map.get(s["to_user_id"], {}).get("username", _("Unknown")),
             "to_iban": user_map.get(s["to_user_id"], {}).get("iban"),
-            "to_paylink": user_map.get(s["to_user_id"], {}).get("paylink"),
         })
 
     return render_template(
