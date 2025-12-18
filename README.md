@@ -5,4 +5,6 @@ Link of feedback session sprint 1: https://eur03.safelinks.protection.outlook.co
 
 Link of feedback session sprint 2: https://ugentbe-my.sharepoint.com/personal/cagiel_drubbel_ugent_be/_layouts/15/stream.aspx?CT=1765639331312&OR=OWA%2DNTB%2DMail&CID=53faa52c%2D198c%2Dc360%2D07ad%2D8524af27dd68&id=%2Fpersonal%2Fcagiel%5Fdrubbel%5Fugent%5Fbe%2FDocuments%2FAttachments%2FMeet%20%2D%20zcg%2Dfdwg%2Dtnu%20%2D%20Google%20Chrome%202025%2D12%2D02%2011%2D20%2D39%2Emp4&ga=1&LOF=1&referrer=StreamWebApp%2EWeb&referrerScenario=AddressBarCopied%2Eview%2E46334224%2D4dfa%2D4cee%2Dacd9%2D420da66a946d&xsdata=MDV8MDJ8TWFyZ2F1eC5NYWVydGVuc0BVR2VudC5iZXwwZTcxZTk1NDQwNmQ0MTE3ZTViMTA4ZGUzNzQ2YjUyYXxkNzgxMWNkZWVjZWY0OTZjOGY5MWExNzg2MjQxYjk5Y3wxfDB8NjM5MDA4OTczOTc4MDA3OTE3fFVua25vd258VFdGcGJHWnNiM2Q4ZXlKRmJYQjBlVTFoY0draU9uUnlkV1VzSWxZaU9pSXdMakF1TURBd01DSXNJbEFpT2lKWGFXNHpNaUlzSWtGT0lqb2lUV0ZwYkNJc0lsZFVJam95ZlE9PXwwfHx8&sdata=cUF6ZXRyU3ZIRTVoZTNVMnRHNTdoWDlKdFF2WTlSRXRDQ01YcFJySy93ND0%3D&clickParams=eyJYLUFwcE5hbWUiOiJNaWNyb3NvZnQgT3V0bG9vayBXZWIgQXBwIiwiWC1BcHBWZXJzaW9uIjoiMjAyNTEyMDUwMDQuMTAiLCJPUyI6IldpbmRvd3MgMTAifQ%3D%3D
 
+Link to powerpoint defense: https://docs.google.com/presentation/d/1u8_Zem_2PlR2JigFT0Q_YgHhoqGaN0wL/edit?usp=sharing&ouid=118272340234822217600&rtpof=true&sd=true 
+
 The packages required to run the Flask application are specified in the pyproject.toml file.
