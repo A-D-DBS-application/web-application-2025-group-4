@@ -1899,7 +1899,7 @@ def expense_edit(group_id, expense_id):
             .execute()
             .data
         )
-        if u:
+        if u: 
             members.append({"user_id": u[0]["users_id"], "username": u[0]["username"]})
 
     # bestaande shares ophalen

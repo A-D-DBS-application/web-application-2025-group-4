@@ -99,3 +99,4 @@ class Group(db.Model):
             return False
         # als start_date / end_date al type date zijn is dit perfect
         return self.end_date < date.today()
+ 
