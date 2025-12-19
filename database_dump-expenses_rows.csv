@@ -1,0 +1,177 @@
+expense_id,created_at,group_id,created_by_user_id,description,total_amount,split_method,attachment_id,status,deleted_at,is_active,is_app_fee,category
+1,2025-11-19 20:34:28.211412+00,9,18,nen trein,1000,equal,,pending,,false,false,
+3,2025-11-19 21:08:42.989636+00,9,18,nog nen trein,50,equal,,pending,,false,false,
+4,2025-11-19 21:08:54.227223+00,9,18,nen bak bier,100,equal,,pending,,false,false,
+5,2025-11-19 21:09:11.361388+00,9,18,nog nen bak bier,10,equal,,pending,,false,false,
+6,2025-11-19 21:11:38.362066+00,10,18,nen eifeltoren,2500,equal,,pending,,true,false,
+8,2025-11-19 22:08:38.750404+00,9,18,nen eifeltoren,200,equal,,pending,,false,false,
+9,2025-11-24 23:15:28.138502+00,9,18,nen bak bier,10,equal,,pending,,false,false,
+10,2025-11-25 09:59:01.421527+00,12,18,App fee,2,equal,,pending,,true,false,
+11,2025-11-25 12:59:03.686328+00,15,18,App fee,2,equal,,pending,,true,true,
+12,2025-11-26 00:08:00.279264+00,9,18,tester,130,equal,,pending,,false,false,
+13,2025-11-26 00:28:56.675897+00,9,18,nen bak bier,17,equal,,pending,,false,false,
+14,2025-11-26 09:57:47.24686+00,9,14,Cadeautje omdat je zo goed bezig bent,150,equal,,pending,,true,false,
+15,2025-11-26 10:22:10.494996+00,13,18,App fee,2,equal,,pending,,true,false,
+16,2025-11-26 10:30:36.82361+00,9,18,Vliegtickets,1000,equal,,pending,,false,false,
+17,2025-11-26 10:33:35.827758+00,9,18,Restaurant op zaterdagavond,80,equal,,pending,,false,false,
+18,2025-11-26 13:41:48.9411+00,9,18,nen trein,10,equal,,pending,,false,false,
+19,2025-11-26 22:49:45.913003+00,9,18,voetbalticket,20,equal,,pending,,false,false,other
+20,2025-11-26 23:06:35.070266+00,9,18,baseballmatch,20,equal,,pending,,false,false,activities
+21,2025-11-26 23:25:14.249701+00,12,18,baseballmatch,20,equal,,pending,,true,false,activities
+22,2025-11-26 23:31:59.311101+00,12,18,hockeymatch,20,equal,,pending,,true,false,activities
+23,2025-11-26 23:55:55.328159+00,12,18,golfmatch,20,equal,,pending,,true,false,activities
+24,2025-11-27 00:17:45.746251+00,12,18,pingpongmatch,20,equal,,pending,,true,false,other
+25,2025-11-27 00:24:13.718358+00,12,18,volleybalmatch,20,equal,,pending,,true,false,other
+26,2025-11-27 00:36:26.190143+00,12,18,zwemwedstrijd,20,equal,,pending,,true,false,other
+27,2025-11-27 00:42:17.804977+00,12,18,zwemwedstrijd,20,equal,,pending,,true,false,other
+28,2025-11-27 00:52:23.248948+00,12,18,zwemwedstrijd,20,equal,,pending,,true,false,other
+29,2025-11-27 00:58:39.518989+00,12,18,zwemwedstrijd,20,equal,,pending,,true,false,other
+30,2025-11-27 07:35:35.68965+00,12,18,pizza,20,equal,,pending,,true,false,activities
+31,2025-11-27 09:07:52.145756+00,12,18,pizza,20,equal,,pending,,true,false,food
+32,2025-11-27 14:03:48.960068+00,13,11,test,1000,equal,,pending,,true,false,Overig
+33,2025-11-28 10:50:44.01403+00,12,18,pizza,15,equal,,pending,,true,false,transport
+34,2025-11-28 11:06:11.578791+00,12,18,pizza,10,equal,,pending,,true,false,food
+35,2025-11-28 11:20:36.387429+00,12,18,pizza,5,equal,,pending,,true,false,activities
+36,2025-11-28 11:22:35.496098+00,12,18,pizza,2,equal,,pending,,true,false,activities
+37,2025-11-28 11:30:20.06042+00,12,18,pizza,11,equal,,pending,,true,false,food
+38,2025-11-28 11:54:35.537866+00,12,18,pizza,23,equal,,pending,,true,false,food
+39,2025-11-28 12:00:29.435333+00,12,18,pizza,5,equal,,pending,,true,false,food
+40,2025-11-28 13:40:16.2465+00,12,18,pizza,5,equal,,pending,,true,false,food
+41,2025-11-28 15:58:05.412341+00,12,18,pizza,3,equal,,pending,,true,false,food
+42,2025-11-28 16:10:02.563637+00,12,18,pizza,1,equal,,pending,,true,false,food
+43,2025-11-28 16:31:28.743997+00,12,18,pizza,4,equal,,pending,,true,false,food
+44,2025-11-28 16:34:31.223428+00,12,18,pizza,6,equal,,pending,,true,false,food
+45,2025-11-28 16:51:37.516136+00,12,18,benzine auto,80,equal,,pending,,true,false,transport
+46,2025-11-28 17:35:19.279617+00,12,18,pizza,7,equal,,pending,,true,false,food
+47,2025-11-28 18:03:35.902509+00,12,18,pizza,24,equal,,pending,,true,false,food
+48,2025-11-28 19:10:08.920864+00,12,18,winkel,67,equal,,pending,,true,false,shopping
+49,2025-11-28 19:10:34.157359+00,12,18,hotel,80,equal,,pending,,true,false,accommodation
+50,2025-11-28 19:20:59.30961+00,12,18,voetbalmatch,15,equal,,pending,,false,false,activities
+51,2025-11-28 20:43:37.70442+00,12,18,pizza,1,equal,,pending,,true,false,food
+52,2025-11-29 15:16:27.93655+00,9,18,tank auto,10,equal,,pending,,false,false,activities
+53,2025-11-29 15:17:50.145864+00,12,18,tank auto,9,equal,,pending,,false,false,activities
+54,2025-11-29 15:20:29.746999+00,12,18,treinticket,5,equal,,pending,,true,false,transport
+55,2025-11-29 15:21:11.984063+00,10,18,tanken auto,1,equal,,pending,,true,false,transport
+56,2025-11-29 15:34:48.582955+00,16,14,App fee,2,equal,,pending,,true,true,Overig
+57,2025-11-29 15:36:57.110837+00,16,14,Benzine,80,equal,,pending,,true,false,transport
+58,2025-11-29 20:06:05.879799+00,16,12,hamburgers,30,equal,,pending,,true,false,food
+59,2025-11-29 20:36:39.767501+00,16,18,pitta,10,equal,,pending,,true,false,food
+60,2025-11-29 21:27:20.588553+00,17,18,App fee,2,equal,,pending,,true,true,Overig
+61,2025-11-29 21:31:06.406343+00,18,32,App fee,2,equal,,pending,,true,true,Overig
+62,2025-11-29 23:27:29.853718+00,16,18,shopping center,9,equal,,pending,,true,false,shopping
+63,2025-11-30 12:07:14.028851+00,16,18,parking,25,equal,,pending,,true,false,transport
+64,2025-11-30 20:35:23.113609+00,19,33,App fee,2,equal,,pending,,true,true,Overig
+65,2025-11-30 20:38:56.615693+00,19,18,baseballmatch,4,equal,,pending,,true,false,activities
+66,2025-11-30 20:40:04.624281+00,19,18,frieten,20,equal,,pending,,true,false,food
+67,2025-11-30 20:40:24.228582+00,19,33,Biertjes met Rune,400,equal,,pending,,true,false,shopping
+68,2025-11-30 20:45:55.662281+00,19,18,ticket voetbal,500,equal,,pending,,true,false,activities
+69,2025-11-30 20:49:19.714959+00,20,34,App fee,2,equal,,pending,,true,true,Overig
+70,2025-11-30 20:50:36.175057+00,21,34,App fee,2,equal,,pending,,true,true,Overig
+71,2025-11-30 20:52:04.689153+00,21,34,Taart,25,equal,,pending,,true,false,activities
+72,2025-11-30 22:29:05.84411+00,19,18,restaurant,71,equal,,pending,,true,false,food
+73,2025-11-30 23:20:07.491561+00,19,18,restaurant1,71,equal,,pending,,true,false,food
+74,2025-12-01 12:03:34.539484+00,22,34,App fee,2,equal,,pending,,true,true,Overig
+75,2025-12-01 12:05:00.593493+00,22,14,Trein,50,equal,,pending,,true,false,transport
+76,2025-12-01 12:10:22.517893+00,23,14,App fee,2,equal,,pending,,true,true,Overig
+77,2025-12-01 12:11:02.905992+00,23,34,Boek,50,equal,,pending,,true,false,activities
+78,2025-12-01 13:52:16.260504+00,10,18,voetbalmatch,20,equal,,pending,,true,false,activities
+79,2025-12-01 13:54:31.815174+00,19,18,restaurant,71,equal,,pending,,true,false,food
+80,2025-12-01 14:10:40.174873+00,16,18,restaurant,10,equal,,pending,,true,false,food
+81,2025-12-01 14:14:07.413525+00,16,18,restaurant,71,equal,,pending,,true,false,food
+82,2025-12-01 16:56:41.132562+00,19,33,Treintickets,329,equal,,pending,,true,false,transport
+83,2025-12-02 21:04:24.059642+00,16,32,pizza,100,equal,,pending,,true,false,food
+84,2025-12-03 18:39:53.153166+00,6,11,Cheeseburgers,35,equal,,pending,,true,false,food
+85,2025-12-03 19:43:45.58292+00,16,18,pizza,10,equal,,pending,,true,false,food
+86,2025-12-05 13:31:38.544295+00,16,18,restaurant,71,equal,,pending,,true,false,food
+87,2025-12-06 20:07:25.97853+00,6,11,Eten test 1,138.1,equal,,pending,,true,false,food
+88,2025-12-07 22:41:40.599112+00,24,38,App fee,2,equal,,pending,,true,true,Overig
+89,2025-12-07 22:45:57.231936+00,24,38,pils,30,equal,,pending,,true,false,activities
+90,2025-12-08 21:30:59.178379+00,19,33,Cinema,500,equal,,pending,,true,false,activities
+91,2025-12-08 21:34:22.336812+00,19,11,Uitgaan gisterenavond,90,equal,,pending,,true,false,activities
+92,2025-12-08 21:41:08.681624+00,19,18,voetbalmatch,300,equal,,pending,,true,false,activities
+93,2025-12-08 21:46:30.44796+00,19,18,pizza,15,equal,,pending,,true,false,food
+94,2025-12-08 21:46:54.15994+00,19,18,hotel,250,equal,,pending,,true,false,accommodation
+95,2025-12-08 21:47:19.266848+00,19,18,auto,90,equal,,pending,,false,false,activities
+96,2025-12-08 21:49:52.618873+00,19,18,auto,90,equal,,pending,,true,false,transport
+97,2025-12-08 21:50:31.875032+00,19,18,winkel,150,equal,,pending,,true,false,shopping
+98,2025-12-08 21:51:06.917564+00,19,18,voetbalmatch,35,equal,,pending,,false,false,activities
+99,2025-12-08 22:13:49.550961+00,19,33,Meat Restaurant,71,equal,,pending,,true,false,food
+100,2025-12-08 22:13:51.624051+00,19,33,Meat Restaurant,71,equal,,pending,,true,false,food
+101,2025-12-08 22:28:41.078699+00,25,18,App fee,2,equal,,pending,,true,true,Overig
+102,2025-12-09 16:58:54.367808+00,22,14,trein,85,equal,,pending,,true,false,transport
+103,2025-12-09 17:30:00.807167+00,16,18,hotel,300,equal,,pending,,true,false,accommodation
+104,2025-12-09 20:37:43.097893+00,26,39,App fee,2,equal,,pending,,true,true,Overig
+105,2025-12-09 20:38:15.222751+00,26,39,Nieuwe behandeltafel,700,equal,,pending,,true,false,shopping
+106,2025-12-09 20:40:24.116448+00,26,40,Planten decoratie,90,equal,,pending,,true,false,accommodation
+107,2025-12-09 20:41:20.182182+00,26,33,Teambuilding restaurant,120,equal,,pending,,true,false,food
+108,2025-12-09 20:43:26.682117+00,26,41,Trein abonnement werknemers,400,equal,,pending,,true,false,transport
+109,2025-12-09 21:38:55.876054+00,19,18,Pizza,20,equal,,pending,,false,false,food
+110,2025-12-12 13:50:23.034103+00,26,42,Treatment,90,equal,,pending,,true,false,activities
+111,2025-12-12 16:54:34.903293+00,27,43,App fee,2,equal,,pending,,true,true,Overig
+112,2025-12-12 16:55:46.560139+00,27,43,braadworsten en duvel,25,equal,,pending,,true,false,food
+113,2025-12-12 17:20:22.076161+00,27,44,treinticket,28,equal,,pending,,true,false,transport
+114,2025-12-12 17:22:12.737433+00,27,44,openluchtconcert,6,equal,,pending,,true,false,activities
+115,2025-12-15 11:25:04.296046+00,16,18,basketball match,20,equal,,pending,,true,false,activities
+116,2025-12-15 11:30:28.127997+00,16,33,Hotel Amsterdam,500,equal,,pending,,true,false,accommodation
+117,2025-12-15 13:05:20.575146+00,16,18,restaurant,350,equal,,pending,,true,false,food
+118,2025-12-15 13:15:17.831529+00,19,33,boodschappen amsterdam,300,equal,,pending,,true,false,shopping
+119,2025-12-15 13:16:26.70834+00,19,33,voetbalmatch Ajax,400,equal,,pending,,true,false,activities
+120,2025-12-15 16:22:33.792018+00,19,33,restaurant,350,equal,,pending,,true,false,food
+121,2025-12-15 16:27:53.016993+00,19,18,overnachting,50,equal,,pending,,false,false,accommodation
+122,2025-12-15 16:27:53.613375+00,19,18,overnachting,50,equal,,pending,,true,false,accommodation
+123,2025-12-15 16:29:40.931525+00,19,33,museum,300,equal,,pending,,true,false,activities
+124,2025-12-15 17:14:56.531458+00,19,33,restaurant,300,equal,,pending,,true,false,food
+125,2025-12-15 17:29:34.050978+00,19,18,pizza,60,equal,,pending,,true,false,food
+126,2025-12-15 17:30:29.761716+00,19,18,restaurant,71,equal,,pending,,true,false,food
+127,2025-12-15 17:31:15.391431+00,19,18,Pizza,20,equal,,pending,,false,false,food
+128,2025-12-15 17:48:45.873881+00,19,33,overnachting,500,equal,,pending,,true,false,accommodation
+129,2025-12-15 17:49:07.019197+00,19,33,museum,30,equal,,pending,,true,false,activities
+130,2025-12-15 17:55:22.441361+00,19,33,restaurant,350,equal,,pending,,true,false,food
+131,2025-12-15 17:59:25.817529+00,19,18,hamburger,5,equal,,pending,,false,false,food
+132,2025-12-15 18:03:30.225816+00,19,18,winkel,2,equal,,pending,,false,false,shopping
+133,2025-12-15 18:08:36.238568+00,19,18,pizza,30,equal,,pending,,true,false,food
+134,2025-12-15 18:09:32.033749+00,19,18,restaurant,71,equal,,pending,,false,false,food
+135,2025-12-15 18:14:13.902094+00,19,33,voetbalmatch Ajax,450,equal,,pending,,true,false,activities
+136,2025-12-15 18:24:55.452368+00,19,18,pizza,30,equal,,pending,,true,false,food
+137,2025-12-15 18:25:59.396508+00,19,18,restaurant,71,equal,,pending,,true,false,food
+138,2025-12-15 18:26:43.345496+00,19,18,naam pizza,20,equal,,pending,,false,false,food
+139,2025-12-15 18:29:37.730373+00,19,33,museum,200,equal,,pending,,true,false,activities
+140,2025-12-15 18:35:19.95221+00,19,18,pizza,30,equal,,pending,,true,false,food
+141,2025-12-15 18:36:10.864467+00,19,18,restaurant,71,equal,,pending,,true,false,food
+142,2025-12-15 18:36:56.655894+00,19,18,pizza,20,equal,,pending,,true,false,food
+143,2025-12-17 08:56:37.615414+00,28,45,App fee,2,equal,,pending,,true,true,Overig
+144,2025-12-17 09:31:43.802118+00,29,46,App fee,2,equal,,pending,,true,true,Overig
+145,2025-12-17 09:32:14.451307+00,29,46,Brood,8,equal,,pending,,false,false,accommodation
+146,2025-12-17 09:34:45.661133+00,29,47,Carrefour broodjes,15,equal,,pending,,true,false,food
+147,2025-12-17 09:37:19.615484+00,29,48,Benzine voor te rijden naar Carrefour,53.01,equal,,pending,,true,false,transport
+148,2025-12-17 16:49:40.004787+00,27,50,glühwein,15,equal,,pending,,true,false,food
+149,2025-12-17 16:58:17.522104+00,27,50,glühwein,15,equal,,pending,,true,false,food
+150,2025-12-17 16:59:38.375871+00,27,50,glühwein,15,equal,,pending,,true,false,food
+151,2025-12-17 17:00:50.412594+00,27,50,glühwein,15,equal,,pending,,true,false,food
+152,2025-12-17 17:02:17.510658+00,27,50,glühwein,15,equal,,pending,,true,false,food
+153,2025-12-17 17:05:22.502883+00,27,51,cocktails,48,equal,,pending,,true,false,food
+154,2025-12-17 17:05:41.099678+00,27,51,cocktails,48,equal,,pending,,true,false,food
+155,2025-12-17 17:13:35.608096+00,27,51,cocktails,48,equal,,pending,,true,false,food
+156,2025-12-17 17:20:01.458933+00,27,51,cocktails,48,equal,,pending,,true,false,food
+157,2025-12-17 17:20:47.163568+00,27,51,cocktails,48,equal,,pending,,true,false,food
+158,2025-12-17 17:37:21.030807+00,27,51,cocktails,48,equal,,pending,,true,false,food
+159,2025-12-17 17:39:48.243892+00,27,51,cocktails,48,equal,,pending,,true,false,food
+160,2025-12-17 17:40:28.513483+00,27,51,cocktails,48,equal,,pending,,true,false,food
+161,2025-12-17 17:46:12.510461+00,27,51,cocktails,48,equal,,pending,,true,false,food
+162,2025-12-17 17:50:21.013956+00,27,51,cocktails,48,equal,,pending,,true,false,food
+163,2025-12-17 18:23:22.487101+00,30,11,App fee,2,equal,,pending,,true,true,Overig
+164,2025-12-17 18:24:12.453195+00,30,11,Uitgaven colruyt,12.5,equal,,pending,,true,false,shopping
+165,2025-12-18 10:12:09.504227+00,16,18,naam pizza,20,equal,,pending,,true,false,food
+166,2025-12-18 11:41:10.447308+00,28,52,pitta,76,equal,,pending,,true,false,food
+167,2025-12-18 11:41:35.150321+00,28,52,vervoer skireis,980,equal,,pending,,true,false,transport
+168,2025-12-18 11:43:02.920372+00,28,52,gokken unibet  17/12,180,equal,,pending,,true,false,activities
+169,2025-12-18 11:43:03.703535+00,28,52,gokken unibet  17/12,180,equal,,pending,,false,false,activities
+170,2025-12-18 11:44:13.002232+00,28,49,drank 17/12,120,equal,,pending,,true,false,food
+171,2025-12-18 11:45:58.372583+00,28,32,hotel skireis val tho,5800,equal,,pending,,true,false,accommodation
+172,2025-12-18 11:47:14.747178+00,28,45,huren ski's,800,equal,,pending,,true,false,activities
+173,2025-12-18 11:50:08.34116+00,31,53,App fee,2,equal,,pending,,true,true,Overig
+174,2025-12-18 11:54:32.207512+00,31,54,boodschappen,110.78,equal,,pending,,true,false,shopping
+175,2025-12-18 11:54:56.717525+00,31,54,benzine audi,64,equal,,pending,,true,false,transport
+176,2025-12-18 11:56:11.105707+00,31,18,parking sint-pietersplein,9.5,equal,,pending,,true,false,transport
+177,2025-12-18 11:56:52.957722+00,31,20,ik betaal niets,100,equal,,pending,,true,false,shopping
+178,2025-12-18 11:57:57.368603+00,31,53,bestelling werk,1380,equal,,pending,,true,false,transport
